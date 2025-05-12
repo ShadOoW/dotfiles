@@ -47,3 +47,35 @@ SAVEHIST=10000
 setopt appendhistory
 
 eval "$(zoxide init zsh)"
+
+# Define widgets
+function cd_up() {
+  BUFFER="cd .."
+  zle accept-line
+}
+function cd_back() {
+  BUFFER="cd -"
+  zle accept-line
+}
+function go_home_dir() {
+  BUFFER="cd ~"
+  zle accept-line
+}
+function run_ls() {
+  BUFFER="ls"
+  zle accept-line
+}
+
+# Create zle widgets
+zle -N cd_up
+zle -N cd_back
+zle -N go_home_dir
+zle -N run_ls
+
+# Bind Page Up and Page Down
+bindkey "^[[5~" cd_up      # Page Up
+bindkey "^[[6~" cd_back    # Page Down
+bindkey -r '^[[H'
+bindkey "^[OH" go_home_dir # Home key
+bindkey -r '^[[F'
+bindkey "^[OF" run_ls      # End key
