@@ -83,7 +83,42 @@ cd ~/.dotfiles
 ./deploy.sh
 ```
 
+## SSH Key Setup for GitHub
+
+To generate an SSH key for GitHub authentication:
+
+1. Generate a new SSH key:
+```bash
+ssh-keygen -t ed25519 -C "shadoow.ma@gmail.com" -f ~/.ssh/id_github
+```
+
+2. Start the SSH agent:
+```bash
+eval "$(ssh-agent -s)"
+```
+
+3. Add the key to SSH agent:
+```bash
+ssh-add ~/.ssh/id_github
+```
+
+4. Copy the public key to add to GitHub:
+```bash
+cat ~/.ssh/id_github.pub
+```
+
+5. Add the public key to your GitHub account:
+   - Go to GitHub → Settings → SSH and GPG keys
+   - Click "New SSH key"
+   - Paste your public key and save
+
+6. Test your connection:
+```bash
+ssh -T git@github.com
+```
+
 The script will:
 - Back up existing configurations
 - Create symbolic links using stow
 - Handle system-level configurations with proper permissions
+- Run the authentification agent and manage the github ssh key
