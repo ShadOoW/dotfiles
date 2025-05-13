@@ -13,6 +13,8 @@ declare -A TARGET_DIRS=(
     ["browsers"]="$HOME/.config"
     ["udev"]="/etc/udev/rules.d"
     ["network"]="/etc/systemd/network"
+    ["iwd"]="/etc/iwd"
+    ["resolv"]="/etc"
 )
 
 # Logging function
