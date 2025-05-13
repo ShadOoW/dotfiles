@@ -5,7 +5,7 @@ set -euo pipefail
 # Script configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$SCRIPT_DIR/backup"
-PACKAGES_DIR="$SCRIPT_DIR/packages"
+STOW_DIR="$SCRIPT_DIR/stow"
 
 # Target directories for stowing
 declare -A TARGET_DIRS=(
@@ -77,7 +77,7 @@ backup_item() {
 # Function to process a package
 process_package() {
     local package="$1"
-    local package_dir="$PACKAGES_DIR/$package"
+    local package_dir="$STOW_DIR/$package"
 
     if [[ ! -d "$package_dir" ]]; then
         log "Package directory $package_dir does not exist, skipping"
@@ -120,9 +120,9 @@ process_package() {
     # Stow the package to its specific target directory
     log "Stowing package $package to $target_dir"
     if [[ "$use_sudo" == "true" ]]; then
-        sudo stow --dir="$PACKAGES_DIR" --target="$target_dir" --adopt --verbose=2 "$package"
+        sudo stow --dir="$STOW_DIR" --target="$target_dir" --adopt --verbose=2 "$package"
     else
-        stow --dir="$PACKAGES_DIR" --target="$target_dir" --adopt --verbose=2 "$package"
+        stow --dir="$STOW_DIR" --target="$target_dir" --adopt --verbose=2 "$package"
     fi
 }
 
@@ -131,7 +131,7 @@ main() {
     log "Starting dotfiles backup and stow process"
 
     # Process each package
-    for package in "$PACKAGES_DIR"/*; do
+    for package in "$STOW_DIR"/*; do
         if [[ -d "$package" ]]; then
             process_package "$(basename "$package")"
         fi

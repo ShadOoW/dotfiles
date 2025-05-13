@@ -2,6 +2,7 @@
 
 pacman_pkg=(
   base-devel
+  stow
   debugedit
   git
   fakeroot
