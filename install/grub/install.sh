@@ -13,7 +13,7 @@ REPO_URL="https://github.com/AdisonCavani/${REPO_NAME}.git"
 CLONE_DIR="/tmp/${REPO_NAME}"
 
 # Source global functions
-GLOBAL_SH="$(dirname "$(readlink -f "$0")")/../global.sh"
+GLOBAL_SH="$(dirname "$(readlink -f "$0")")/../../utils/global.sh"
 if ! source "$GLOBAL_SH"; then
     log "error" "Failed to source global.sh"
     exit 1

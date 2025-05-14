@@ -18,7 +18,8 @@ set $up k
 set $right l
 
 set $term kitty
-set $menu ~/.config/rofi/open-close.sh
+set $menu ~/.config/rofi/open-close.sh "rofi -show drun"
+set $clipboard ~/.config/rofi/open-close.sh "cliphist list | rofi -dmenu -display-columns 2 | cliphist decode | wl-copy"
 set $explorer thunar
 
 ### Output configuration
@@ -67,6 +68,7 @@ output * bg ./wallpaper.jpg fill
     bindsym $mod+q kill
     bindsym $mod+d exec $menu
     bindsym $mod+e exec $explorer
+    bindsym $mod+c exec $clipboard
 
     # Drag floating windows by holding down $mod and left mouse button.
     # Resize them with right mouse button + $mod.
@@ -226,5 +228,8 @@ bar {
         inactive_workspace #32323200 #32323200 #5c5c5c
     }
 }
+
+### Clipboard Persistence
+exec wl-paste --watch cliphist store &
 
 include /etc/sway/config.d/*
