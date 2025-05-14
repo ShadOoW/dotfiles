@@ -40,6 +40,11 @@ ip link show
      - `enp0s20f0u1` (or similar pattern)
    - The interface will appear when you enable tethering on your device
 
+### iwd
+- systemctl enable/start iwd.service
+restart after stow
+- systemctl restart iwd.service
+
 ### UDEV Rules (`udev`)
 - Target Directory: `/etc/udev/rules.d`
 - Contains custom udev rules for device management

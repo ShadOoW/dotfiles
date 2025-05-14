@@ -1,60 +1,87 @@
 #!/bin/bash
+set -e
 
+# Theme configuration
 THEME_NAME="arch-linux"
 GRUB_DIR="/boot/grub"
-REPO_NAME="distro-grub-themes"
-REPO_URL="https://github.com/AdisonCavani/${REPO_NAME}.git"
-
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-CLONE_DIR="$SCRIPT_DIR/$REPO_NAME"
+GRUB_CFG="/etc/default/grub"
 THEME_DEST="$GRUB_DIR/themes/$THEME_NAME"
 
-echo -e "${INFO} Using theme: ${MAGENTA}$THEME_NAME${RESET}"
-echo -e "${INFO} GRUB directory: ${MAGENTA}$GRUB_DIR${RESET}"
+# Repository information
+REPO_NAME="distro-grub-themes"
+REPO_URL="https://github.com/AdisonCavani/${REPO_NAME}.git"
+CLONE_DIR="/tmp/${REPO_NAME}"
 
+# Source global functions
+GLOBAL_SH="$(dirname "$(readlink -f "$0")")/../global.sh"
+if ! source "$GLOBAL_SH"; then
+    log "error" "Failed to source global.sh"
+    exit 1
+fi
+
+log "info" "Installing GRUB theme: ${C_ACCENT}$THEME_NAME${RESET}"
+
+# Clone theme repository
 if [ ! -d "$CLONE_DIR" ]; then
-  echo -e "${INFO} Cloning $REPO_URL..."
-  git clone "$REPO_URL" "$CLONE_DIR" || { echo "${ERROR} Failed to clone theme repo"; exit 1; }
+    log "info" "Cloning theme repository"
+    if ! git clone "$REPO_URL" "$CLONE_DIR"; then
+        log "error" "Failed to clone theme repository"
+        exit 1
+    fi
 else
-  echo -e "${INFO} Repo already exists. Skipping clone."
+    log "info" "Theme repository already exists"
 fi
 
+# Create GRUB theme directory
 if [ ! -d "$GRUB_DIR/themes" ]; then
-  echo -e "${INFO} Creating GRUB theme directory..."
-  sudo mkdir -p "$GRUB_DIR/themes"
+    log "info" "Creating GRUB theme directory"
+    if ! sudo mkdir -p "$GRUB_DIR/themes"; then
+        log "error" "Failed to create GRUB theme directory"
+        exit 1
+    fi
 fi
 
+# Install theme
 THEME_TAR="$CLONE_DIR/themes/$THEME_NAME.tar"
 if [ -f "$THEME_TAR" ]; then
-  echo -e "${INFO} Installing theme: $THEME_NAME..."
-  sudo mkdir -p "$THEME_DEST"
-  sudo tar -C "$GRUB_DIR/themes/$THEME_NAME" -xf "$THEME_TAR"
+    log "info" "Installing theme files"
+    if ! sudo mkdir -p "$THEME_DEST" || ! sudo tar -C "$THEME_DEST" -xf "$THEME_TAR"; then
+        log "error" "Failed to install theme files"
+        exit 1
+    fi
 else
-  echo "${ERROR} Theme archive $THEME_TAR not found."
-  exit 1
+    log "error" "Theme archive not found: $THEME_TAR"
+    exit 1
 fi
 
+# Cleanup repository
 if [ -d "$CLONE_DIR" ]; then
-    echo "${NOTE} Removing existing directory $CLONE_DIR"
+    log "info" "Cleaning up theme repository"
     rm -rf "$CLONE_DIR"
 fi
 
-GRUB_CFG="/etc/default/grub"
+# Configure GRUB
+log "info" "Configuring GRUB settings"
 
-echo -e "${INFO} Configuring GRUB settings..."
-
+# Remove existing settings
 sudo sed -i '/^GRUB_THEME=/d' "$GRUB_CFG"
-echo "GRUB_THEME=\"$GRUB_DIR/themes/$THEME_NAME/theme.txt\"" | sudo tee -a "$GRUB_CFG" > /dev/null
-
 sudo sed -i '/^GRUB_SAVEDEFAULT=/d' "$GRUB_CFG"
 sudo sed -i '/^GRUB_DEFAULT=/d' "$GRUB_CFG"
 sudo sed -i '/^GRUB_TIMEOUT=/d' "$GRUB_CFG"
 
-echo "GRUB_DEFAULT=saved" | sudo tee -a "$GRUB_CFG" > /dev/null
-echo "GRUB_SAVEDEFAULT=true" | sudo tee -a "$GRUB_CFG" > /dev/null
-echo "GRUB_TIMEOUT=15" | sudo tee -a "$GRUB_CFG" > /dev/null
+# Add new settings
+{
+    echo "GRUB_THEME=\"$GRUB_DIR/themes/$THEME_NAME/theme.txt\""
+    echo "GRUB_DEFAULT=saved"
+    echo "GRUB_SAVEDEFAULT=true"
+    echo "GRUB_TIMEOUT=15"
+} | sudo tee -a "$GRUB_CFG" >/dev/null
 
-echo -e "${INFO} Updating GRUB config..."
-sudo grub-mkconfig -o "$GRUB_DIR/grub.cfg"
+# Update GRUB configuration
+log "info" "Updating GRUB configuration"
+if ! sudo grub-mkconfig -o "$GRUB_DIR/grub.cfg"; then
+    log "error" "Failed to update GRUB configuration"
+    exit 1
+fi
 
-echo -e "${OK} GRUB theme \"$THEME_NAME\" installed and configured!"
+log "success" "GRUB theme installation completed"

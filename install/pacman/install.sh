@@ -1,60 +1,70 @@
 #!/bin/bash
+set -e
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$SCRIPT_DIR/.." || { echo "[ERROR] Failed to change directory"; exit 1; }
-
-# Source global helper functions
-if ! source "$(dirname "$(readlink -f "$0")")/global.sh"; then
-  echo "[ERROR] Failed to source global.sh"
-  exit 1
+# Source global functions
+GLOBAL_SH="$(dirname "$(readlink -f "$0")")/../global.sh"
+if ! source "$GLOBAL_SH"; then
+    log "error" "Failed to source global.sh"
+    exit 1
 fi
 
+# Pacman configuration file
 pacman_conf="/etc/pacman.conf"
+log "info" "Enhancing pacman configuration"
 
-echo -e "${NOTE} Enhancing ${MAGENTA}pacman.conf${RESET} with extra settings..."
-
-# 1. Uncomment useful pacman features
+# Features to enable in pacman.conf
 features=(
-  "Color"
-  "CheckSpace"
-  "VerbosePkgLists"
-  "ParallelDownloads"
+    "Color"
+    "CheckSpace"
+    "VerbosePkgLists"
+    "ParallelDownloads"
 )
 
+# Enable features
 for feature in "${features[@]}"; do
-  if grep -q "^#$feature" "$pacman_conf"; then
-    sudo sed -i "s/^#$feature/$feature/" "$pacman_conf"
-    echo -e "${INFO} Enabled: ${YELLOW}$feature${RESET}"
-  else
-    echo -e "${INFO} ${YELLOW}$feature${RESET} is already enabled"
-  fi
+    if grep -q "^#$feature" "$pacman_conf"; then
+        sudo sed -i "s/^#$feature/$feature/" "$pacman_conf"
+        log "info" "Enabled: ${C_ACCENT}$feature${RESET}"
+    else
+        log "info" "${C_ACCENT}$feature${RESET} is already enabled"
+    fi
 done
 
+# Add ILoveCandy
 if grep -q "^ParallelDownloads" "$pacman_conf" && ! grep -q "^ILoveCandy" "$pacman_conf"; then
-  sudo sed -i "/^ParallelDownloads/a ILoveCandy" "$pacman_conf"
-  echo -e "${INFO} Added ${MAGENTA}ILoveCandy${RESET} to pacman.conf"
+    sudo sed -i "/^ParallelDownloads/a ILoveCandy" "$pacman_conf"
+    log "info" "Added ${C_ACCENT}ILoveCandy${RESET} to pacman.conf"
 else
-  echo -e "${NOTE} ${YELLOW}ILoveCandy${RESET} already present. Skipping."
+    log "info" "${C_ACCENT}ILoveCandy${RESET} already present"
 fi
 
+# Enable multilib repository
 if grep -q "^\[multilib\]" "$pacman_conf"; then
-  echo -e "${INFO} ${MAGENTA}Multilib${RESET} is already enabled."
+    log "info" "${C_ACCENT}Multilib${RESET} repository is already enabled"
 else
-  echo -e "${INFO} Enabling ${MAGENTA}multilib${RESET} repository..."
-  sudo sed -i '/#\[multilib\]/,+1 s/^#//' "$pacman_conf"
+    log "info" "Enabling ${C_ACCENT}multilib${RESET} repository"
+    sudo sed -i '/#\[multilib\]/,+1 s/^#//' "$pacman_conf"
 fi
 
-if ! command -v reflector &> /dev/null; then
-  echo -e "${NOTE} Installing ${YELLOW}reflector${RESET}..."
-  sudo pacman -S --noconfirm reflector
+# Install and configure reflector
+if ! command -v reflector &>/dev/null; then
+    log "info" "Installing reflector"
+    install_package_pacman "reflector" || exit 1
 fi
 
-echo -e "${INFO} Optimizing mirrorlist using reflector..."
-sudo reflector --country "$(curl -s https://ipapi.co/country/)" \
-  --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+# Update mirrorlist
+log "info" "Optimizing mirrorlist using reflector"
+country=$(curl -s https://ipapi.co/country/)
+if ! sudo reflector --country "$country" --protocol https --sort rate --save /etc/pacman.d/mirrorlist; then
+    log "error" "Failed to update mirrorlist"
+    exit 1
+fi
 
-# 5. Sync updated pacman repositories
-echo -e "\n${INFO} Synchronizing Pacman repositories..."
-sudo pacman -Sy
+# Sync repositories
+log "info" "Synchronizing Pacman repositories"
+if ! sudo pacman -Sy; then
+    log "error" "Failed to sync repositories"
+    exit 1
+fi
 
-echo -e "\n${OK} Pacman configuration and optimization complete.\n"
+log "success" "Pacman configuration and optimization completed"

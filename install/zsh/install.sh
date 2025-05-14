@@ -1,46 +1,69 @@
 #!/bin/bash
+set -e
 
-pacman_pkgs=(
-  lsd
-  fzf
-  zsh
-  zsh-completions
-  bat
-  zoxide
-  findutils
+# ZSH and related packages
+pacman_packages=(
+    lsd
+    fzf
+    zsh
+    zsh-completions
+    bat
+    zoxide
+    findutils
 )
 
+# Source global functions
 GLOBAL_SH="$(dirname "$(readlink -f "$0")")/../global.sh"
 if ! source "$GLOBAL_SH"; then
-  echo "Failed to source gloabl.sh"
-  exit 1
+    log "error" "Failed to source global.sh"
+    exit 1
 fi
 
-printf "\n%s - Installing ${SKY_BLUE}zsh packages${RESET} .... \n" "${NOTE}"
-install_package_pacman_all "${pacman_pkgs[@]}"
+# Install ZSH packages
+log "info" "Installing ZSH and related packages"
+install_packages_pacman "${pacman_packages[@]}" || exit 1
 
-if command -v zsh >/dev/null; then
-  printf "${NOTE} Installing ${SKY_BLUE}Oh My Zsh and plugins${RESET} ...\n"
-
-  if [ ! -d "$HOME/.config/oh-my-zsh" ]; then  
-    ZSH="$HOME/.config/oh-my-zsh" sh -c "$(curl -fsSL https://install.ohmyz.sh)" "" --unattended --keep-zshrc
-  else
-    echo "${INFO} Directory .config/oh-my-zsh already exists. Skipping re-installation." >&2
-  fi
-  
-  if [ ! -d "$HOME/.config/oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
-    git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM:-$HOME/.config/oh-my-zsh/custom}/plugins/zsh-autosuggestions"
-  else
-    echo "${INFO} Directory zsh-autosuggestions already exists. Cloning Skipped." >&2
-  fi
-
-  if [ ! -d "$HOME/.config/oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZSH_CUSTOM:-$HOME/.config/oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
-  else
-    echo "${INFO} Directory zsh-syntax-highlighting already exists. Cloning Skipped." >&2
-  fi
-
-  echo "${INFO} This script simply installs, it doesn't modify nor backup .zshrc and it doesn't change the default shell." >&2
+# Check if zsh is installed
+if ! command -v zsh >/dev/null; then
+    log "error" "ZSH installation failed"
+    exit 1
 fi
 
-printf "\n%.0s" {1..1}
+# Setup Oh My Zsh
+log "info" "Setting up Oh My Zsh and plugins"
+
+# Install Oh My Zsh
+if [ ! -d "$HOME/.config/oh-my-zsh" ]; then
+    log "info" "Installing Oh My Zsh"
+    ZSH="$HOME/.config/oh-my-zsh" sh -c "$(curl -fsSL https://install.ohmyz.sh)" "" --unattended --keep-zshrc || {
+        log "error" "Failed to install Oh My Zsh"
+        exit 1
+    }
+else
+    log "info" "Oh My Zsh is already installed"
+fi
+
+# Install autosuggestions plugin
+if [ ! -d "$HOME/.config/oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
+    log "info" "Installing zsh-autosuggestions plugin"
+    git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM:-$HOME/.config/oh-my-zsh/custom}/plugins/zsh-autosuggestions" || {
+        log "error" "Failed to install zsh-autosuggestions"
+        exit 1
+    }
+else
+    log "info" "zsh-autosuggestions plugin is already installed"
+fi
+
+# Install syntax highlighting plugin
+if [ ! -d "$HOME/.config/oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
+    log "info" "Installing zsh-syntax-highlighting plugin"
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZSH_CUSTOM:-$HOME/.config/oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" || {
+        log "error" "Failed to install zsh-syntax-highlighting"
+        exit 1
+    }
+else
+    log "info" "zsh-syntax-highlighting plugin is already installed"
+fi
+
+log "info" "Note: This script only installs ZSH and plugins. It does not modify .zshrc or change the default shell"
+log "success" "ZSH setup completed successfully"

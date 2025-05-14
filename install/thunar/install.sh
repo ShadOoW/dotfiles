@@ -1,24 +1,26 @@
 #!/bin/bash
-# 💫 https://github.com/JaKooLit 💫 #
-# Thunar #
+set -e
 
-pacman_pkgs=(
-  thunar
-  thunar-volman
-  tumbler
-  ffmpegthumbnailer
-  thunar-archive-plugin
-  xarchiver
+# Thunar and related packages
+pacman_packages=(
+    thunar
+    thunar-volman
+    tumbler
+    ffmpegthumbnailer
+    thunar-archive-plugin
+    xarchiver
+    gvfs
 )
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PARENT_DIR="$SCRIPT_DIR/.."
-
+# Source global functions
 GLOBAL_SH="$(dirname "$(readlink -f "$0")")/../global.sh"
 if ! source "$GLOBAL_SH"; then
-  echo "Failed to source gloabl.sh"
-  exit 1
+    log "error" "Failed to source global.sh"
+    exit 1
 fi
 
-echo -e "${INFO} Installing ${SKY_BLUE}Thunar${RESET} Packages..."
-install_package_pacman_all "${pacman_pkgs[@]}"
+# Install Thunar packages
+log "info" "Installing Thunar and related packages"
+install_packages_pacman "${pacman_packages[@]}" || exit 1
+
+log "success" "Thunar installation completed"

@@ -15,6 +15,10 @@ declare -A TARGET_DIRS=(
     ["network"]="/etc/systemd/network"
     ["iwd"]="/etc/iwd"
     ["resolv"]="/etc"
+    ["sway"]="$HOME/.config/sway"
+    ["rofi"]="$HOME/.config/rofi"
+    ["mpd"]="$HOME/.config/mpd"
+    ["kitty"]="$HOME/.config/kitty"
 )
 
 # Logging function
