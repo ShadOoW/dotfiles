@@ -24,17 +24,19 @@ fi
 # Target directories for stowing
 declare -A TARGET_DIRS=(
     ["zsh"]="$HOME"
-    # ["browsers"]="$HOME/.config"
-    # ["udev"]="/etc/udev/rules.d"
-    # ["network"]="/etc/systemd/network"
-    # ["iwd"]="/etc/iwd"
-    # ["resolv"]="/etc"
-    # ["sway"]="$HOME/.config/sway"
-    # ["rofi"]="$HOME/.config/rofi"
-    # ["mpd"]="$HOME/.config/mpd"
-    # ["ncmpcpp"]="$HOME/.config/ncmpcpp"
-    # ["kitty"]="$HOME/.config/kitty"
+    ["browsers"]="$HOME/.config"
+    ["git"]="$HOME/.config/git"
+    ["udev"]="/etc/udev/rules.d"
+    ["network"]="/etc/systemd/network"
+    ["iwd"]="/etc/iwd"
+    ["resolv"]="/etc"
+    ["sway"]="$HOME/.config/sway"
+    ["rofi"]="$HOME/.config/rofi"
+    ["mpd"]="$HOME/.config/mpd"
+    ["ncmpcpp"]="$HOME/.config/ncmpcpp"
+    ["kitty"]="$HOME/.config/kitty"
     ["rtorrent"]="/home/shad"
+    ["gtk-3.0"]="$HOME/.config/gtk-3.0"
 )
 
 # Command-line arguments

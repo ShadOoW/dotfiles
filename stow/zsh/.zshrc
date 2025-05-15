@@ -78,3 +78,6 @@ bindkey -r '^[[H'
 bindkey "^[OH" go_home_dir # Home key
 bindkey -r '^[[F'
 bindkey "^[OF" run_ls      # End key
+
+alias music='tmux new-session -s $$ "tmux source-file ~/.config/ncmpcpp/tsession"'
+_trap_exit() { tmux kill-session -t $$; }

@@ -6,6 +6,10 @@ wayland_packages=(
     # Rofi
     rofi-wayland
 
+    # Notifications
+    fyi
+    dunst
+
     # Clipboard
     wl-clipboard
     cliphist

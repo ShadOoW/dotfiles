@@ -4,7 +4,7 @@
 if [ $# -gt 0 ]; then
     requested_cmd="$*"
 else
-    requested_cmd="rofi -show drun"
+    requested_cmd="rofi -show run"
 fi
 
 # Get the full line of the running Rofi command (excluding this script)

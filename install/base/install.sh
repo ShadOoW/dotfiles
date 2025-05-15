@@ -4,6 +4,7 @@ set -e
 # Base development packages
 pacman_pkg=(
     base-devel
+    findutils
     stow
     btop
     iwd
@@ -25,12 +26,12 @@ blue_pkg=(
 # Font packages
 pacman_fonts=(
     adobe-source-code-pro-fonts 
+    adobe-source-sans-fonts
     noto-fonts-emoji
     otf-font-awesome 
     ttf-droid 
     ttf-fira-code
     ttf-fantasque-nerd
-    ttf-jetbrains-mono 
     ttf-jetbrains-mono-nerd
     ttf-roboto-mono-nerd
     ttf-firacode-nerd

@@ -3,13 +3,10 @@ set -e
 
 # GTK themes and icons
 aur_packages=(
-    juno-theme-git
     tela-circle-icon-theme-all-git
     layan-gtk-theme-git
     whitesur-cursor-theme-git
     whitesur-icon-theme-git
-    sweet-theme-git
-    sweet-cursors-hyprcursor-git
     candy-icons-git
     reversal-icon-theme-git
     nordzy-icon-theme

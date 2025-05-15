@@ -1,0 +1,23 @@
+[init]
+	defaultBranch = main
+[user]
+	email = shadoow.ma@gmail.com
+	name = Younes El Alami
+[github]
+	user = ShadOoW
+[alias]
+	l  = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	rb = rebase origin/master --autostash
+	st  = status
+	sts = status --short
+	fa = fetch --all --prune --tags
+[color]
+	ui = yes
+[color "status"]
+	added = magenta bold
+    changed = green bold
+    untracked = yellow bold
+[core]
+	editor = nano
+[push]
+	autoSetupRemote = true

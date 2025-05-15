@@ -6,6 +6,8 @@
 
 ### Mouse
 focus_follows_mouse no
+gaps inner 5
+
 
 ### Variables
 #
@@ -19,6 +21,7 @@ set $right l
 
 set $term kitty
 set $menu ~/.config/rofi/open-close.sh "rofi -show drun"
+set $window ~/.config/rofi/open-close.sh "rofi -show filebrowser"
 set $clipboard ~/.config/rofi/open-close.sh "cliphist list | rofi -dmenu -display-columns 2 | cliphist decode | wl-copy"
 set $explorer thunar
 
@@ -67,7 +70,8 @@ output * bg ./wallpaper.jpg fill
     bindsym $mod+Return exec $term
     bindsym $mod+q kill
     bindsym $mod+d exec $menu
-    bindsym $mod+e exec $explorer
+    bindsym $mod+a exec $window
+    bindsym $mod+Shift+a exec $explorer
     bindsym $mod+c exec $clipboard
 
     # Drag floating windows by holding down $mod and left mouse button.
@@ -77,11 +81,14 @@ output * bg ./wallpaper.jpg fill
     # mouse button for dragging.
     floating_modifier $mod normal
 
+    # Pin window in foreground of every workspace
+    bindsym $mod+Shift+i sticky toggle
+
     # Reload the configuration file
     bindsym $mod+Shift+c reload
 
     # Exit sway (logs you out of your Wayland session)
-    bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
+    # bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
 #
 # Moving around:
 #
@@ -142,8 +149,8 @@ output * bg ./wallpaper.jpg fill
     # You can "split" the current object of your focus with
     # $mod+b or $mod+v, for horizontal and vertical splits
     # respectively.
-    bindsym $mod+b splith
-    bindsym $mod+v splitv
+    bindsym $mod+b split h
+    bindsym $mod+v split v
 
     # Switch the current container between different layout styles
     bindsym $mod+s layout stacking
@@ -158,9 +165,6 @@ output * bg ./wallpaper.jpg fill
 
     # Swap focus between the tiling area and the floating area
     bindsym $mod+space focus mode_toggle
-
-    # Move focus to the parent container
-    bindsym $mod+a focus parent
 #
 # Scratchpad:
 #
@@ -229,7 +233,16 @@ bar {
     }
 }
 
+# Set font (affects titlebars and waybar if using Swaybar)
+font pango:JetBrains Mono Nerd Font 10
+
 ### Clipboard Persistence
 exec wl-paste --watch cliphist store &
+
+### Rules
+for_window [window_role="pop-up"]          floating enable
+for_window [window_role="task_dialog"]     floating enable
+
+assign [class="firefox"] → 2
 
 include /etc/sway/config.d/*
