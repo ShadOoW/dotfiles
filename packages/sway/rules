@@ -1,0 +1,25 @@
+### Rules
+for_window {
+  [shell="xwayland"] title_format "%title [XWayland]"
+  [app_id="Vivaldi-stable"] inhibit_idle fullscreen
+  [app_id="firefox"] inhibit_idle fullscreen
+  [app_id="mpv"] fullscreen
+  [class="feh"] fullscreen
+  [app_id="ulauncher"] floating enable, border none
+  [window_role="pop-up"] floating enable
+  [window_role="bubble"] floating enable
+  [window_role="dialog"] floating enable
+  [window_type="dialog"] floating enable
+  [window_role="pop-up"] floating enable
+  [window_role="task_dialog"] floating enable
+  
+  # terminal
+  [app_id=$term_id] move to scratchpad, scratchpad show, $t_pos
+  [app_id=$other_term_id] move to scratchpad, scratchpad show, t_pos
+
+  # Thunar file operation progress window
+  [app_id="thunar" title="File Operation Progress"] floating enable, border pixel 1
+
+  # Intellij
+  [class="com-intellij-updater-Runner" instance="com-intellij-updater-Runner"] floating enable, border pixel
+}

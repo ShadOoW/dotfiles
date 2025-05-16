@@ -1,0 +1,5 @@
+### Idle configuration
+exec swayidle
+
+### Clipboard Persistence
+exec wl-paste --watch cliphist store &
