@@ -24,7 +24,7 @@ fi
 # Target directories for stowing
 declare -A TARGET_DIRS=(
     ["zsh", "rtorrent"]="$HOME"
-    ["browsers", "mimeapps"]="$HOME/.config"
+    ["browsers", "mimeapps", "user-dirs"]="$HOME/.config"
     ["udev"]="/etc/udev/rules.d"
     ["network"]="/etc/systemd/network"
     ["iwd"]="/etc/iwd"

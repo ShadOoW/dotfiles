@@ -222,6 +222,7 @@ font pango:JetBrains Mono Nerd Font 10
 # Remove window titlebars completely
 default_border none
 default_floating_border none
+hide_edge_borders --i3 smart
 
 ### Clipboard Persistence
 exec wl-paste --watch cliphist store &
