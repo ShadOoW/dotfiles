@@ -1,6 +1,5 @@
 include ./keybindings
 include ./exec
 include ./rules
-include ./output
 include ./interface
 include /etc/sway/config.d/*
