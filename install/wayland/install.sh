@@ -5,6 +5,8 @@ set -e
 wayland_packages=(
     waybar
     swaync
+    swayidle
+    swaylock
     wttrbar
     wlsunset
     grim

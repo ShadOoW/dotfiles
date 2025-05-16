@@ -9,7 +9,7 @@
 # MPD connection
 mpd_host = "127.0.0.1"
 mpd_port = 6600
-mpd_music_dir = "/mnt/share/playlists"
+mpd_music_dir = "/mnt/share/music"
 
 # Start screen
 startup_screen = "browser"

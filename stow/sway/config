@@ -15,14 +15,9 @@ bar {
 #
 # Logo key. Use Mod1 for Alt.
 set $mod Mod4
-# Home row direction keys, like vim
-set $left h
-set $down j
-set $up k
-set $right l
 
 set $term kitty
-set $menu ~/.config/rofi/open-close.sh "rofi -show drun"
+set $menu ~/.config/rofi/open-close.sh "rofi -show run"
 set $window ~/.config/rofi/open-close.sh "rofi -show filebrowser"
 set $clipboard ~/.config/rofi/open-close.sh "cliphist list | rofi -dmenu -display-columns 2 | cliphist decode | wl-copy"
 set $explorer thunar
@@ -40,16 +35,7 @@ output * bg ./wallpaper.jpg fill
 
 ### Idle configuration
 #
-# Example configuration:
-#
-# exec swayidle -w \
-#          timeout 300 'swaylock -f -c 000000' \
-#          timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
-#          before-sleep 'swaylock -f -c 000000'
-#
-# This will lock your screen after 300 seconds of inactivity, then turn off
-# your displays after another 300 seconds, and turn your screens back on when
-# resumed. It will also lock your screen before your computer goes to sleep.
+exec swayidle
 
 ### Input configuration
 #
@@ -97,11 +83,6 @@ output * bg ./wallpaper.jpg fill
     # Focus next
     bindsym $mod+grave focus next
 
-    # Move your focus around
-    bindsym $mod+$left focus left
-    bindsym $mod+$down focus down
-    bindsym $mod+$up focus up
-    bindsym $mod+$right focus right
     # Or use $mod+[up|down|left|right]
     bindsym $mod+Left focus left
     bindsym $mod+Down focus down
@@ -109,11 +90,6 @@ output * bg ./wallpaper.jpg fill
     bindsym $mod+Right focus right
 
     # Move the focused window with the same, but add Shift
-    bindsym $mod+Shift+$left move left
-    bindsym $mod+Shift+$down move down
-    bindsym $mod+Shift+$up move up
-    bindsym $mod+Shift+$right move right
-    # Ditto, with arrow keys
     bindsym $mod+Shift+Left move left
     bindsym $mod+Shift+Down move down
     bindsym $mod+Shift+Up move up
@@ -187,12 +163,6 @@ mode "resize" {
     # right will grow the containers width
     # up will shrink the containers height
     # down will grow the containers height
-    bindsym $left resize shrink width 10px
-    bindsym $down resize grow height 10px
-    bindsym $up resize shrink height 10px
-    bindsym $right resize grow width 10px
-
-    # Ditto, with arrow keys
     bindsym Left resize shrink width 10px
     bindsym Down resize grow height 10px
     bindsym Up resize shrink height 10px
@@ -211,11 +181,22 @@ bindsym $mod+r mode "resize"
     bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume \@DEFAULT_SINK@ -5%
     bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume \@DEFAULT_SINK@ +5%
     bindsym --locked XF86AudioMicMute exec pactl set-source-mute \@DEFAULT_SOURCE@ toggle
+    # Media control keys
+    bindsym --locked XF86AudioPrev exec mpc prev
+    bindsym --locked XF86AudioNext exec mpc next
+    bindsym --locked XF86AudioPlay exec mpc toggle
+    # Custom FN key bindings for media control
+    bindsym --locked F11 exec mpc prev
+    bindsym --locked F12 exec mpc next
+    bindsym --locked F10 exec mpc toggle
     # Special keys to adjust brightness via brightnessctl
     bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
     bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
     # Special key to take a screenshot with grim
     bindsym Print exec grim
+    
+    # Lock screen
+    bindsym $mod+l exec swaylock
 
 #
 # Status Bar:
@@ -246,8 +227,30 @@ default_floating_border none
 exec wl-paste --watch cliphist store &
 
 ### Rules
-for_window [window_role="pop-up"]          floating enable
-for_window [window_role="task_dialog"]     floating enable
+for_window {
+  [shell="xwayland"] title_format "%title [XWayland]"
+  [app_id="Vivaldi-stable"] inhibit_idle fullscreen
+  [app_id="firefox"] inhibit_idle fullscreen
+  [app_id="mpv"] fullscreen
+  [class="feh"] fullscreen
+  [app_id="ulauncher"] floating enable, border none
+  [window_role="pop-up"] floating enable
+  [window_role="bubble"] floating enable
+  [window_role="dialog"] floating enable
+  [window_type="dialog"] floating enable
+  [window_role="pop-up"] floating enable
+  [window_role="task_dialog"] floating enable
+  
+  # terminal
+  [app_id=$term_id] move to scratchpad, scratchpad show, $t_pos
+  [app_id=$other_term_id] move to scratchpad, scratchpad show, t_pos
+
+  # Thunar file operation progress window
+  [app_id="thunar" title="File Operation Progress"] floating enable, border pixel 1
+
+  # Intellij
+  [class="com-intellij-updater-Runner" instance="com-intellij-updater-Runner"] floating enable, border pixel
+}
 
 assign [class="firefox"] → 2
 

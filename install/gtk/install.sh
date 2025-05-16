@@ -3,17 +3,28 @@ set -e
 
 # GTK themes and icons
 aur_packages=(
-    tela-circle-icon-theme-all-git
+    # Tokyonight GTK theme
+    gtk-engine-murrine
+    sassc
+    gnome-themes-extra
+    tokyonight-gtk-theme-git
+
+    # Other GTK themes
     layan-gtk-theme-git
-    whitesur-cursor-theme-git
+
+    # Icons
+    tela-circle-icon-theme-all-git
+    papirus-icon-theme-git
     whitesur-icon-theme-git
     candy-icons-git
     reversal-icon-theme-git
     nordzy-icon-theme
+
+    # Cursors
+    whitesur-cursor-theme-git
     bibata-cursor-git
     oreo-cursors-git
     volantes-cursors-git
-    papirus-icon-theme-git
 )
 
 # Source global functions

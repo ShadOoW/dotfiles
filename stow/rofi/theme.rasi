@@ -17,8 +17,8 @@ configuration {
     background-alt:              #191919b3;
     foreground:                  #c5c5c5;
     foreground-alt:              #171717;
-    selected:                    #09b86f;
-    active:                      #09b86f;
+    selected:                    #7dcfff;
+    active:                      #7dcfff;
     urgent:                      #8E3596;
 }
 
@@ -62,9 +62,9 @@ listbox {
 inputbar {
     enabled:                     true;
     spacing:                     0px;
-    padding:                     10px 10px 155px;
+    padding:                     200px 5px 5px;
     background-color:            transparent;
-    background-image:            url("~/.config/rofi/header.jpg", width);
+    background-image:            url("~/.config/rofi/header.png", width);
     text-color:                  @foreground;
     orientation:                 horizontal;
     children:                    [ "textbox-prompt-colon", "entry" ];

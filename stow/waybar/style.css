@@ -1,5 +1,5 @@
 @import "./colors.css";
-@define-color active @color16;
+@define-color active @color17;
 
 * {
   font-size: 16px;

@@ -39,6 +39,7 @@ declare -A TARGET_DIRS=(
     ["gtk3"]="$HOME/.config/gtk-3.0"
     ["gtk4"]="$HOME/.config/gtk-4.0"
     ["mako"]="$HOME/.config/mako"
+    ["swayidle"]="$HOME/.config/swayidle"
 )
 
 # Command-line arguments
