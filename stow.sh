@@ -5,7 +5,7 @@ set -euo pipefail
 # Script configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$SCRIPT_DIR/backup"
-STOW_DIR="$SCRIPT_DIR/stow"
+STOW_DIR="$SCRIPT_DIR/packages"
 UTILS_DIR="$SCRIPT_DIR/utils"
 
 # Source global functions
@@ -40,6 +40,7 @@ declare -A TARGET_DIRS=(
     ["gtk4"]="$HOME/.config/gtk-4.0"
     ["mako"]="$HOME/.config/mako"
     ["swayidle"]="$HOME/.config/swayidle"
+    ["mpv"]="$HOME/.config/mpv"
 )
 
 # Command-line arguments
@@ -150,6 +151,83 @@ backup_item() {
     fi
 }
 
+# Function to unstow all packages
+unstow_all_packages() {
+    log "info" "Unstowing all packages before stowing again"
+    
+    # Get list of packages (directories in STOW_DIR)
+    local packages=()
+    while IFS= read -r -d '' pkg; do
+        packages+=($(basename "$pkg"))
+    done < <(find "$STOW_DIR" -mindepth 1 -maxdepth 1 -type d -print0)
+    
+    # Process each package
+    for package in "${packages[@]}"; do
+        # Determine target directory based on package name
+        local target_dirs=""
+        local use_sudo="false"
+        for prefix in "${!TARGET_DIRS[@]}"; do
+            # Check if package matches any prefix in the comma-separated list
+            IFS=',' read -ra prefixes <<< "$prefix"
+            for p in "${prefixes[@]}"; do
+                if [[ "$package" == "$(echo "$p" | xargs)" ]]; then
+                    target_dirs="${TARGET_DIRS[$prefix]}"
+                    break 2
+                fi
+            done
+        done
+
+        if [[ -z "$target_dirs" ]]; then
+            continue
+        fi
+
+        local package_dir="$STOW_DIR/$package"
+
+        # Process each target directory
+        for target_dir in $target_dirs; do
+            # Ensure $HOME is expanded to absolute path
+            target_dir="${target_dir/#\$HOME/$HOME}"
+
+            # Check if this is a system directory that requires sudo
+            if [[ "$target_dir" == "/etc"* ]]; then
+                use_sudo="true"
+                check_sudo
+                request_sudo
+            fi
+
+            # Find all files in the package
+            while IFS= read -r -d '' file; do
+                # Get the relative path from the package directory
+                local rel_path="${file#$package_dir/}"
+                local target_file="$target_dir/$rel_path"
+                
+                # Check if the target is a symlink pointing to our stow dir
+                if [[ -L "$target_file" ]]; then
+                    local link_target=$(readlink "$target_file")
+                    if [[ "$link_target" == "$file" || "$link_target" == "$STOW_DIR"* ]]; then
+                        log "info" "Removing symlink: $target_file"
+                        if [[ "$use_sudo" == "true" ]]; then
+                            sudo rm "$target_file"
+                        else
+                            rm "$target_file"
+                        fi
+                    fi
+                fi
+            done < <(find "$package_dir" -type f -print0)
+
+            # Clean up empty directories
+            if [[ -d "$target_dir" ]]; then
+                log "info" "Cleaning up empty directories in $target_dir"
+                if [[ "$use_sudo" == "true" ]]; then
+                    sudo find "$target_dir" -type d -empty -delete 2>/dev/null || true
+                else
+                    find "$target_dir" -type d -empty -delete 2>/dev/null || true
+                fi
+            fi
+        done
+    done
+}
+
 # Function to process a package
 process_package() {
     local package="$1"
@@ -205,23 +283,44 @@ process_package() {
             fi
         fi
 
-        # Process each file/directory in the package
-        while IFS= read -r -d '' item; do
-            local relative_path="${item#$package_dir/}"
-            local target_path="$target_dir/$relative_path"
+        # Find all files (not directories) in the package, including in nested folders
+        while IFS= read -r -d '' file; do
+            # Get the relative path from the package directory
+            local rel_path="${file#$package_dir/}"
+            local target_file="$target_dir/$rel_path"
+            local target_dir_path="$(dirname "$target_file")"
 
-            if [[ -e "$target_path" ]]; then
-                backup_item "$target_path" "$target_path" "$use_sudo"
+            # Create the target directory if it doesn't exist
+            if [[ ! -d "$target_dir_path" ]]; then
+                log "info" "Creating directory: $target_dir_path"
+                if [[ "$use_sudo" == "true" ]]; then
+                    sudo mkdir -p "$target_dir_path"
+                else
+                    mkdir -p "$target_dir_path"
+                fi
             fi
-        done < <(find "$package_dir" -mindepth 1 -print0)
 
-        # Stow the package to its specific target directory
-        log "info" "Stowing package $package to $target_dir (absolute path)"
-        if [[ "$use_sudo" == "true" ]]; then
-            sudo stow --dir="$STOW_DIR" --target="$target_dir" --adopt --verbose=2 --no-folding "$package"
-        else
-            stow --dir="$STOW_DIR" --target="$target_dir" --adopt --verbose=2 --no-folding "$package"
-        fi
+            # Backup existing file if it exists and is not a symlink
+            if [[ -e "$target_file" && ! -L "$target_file" ]]; then
+                backup_item "$target_file" "$target_file" "$use_sudo"
+            # Remove existing symlink if it exists
+            elif [[ -L "$target_file" ]]; then
+                log "info" "Removing existing symlink: $target_file"
+                if [[ "$use_sudo" == "true" ]]; then
+                    sudo rm "$target_file"
+                else
+                    rm "$target_file"
+                fi
+            fi
+
+            # Create symlink
+            log "info" "Creating symlink: $file -> $target_file"
+            if [[ "$use_sudo" == "true" ]]; then
+                sudo ln -sf "$file" "$target_file"
+            else
+                ln -sf "$file" "$target_file"
+            fi
+        done < <(find "$package_dir" -type f -print0)
     done
 }
 
@@ -293,6 +392,9 @@ main() {
     else
         log "info" "Username is already 'shad', skipping replacement"
     fi
+
+    # First unstow all packages
+    unstow_all_packages
 
     # Process each package
     for package in "$STOW_DIR"/*; do
