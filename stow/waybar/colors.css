@@ -1,0 +1,87 @@
+/* Base colors from the provided palette */
+@define-color foreground #c5c5c5;
+@define-color background #191919;
+@define-color cursor #c5c5c5;
+
+/* Base 16 colors that style.css expects */
+@define-color color0 #191919;   /* black */
+@define-color color1 #582c1e;   /* darkred */
+@define-color color2 #4e4843;   /* brown2 */
+@define-color color3 #634723;   /* amber */
+@define-color color4 #50473c;   /* darkbrown */
+@define-color color5 #763b28;   /* rust */
+@define-color color6 #855f2f;   /* gold */
+@define-color color7 #8c8c8c;   /* lightgray */
+@define-color color8 #525252;   /* gray */
+@define-color color9 #582c1e;   /* darkred - brighter */
+@define-color color10 #59554c;  /* taupe */
+@define-color color11 #796d62;  /* sandstone */
+@define-color color12 #6b5f51;  /* mocha */
+@define-color color13 #763b28;  /* rust - brighter */
+@define-color color14 #855f2f;  /* gold - brighter */
+@define-color color15 #c5c5c5;  /* white */
+@define-color color16 #09b86f;  /* green */
+
+/* Original earthy/warm palette definitions */
+@define-color black #191919;
+@define-color darkgray #3a3632;
+@define-color darkred #582c1e;
+@define-color brown #423f39;
+@define-color darkbrown #50473c;
+@define-color amber #634723;
+@define-color stone #5a5149;
+@define-color lightgray #8c8c8c;
+@define-color gray #525252;
+@define-color brown2 #4e4843;
+@define-color rust #763b28;
+@define-color taupe #59554c;
+@define-color mocha #6b5f51;
+@define-color gold #855f2f;
+@define-color sandstone #796d62;
+@define-color white #c5c5c5;
+
+/* Waybar styling variables */
+@define-color base @black;
+@define-color mantle @darkgray;
+@define-color text @white;
+@define-color subtext @lightgray;
+
+/* Status indicators */
+@define-color warning @gold;
+@define-color critical @color16;
+@define-color success @amber;
+@define-color info @mocha;
+
+/* Active/inactive states */
+@define-color active @color16;
+@define-color inactive @darkbrown;
+@define-color hover @brown;
+@define-color selected @amber;
+
+/* Module-specific colors */
+@define-color network @gold;
+@define-color battery-full @amber;
+@define-color battery-warning @gold;
+@define-color battery-critical @color16;
+@define-color volume-high @sandstone;
+@define-color volume-medium @mocha;
+@define-color volume-low @darkbrown;
+@define-color temperature-cool @stone;
+@define-color temperature-normal @darkbrown;
+@define-color temperature-warm @amber;
+@define-color temperature-hot @color16;
+@define-color cpu @mocha;
+@define-color memory @sandstone;
+@define-color disk @amber;
+@define-color clock @white;
+@define-color workspaces-active @color16;
+@define-color workspaces-urgent @gold;
+@define-color workspaces-text @white;
+@define-color border @darkgray;
+@define-color separator @brown;
+
+/* Opacity variables */
+@define-color background-opaque rgba(25, 25, 25, 1.0);
+@define-color background-transparent rgba(25, 25, 25, 1.0);
+@define-color overlay rgba(25, 25, 25, 0.4);
+@define-color tooltip-background rgba(58, 54, 50, 1.0);

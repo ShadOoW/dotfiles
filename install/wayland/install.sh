@@ -3,12 +3,23 @@ set -e
 
 # Wayland packages
 wayland_packages=(
+    waybar
+    swaync
+    wttrbar
+    wlsunset
+    grim
+    xdg-desktop-portal-wlr
+    pacman-contrib
+    aurutils
+    slurp
+    jq
+
     # Rofi
     rofi-wayland
 
     # Notifications
     fyi
-    dunst
+    mako
 
     # Clipboard
     wl-clipboard

@@ -23,20 +23,6 @@ blue_pkg=(
     blueman
 )
 
-# Font packages
-pacman_fonts=(
-    adobe-source-code-pro-fonts 
-    adobe-source-sans-fonts
-    noto-fonts-emoji
-    otf-font-awesome 
-    ttf-droid 
-    ttf-fira-code
-    ttf-fantasque-nerd
-    ttf-jetbrains-mono-nerd
-    ttf-roboto-mono-nerd
-    ttf-firacode-nerd
-    noto-fonts
-)
 
 # Source global functions
 GLOBAL_SH="$(dirname "$(readlink -f "$0")")/../../utils/global.sh"
@@ -55,9 +41,5 @@ install_packages_pacman "${blue_pkg[@]}" || exit 1
 
 # Enable bluetooth service
 enable_service "bluetooth.service" || exit 1
-
-# Install fonts
-log "info" "Installing fonts"
-install_packages_pacman "${pacman_fonts[@]}" || exit 1
 
 log "success" "Base installation completed successfully"

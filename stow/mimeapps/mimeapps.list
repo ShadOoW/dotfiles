@@ -1,0 +1,16 @@
+[Default Applications]
+text/html=vivaldi-stable.desktop
+x-scheme-handler/http=vivaldi-stable.desktop
+x-scheme-handler/https=vivaldi-stable.desktop
+x-scheme-handler/about=vivaldi-stable.desktop
+x-scheme-handler/unknown=vivaldi-stable.desktop
+text/plain=userapp-mousepad-MAVO62.desktop
+image/png=userapp-feh --scale-down-P4MK62.desktop
+image/jpeg=userapp-feh --scale-down-P4MK62.desktop
+
+[Added Associations]
+text/plain=chromium.desktop;userapp-mousepad-MAVO62.desktop;
+image/png=userapp-feh --scale-down-P4MK62.desktop;
+text/x-csrc=userapp-mousepad-MAVO62.desktop;
+application/x-shellscript=userapp-mousepad-MAVO62.desktop;
+image/jpeg=userapp-feh-9QCS62.desktop;userapp-feh --scale-down-P4MK62.desktop;

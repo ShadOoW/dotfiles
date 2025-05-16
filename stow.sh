@@ -23,20 +23,22 @@ fi
 
 # Target directories for stowing
 declare -A TARGET_DIRS=(
-    ["zsh"]="$HOME"
-    ["browsers"]="$HOME/.config"
-    ["git"]="$HOME/.config/git"
+    ["zsh", "rtorrent"]="$HOME"
+    ["browsers", "mimeapps"]="$HOME/.config"
     ["udev"]="/etc/udev/rules.d"
     ["network"]="/etc/systemd/network"
     ["iwd"]="/etc/iwd"
     ["resolv"]="/etc"
+    ["git"]="$HOME/.config/git"
     ["sway"]="$HOME/.config/sway"
     ["rofi"]="$HOME/.config/rofi"
     ["mpd"]="$HOME/.config/mpd"
     ["ncmpcpp"]="$HOME/.config/ncmpcpp"
     ["kitty"]="$HOME/.config/kitty"
-    ["rtorrent"]="/home/shad"
-    ["gtk-3.0"]="$HOME/.config/gtk-3.0"
+    ["waybar"]="$HOME/.config/waybar"
+    ["gtk3"]="$HOME/.config/gtk-3.0"
+    ["gtk4"]="$HOME/.config/gtk-4.0"
+    ["mako"]="$HOME/.config/mako"
 )
 
 # Command-line arguments
@@ -160,55 +162,66 @@ process_package() {
     log "info" "Processing package: $package"
 
     # Determine target directory based on package name
-    local target_dir=""
+    local target_dirs=""
     local use_sudo="false"
     for prefix in "${!TARGET_DIRS[@]}"; do
-        if [[ "$package" == "$prefix"* ]]; then
-            target_dir="${TARGET_DIRS[$prefix]}"
-            # Ensure $HOME is expanded to absolute path
-            target_dir="${target_dir/#\$HOME/$HOME}"
-            # Check if this is a system directory that requires sudo
-            if [[ "$target_dir" == "/etc"* ]]; then
-                use_sudo="true"
-                check_sudo
-                request_sudo
+        # Check if package matches any prefix in the comma-separated list
+        IFS=',' read -ra prefixes <<< "$prefix"
+        for p in "${prefixes[@]}"; do
+            if [[ "$package" == "$(echo "$p" | xargs)" ]]; then
+                target_dirs="${TARGET_DIRS[$prefix]}"
+                break 2
             fi
-            break
-        fi
+        done
     done
 
-    if [[ -z "$target_dir" ]]; then
+    if [[ -z "$target_dirs" ]]; then
         log "info" "No target directory mapping found for package $package, skipping"
         return
     fi
 
-    # Make sure target directory exists
-    if [[ ! -d "$target_dir" ]]; then
-        log "info" "Target directory $target_dir does not exist, creating it"
+    # Process each target directory
+    for target_dir in $target_dirs; do
+        # Ensure $HOME is expanded to absolute path
+        target_dir="${target_dir/#\$HOME/$HOME}"
+
+        # Check if this is a system directory that requires sudo
+        if [[ "$target_dir" == "/etc"* ]]; then
+            use_sudo="true"
+            check_sudo
+            request_sudo
+        fi
+
+        log "info" "Processing target directory: $target_dir"
+
+        # Make sure target directory exists
+        if [[ ! -d "$target_dir" ]]; then
+            log "info" "Target directory $target_dir does not exist, creating it"
+            if [[ "$use_sudo" == "true" ]]; then
+                sudo mkdir -p "$target_dir"
+            else
+                mkdir -p "$target_dir"
+            fi
+        fi
+
+        # Process each file/directory in the package
+        while IFS= read -r -d '' item; do
+            local relative_path="${item#$package_dir/}"
+            local target_path="$target_dir/$relative_path"
+
+            if [[ -e "$target_path" ]]; then
+                backup_item "$target_path" "$target_path" "$use_sudo"
+            fi
+        done < <(find "$package_dir" -mindepth 1 -print0)
+
+        # Stow the package to its specific target directory
+        log "info" "Stowing package $package to $target_dir (absolute path)"
         if [[ "$use_sudo" == "true" ]]; then
-            sudo mkdir -p "$target_dir"
+            sudo stow --dir="$STOW_DIR" --target="$target_dir" --adopt --verbose=2 --no-folding "$package"
         else
-            mkdir -p "$target_dir"
+            stow --dir="$STOW_DIR" --target="$target_dir" --adopt --verbose=2 --no-folding "$package"
         fi
-    fi
-
-    # Process each file/directory in the package
-    while IFS= read -r -d '' item; do
-        local relative_path="${item#$package_dir/}"
-        local target_path="$target_dir/$relative_path"
-
-        if [[ -e "$target_path" ]]; then
-            backup_item "$target_path" "$target_path" "$use_sudo"
-        fi
-    done < <(find "$package_dir" -mindepth 1 -print0)
-
-    # Stow the package to its specific target directory
-    log "info" "Stowing package $package to $target_dir (absolute path)"
-    if [[ "$use_sudo" == "true" ]]; then
-        sudo stow --dir="$STOW_DIR" --target="$target_dir" --adopt --verbose=2 --no-folding "$package"
-    else
-        stow --dir="$STOW_DIR" --target="$target_dir" --adopt --verbose=2 --no-folding "$package"
-    fi
+    done
 }
 
 # Function to replace username in files

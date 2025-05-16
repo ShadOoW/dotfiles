@@ -13,6 +13,7 @@ aur_packages=(
     bibata-cursor-git
     oreo-cursors-git
     volantes-cursors-git
+    papirus-icon-theme-git
 )
 
 # Source global functions

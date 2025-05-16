@@ -13,11 +13,12 @@ configuration {
 /*****----- Global Properties -----*****/
 * {
     font:                        "JetBrains Mono Nerd Font 10";
-    background:                  #11092D;
-    background-alt:              #281657;
-    foreground:                  #FFFFFF;
-    selected:                    #DF5296;
-    active:                      #6E77FF;
+    background:                  #191919;
+    background-alt:              #191919b3;
+    foreground:                  #c5c5c5;
+    foreground-alt:              #171717;
+    selected:                    #09b86f;
+    active:                      #09b86f;
     urgent:                      #8E3596;
 }
 
@@ -29,8 +30,8 @@ window {
     anchor:                      east;
     fullscreen:                  false;
     width:                       500px;
-    height:                      100%;
-    x-offset:                    0px;
+    height:                      99%;
+    x-offset:                    -5px;
     y-offset:                    0px;
 
     /* properties for all widgets */
@@ -51,7 +52,7 @@ mainbox {
 
 listbox {
     spacing:                     0px;
-    padding:                     10px;
+    padding:                     10px 0px;
     background-color:            transparent;
     orientation:                 vertical;
     children:                    [ "listview", "message" ];
@@ -63,7 +64,7 @@ inputbar {
     spacing:                     0px;
     padding:                     10px 10px 155px;
     background-color:            transparent;
-    background-image:            url("~/.config/sway/wallpaper.jpg", width);
+    background-image:            url("~/.config/rofi/header.jpg", width);
     text-color:                  @foreground;
     orientation:                 horizontal;
     children:                    [ "textbox-prompt-colon", "entry" ];
@@ -110,7 +111,7 @@ button {
 }
 button selected {
     background-color:            @selected;
-    text-color:                  @foreground;
+    text-color:                  @foreground-alt;
 }
 
 /*****----- Listview -----*****/
@@ -126,7 +127,7 @@ listview {
     fixed-height:                true;
     fixed-columns:               true;
     
-    spacing:                     5px;
+    spacing:                     0px;
     background-color:            transparent;
     text-color:                  @foreground;
     cursor:                      "default";
@@ -136,7 +137,7 @@ listview {
 element {
     enabled:                     true;
     spacing:                     10px;
-    padding:                     2px;
+    padding:                     5 25px;
     border-radius:               0px;
     background-color:            transparent;
     text-color:                  @foreground;
@@ -156,7 +157,7 @@ element normal.active {
 }
 element selected.normal {
     background-color:            @selected;
-    text-color:                  @foreground;
+    text-color:                  @foreground-alt;
 }
 element selected.urgent {
     background-color:            @urgent;
@@ -164,7 +165,7 @@ element selected.urgent {
 }
 element selected.active {
     background-color:            @urgent;
-    text-color:                  @foreground;
+    text-color:                  @foreground-alt;
 }
 element-icon {
     background-color:            transparent;

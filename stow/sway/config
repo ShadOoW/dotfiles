@@ -6,8 +6,10 @@
 
 ### Mouse
 focus_follows_mouse no
-gaps inner 5
-
+gaps inner 6
+bar {
+    swaybar_command waybar
+}
 
 ### Variables
 #
@@ -219,22 +221,26 @@ bindsym $mod+r mode "resize"
 # Status Bar:
 #
 # Read `man 5 sway-bar` for more information about this section.
-bar {
-    position top
-
-    # When the status_command prints a new line to stdout, swaybar updates.
-    # The default just shows the current date and time.
-    status_command while date +'%Y-%m-%d %X'; do sleep 1; done
-
-    colors {
-        statusline #ffffff
-        background #323232
-        inactive_workspace #32323200 #32323200 #5c5c5c
-    }
-}
+# bar {
+#     position top
+# 
+#     # When the status_command prints a new line to stdout, swaybar updates.
+#     # The default just shows the current date and time.
+#     status_command while date +'%Y-%m-%d %X'; do sleep 1; done
+# 
+#     colors {
+#         statusline #ffffff
+#         background #323232
+#         inactive_workspace #32323200 #32323200 #5c5c5c
+#     }
+# }
 
 # Set font (affects titlebars and waybar if using Swaybar)
 font pango:JetBrains Mono Nerd Font 10
+
+# Remove window titlebars completely
+default_border none
+default_floating_border none
 
 ### Clipboard Persistence
 exec wl-paste --watch cliphist store &
