@@ -1,14 +1,13 @@
 sort=-priority
 max-visible=5
 background-color=#285577ff
-border-color=#4C7899ff
+border-color=#7dcfff
 group-by=app-name,urgency
 default-timeout=5000
 anchor=top-left
 
 [urgency=high]
 background-color=#772855ff
-border-color=#994C78ff
 default-timeout=8000
 group-by=urgency,app-name
 
@@ -17,4 +16,8 @@ default-timeout=0
 
 [urgency=low]
 background-color=#777777ff
-border-color=#999999ff
+
+[category=mpd]
+background-color=#000000BB
+default-timeout=2000
+group-by=category

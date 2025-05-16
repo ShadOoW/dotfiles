@@ -17,6 +17,7 @@ plugins=(
 )
 
 source $ZSH/oh-my-zsh.sh
+source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
 
 # Check archlinux plugin commands here
 # https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/archlinux
@@ -44,6 +45,9 @@ HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 setopt appendhistory
+setopt histignorealldups  # Don't save duplicate entries in history
+setopt sharehistory       # Share history between all sessions
+setopt incappendhistory   # Immediately append to history file
 
 eval "$(zoxide init zsh)"
 
@@ -79,5 +83,8 @@ bindkey "^[OH" go_home_dir # Home key
 bindkey -r '^[[F'
 bindkey "^[OF" run_ls      # End key
 
-alias music='tmux new-session -s $$ "tmux source-file ~/.config/ncmpcpp/tsession"'
-_trap_exit() { tmux kill-session -t $$; }
+# Configure history substring search
+bindkey '^[[A' history-substring-search-up      # Up arrow
+bindkey '^[[B' history-substring-search-down    # Down arrow
+bindkey '^[OA' history-substring-search-up      # Up arrow (alternate)
+bindkey '^[OB' history-substring-search-down    # Down arrow (alternate)

@@ -10,6 +10,7 @@ pacman_packages=(
     bat
     zoxide
     findutils
+    zsh-history-substring-search
 )
 
 # Source global functions

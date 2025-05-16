@@ -3,7 +3,7 @@ for_window {
   [shell="xwayland"] title_format "%title [XWayland]"
   [app_id="Vivaldi-stable"] inhibit_idle fullscreen
   [app_id="firefox"] inhibit_idle fullscreen
-  [app_id="mpv"] fullscreen
+  [app_id="mpv"] inhibit_idle fullscreen
   [class="feh"] fullscreen
   [app_id="ulauncher"] floating enable, border none
   [window_role="pop-up"] floating enable

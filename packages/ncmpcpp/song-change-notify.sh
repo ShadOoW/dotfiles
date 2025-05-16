@@ -34,5 +34,5 @@ fi
 # Use a consistent ID (27072) for notifications to replace previous ones
 # The --replace option will close any existing notification with the same ID
 # The -i ncmcpp is not a real icon, but it is needed to remove the default icon
-fyi -i ncmcpp --replace=27072 "MPD" "$MESSAGE"
+fyi -i ncmcpp -c mpd --replace=27072 "MPD" "$MESSAGE"
  
