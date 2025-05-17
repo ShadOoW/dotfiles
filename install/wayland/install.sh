@@ -10,8 +10,8 @@ wayland_packages=(
     wttrbar
     wlsunset
     wl-screenrec
+    sway-screenshot 
     swaycwd
-    grim
     xdg-desktop-portal-wlr
     pacman-contrib
     aurutils

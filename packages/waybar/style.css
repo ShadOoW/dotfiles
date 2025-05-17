@@ -268,3 +268,18 @@ tooltip label {
     color: @foreground;
   }
 }
+
+#custom-recorder {
+  padding: 4px;
+  color: #ff5555;
+  font-size: 16px;
+}
+
+#custom-recorder.recording {
+  animation-name: blink-red;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+

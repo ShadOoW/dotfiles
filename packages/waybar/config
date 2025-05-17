@@ -51,10 +51,11 @@
     "custom/recorder": {
       "format": "{}",
       "interval": "once",
-      "exec": "echo ''",
-      "tooltip": "false",
-      "exec-if": "pgrep 'wl-screenrec'",
-      "on-click": "recorder",
+      "exec": "echo '{\"text\": \"\", \"class\": \"recording\", \"tooltip\": \"Recording in progress - Click to stop\"}'",
+      "tooltip": true,
+      "exec-if": "pgrep -x 'wl-screenrec'",
+      "on-click": "$HOME/.config/waybar/recorder.sh",
+      "return-type": "json",
       "signal": 4
     },
     "privacy": {
@@ -153,7 +154,6 @@
       },
       "modules": [
         "custom/mark",
-        "custom/colorpicker",
         "custom/sunset",
         "idle_inhibitor",
         "custom/hyprkill"
@@ -350,13 +350,6 @@
     "custom/mark": {
       "format": "",
       "tooltip": false
-    },
-    "custom/colorpicker": {
-      "format": "{}",
-      "return-type": "json",
-      "interval": "once",
-      "on-click": "sleep 1 && $HOME/.config/waybar/colorpicker.sh",
-      "signal": 1
     },
     "custom/hyprkill": {
       "format": "{}",

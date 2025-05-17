@@ -1,3 +1,89 @@
 set preview
 set previewer ~/.config/lf/preview
 set cleaner ~/.config/lf/cleaner
+
+# Display settings
+set drawbox
+set icons true
+set iconpath ~/.config/lf/icons
+set incsearch
+set scrolloff 5
+set smartcase
+set mouse
+
+# Color scheme
+set cursorpreviewfmt "\033[7;2m"
+set colors          # Use the color scheme from ~/.config/lf/colors
+set colorfg default # Default foreground color
+set colorbg default # Default background color
+
+# UI Colors
+set fg 7
+set bg -1
+
+set statusfg 7
+set statusbg -1
+
+set cursoractivefg 0
+set cursoractivebg 4
+
+set cursorfg 0
+set cursorbg 4
+
+set borderfg 8
+
+# File type colors
+cmap <enter> &{{
+    # Define file type colors
+    lf -remote "send $id set filesep \"\\n\""
+    lf -remote "send $id set filetypes \"*:.git/:dir
+        *.txt:norm:1
+        *.md:norm:3
+        *.png:norm:2
+        *.jpg:norm:2
+        *.gif:norm:2
+        *.html:norm:5
+        *.css:norm:5
+        *.js:norm:3
+        *.ts:norm:4
+        *.py:norm:4
+        *.go:norm:6
+        *.sh:norm:6
+        *.json:norm:1
+    \""
+}}
+
+# Key bindings
+map <c-r> reload
+map D delete
+map i $less "$f"
+map <enter> open
+map h updir
+map J half-down
+map K half-up
+map <c-n> newfold
+map <c-f> fzf_jump
+
+# Custom functions
+cmd newfold ${{
+    printf "Directory name: "
+    read ans
+    mkdir -p "$ans"
+}}
+
+cmd fzf_jump ${{
+    res="$(find . -maxdepth 3 | fzf --reverse --header='Jump to location')"
+    if [ -f "$res" ]; then
+        cmd="select"
+    elif [ -d "$res" ]; then
+        cmd="cd"
+    fi
+    lf -remote "send $id $cmd \"$res\""
+}}
+
+cmd open ${{
+    case $(file --mime-type "$f" -bL) in
+        text/*|application/json) $EDITOR "$f";;
+        *) xdg-open "$f" ;;
+    esac
+}}

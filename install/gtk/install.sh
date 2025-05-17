@@ -10,6 +10,7 @@ aur_packages=(
     tokyonight-gtk-theme-git
 
     # Other GTK themes
+    catppuccin-gtk-theme-macchiato
     layan-gtk-theme-git
 
     # Icons

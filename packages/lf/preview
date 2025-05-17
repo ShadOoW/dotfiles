@@ -7,19 +7,67 @@ HEIGHT="$3"
 X="$4"
 Y="$5"
 
-# Only preview images
+# Get file extension and mime type
+EXTENSION="${FILE##*.}"
 MIME=$(file -Lb --mime-type "$FILE")
 
-if [[ "$MIME" == image/* ]]; then
-    kitty +kitten icat --transfer-mode=stream --stdin=no --place="${WIDTH}x${HEIGHT}@${X}x${Y}" "$FILE"
-    exit 0
-fi
+# Preview based on file type
+case "$MIME" in
+    # Image previews
+    image/*)
+        kitty +kitten icat --transfer-mode=stream --stdin=no --place="${WIDTH}x${HEIGHT}@${X}x${Y}" "$FILE"
+        ;;
+    
+    # PDF previews
+    application/pdf)
+        pdftotext -l 10 -nopgbrk -q -- "$FILE" - | fmt -w "$WIDTH" | head -n "$HEIGHT"
+        ;;
+    
+    # Audio metadata
+    audio/*)
+        exiftool "$FILE" | grep -E '(Title|Artist|Album|Genre|Track|Year)' | head -n "$HEIGHT"
+        ;;
+    
+    # Video metadata
+    video/*)
+        exiftool "$FILE" | grep -E '(Title|Duration|Resolution|Frame Rate|File Size)' | head -n "$HEIGHT"
+        ;;
+    
+    # Archives
+    application/zip|application/x-tar|application/x-rar|application/x-7z-compressed)
+        als "$FILE" | head -n "$HEIGHT"
+        ;;
+    
+    # Text files with syntax highlighting
+    text/*)
+        bat --color=always --style="plain" --line-range :$HEIGHT "$FILE"
+        ;;
+    
+    # JSON/YAML files
+    application/json|text/yaml)
+        bat --color=always --style="plain" --language=json --line-range :$HEIGHT "$FILE"
+        ;;
+    
+    # Markdown
+    text/markdown)
+        bat --color=always --style="plain" --language=markdown --line-range :$HEIGHT "$FILE"
+        ;;
+    
+    # HTML
+    text/html)
+        bat --color=always --style="plain" --language=html --line-range :$HEIGHT "$FILE"
+        ;;
+        
+    # For other files, show basic file info
+    *)
+        file -b "$FILE" 
+        echo ""
+        stat -c "Size: %s bytes
+Created: %w
+Modified: %y
+Access: %x
+Permissions: %A" "$FILE"
+        ;;
+esac
 
-# For text files, fallback to bat
-if [[ "$MIME" == text/* ]]; then
-    bat --color=always --style=plain "$FILE"
-    exit 0
-fi
-
-# For anything else, do nothing (no preview)
-exit 1
+exit 0
