@@ -28,18 +28,15 @@ Some packages contain a `setup.sh` script that can help apply the configuration.
 
 ## Stow Helper
 
-The `stow.sh` script is a helper function that will symlink configuration files to their proper locations. And run setup.sh for if the package has one.
+The `stow.sh` script is a helper function that will symlink configuration files to their target locations. And will run setup.sh if the package has one.
 For granular control, you can comment out specific packages inside the script.
 
 ```bash
 # My username "shad" is hardcoded in some config files.
 # Provide yours and stow script will use it.
-./stow.sh --user-name "Your user name"
+./stow.sh --username "Your user name"
 ```
 
 ## Notes
-
 - Always back up your existing configurations before applying these dotfiles
-- Customize configurations to suit your specific needs.
 - Search for "shad" to make sure to find places with my hardcoded username.
-- Read through each configuration file to understand what it does.
