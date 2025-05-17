@@ -27,6 +27,7 @@ declare -A TARGET_DIRS=(
     ["browsers", "mimeapps", "user-dirs"]="$HOME/.config"
     ["udev"]="/etc/udev/rules.d"
     ["network"]="/etc/systemd/network"
+    ["zram"]="/etc/systemd"
     ["iwd"]="/etc/iwd"
     ["resolv"]="/etc"
     ["git"]="$HOME/.config/git"
@@ -41,7 +42,12 @@ declare -A TARGET_DIRS=(
     ["mako"]="$HOME/.config/mako"
     ["swayidle"]="$HOME/.config/swayidle"
     ["mpv"]="$HOME/.config/mpv"
+    ["systemd"]="$HOME/.config/systemd"
+    ["lf"]="$HOME/.config/lf"
 )
+
+# Store setup scripts to run after stowing
+declare -a SETUP_SCRIPTS=()
 
 # Command-line arguments
 USERNAME=""
@@ -197,6 +203,11 @@ unstow_all_packages() {
 
             # Find all files in the package
             while IFS= read -r -d '' file; do
+                # Skip setup.sh files
+                if [[ "$(basename "$file")" == "setup.sh" ]]; then
+                    continue
+                fi
+                
                 # Get the relative path from the package directory
                 local rel_path="${file#$package_dir/}"
                 local target_file="$target_dir/$rel_path"
@@ -239,6 +250,13 @@ process_package() {
     fi
 
     log "info" "Processing package: $package"
+
+    # Check for setup.sh and add to the list if found
+    local setup_script="$package_dir/setup.sh"
+    if [[ -f "$setup_script" && -x "$setup_script" ]]; then
+        log "info" "Found setup script: $setup_script"
+        SETUP_SCRIPTS+=("$setup_script")
+    fi
 
     # Determine target directory based on package name
     local target_dirs=""
@@ -285,6 +303,11 @@ process_package() {
 
         # Find all files (not directories) in the package, including in nested folders
         while IFS= read -r -d '' file; do
+            # Skip setup.sh files
+            if [[ "$(basename "$file")" == "setup.sh" ]]; then
+                continue
+            fi
+            
             # Get the relative path from the package directory
             local rel_path="${file#$package_dir/}"
             local target_file="$target_dir/$rel_path"
@@ -381,6 +404,25 @@ replace_username() {
     log "success" "Username replacement completed. Modified $modified_files files."
 }
 
+# Run setup scripts
+run_setup_scripts() {
+    if [ ${#SETUP_SCRIPTS[@]} -eq 0 ]; then
+        log "info" "No setup scripts to run"
+        return
+    fi
+    
+    log "info" "Running setup scripts..."
+    
+    for script in "${SETUP_SCRIPTS[@]}"; do
+        log "info" "Executing setup script: $script"
+        if ! "$script"; then
+            log "error" "Setup script failed: $script"
+        else
+            log "success" "Setup script completed: $script"
+        fi
+    done
+}
+
 # Main execution
 main() {
     log "info" "Starting dotfiles backup and stow process"
@@ -393,6 +435,9 @@ main() {
         log "info" "Username is already 'shad', skipping replacement"
     fi
 
+    # Reset the setup scripts array
+    SETUP_SCRIPTS=()
+
     # First unstow all packages
     unstow_all_packages
 
@@ -402,6 +447,9 @@ main() {
             process_package "$(basename "$package")"
         fi
     done
+
+    # Run all collected setup scripts after stowing
+    run_setup_scripts
 
     log "success" "Backup and stow process completed successfully"
 }

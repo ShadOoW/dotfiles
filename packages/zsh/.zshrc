@@ -37,6 +37,12 @@ alias la='ls -a'
 alias lla='ls -la'
 alias lt='ls --tree'
 alias cat="bat --theme=gruvbox-dark"
+alias drag="ripdrag"
+
+# Function to use fzf with ripdrag
+zdrag() {
+  ripdrag "$(fzf)"
+}
 
 # Set-up FZF key bindings (CTRL R for fuzzy history finder)
 source <(fzf --zsh)

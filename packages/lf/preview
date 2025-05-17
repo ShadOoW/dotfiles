@@ -1,0 +1,25 @@
+#!/bin/bash
+set -eu
+
+FILE="$1"
+WIDTH="$2"
+HEIGHT="$3"
+X="$4"
+Y="$5"
+
+# Only preview images
+MIME=$(file -Lb --mime-type "$FILE")
+
+if [[ "$MIME" == image/* ]]; then
+    kitty +kitten icat --transfer-mode=stream --stdin=no --place="${WIDTH}x${HEIGHT}@${X}x${Y}" "$FILE"
+    exit 0
+fi
+
+# For text files, fallback to bat
+if [[ "$MIME" == text/* ]]; then
+    bat --color=always --style=plain "$FILE"
+    exit 0
+fi
+
+# For anything else, do nothing (no preview)
+exit 1

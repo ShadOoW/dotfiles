@@ -14,6 +14,9 @@ pacman_pkg=(
     archlinux-keyring
     zip
     unzip
+    polkit-gnome
+    xorg-xhost
+    gparted
 )
 
 # Bluetooth related packages

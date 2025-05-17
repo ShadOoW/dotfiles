@@ -1,6 +1,6 @@
 /*****----- Configuration -----*****/
 configuration {
-	modi:                       "drun,run,filebrowser,window";
+	modi:                       "run,window";
     show-icons:                 true;
     display-drun:               "";
     display-run:                "";

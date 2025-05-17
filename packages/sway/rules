@@ -3,8 +3,12 @@ for_window {
   [shell="xwayland"] title_format "%title [XWayland]"
   [app_id="Vivaldi-stable"] inhibit_idle fullscreen
   [app_id="firefox"] inhibit_idle fullscreen
+
+  # Media
   [app_id="mpv"] inhibit_idle fullscreen
   [class="feh"] fullscreen
+
+  # Popups
   [app_id="ulauncher"] floating enable, border none
   [window_role="pop-up"] floating enable
   [window_role="bubble"] floating enable
@@ -12,6 +16,7 @@ for_window {
   [window_type="dialog"] floating enable
   [window_role="pop-up"] floating enable
   [window_role="task_dialog"] floating enable
+  [app_id="lxqt-policykit-agent"] floating enable
   
   # terminal
   [app_id=$term_id] move to scratchpad, scratchpad show, $t_pos
@@ -22,4 +27,9 @@ for_window {
 
   # Intellij
   [class="com-intellij-updater-Runner" instance="com-intellij-updater-Runner"] floating enable, border pixel
+
+  # Marks for our scratchpad applications
+  [app_id="terminal-mark"] mark terminal, border pixel 4, border color #7dcfff, move scratchpad
+  [app_id="music-mark"] mark music, border pixel 4, border color #7dcfff, move scratchpad
+  [app_id="explorer-mark"] mark explorer, border pixel 4, border color #7dcfff, move scratchpad
 }

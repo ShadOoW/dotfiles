@@ -1,4 +1,10 @@
 exec {
-    swayidle
+    swayidle &
+    autotiling-rs &
     wl-paste --watch cliphist store &
+    
+    # Start applications in background with consistent naming convention
+    kitty --class terminal-mark &
+    kitty --class music-mark ncmpcpp &
+    thunar --name explorer-mark &
 }
