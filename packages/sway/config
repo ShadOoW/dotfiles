@@ -1,6 +1,7 @@
 
+include ./variables
 include ./keybindings
 include ./exec
 include ./rules
-include ./interface
+include ./styling
 include /etc/sway/config.d/*

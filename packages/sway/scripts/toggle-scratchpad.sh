@@ -84,12 +84,9 @@ else
         CRITERIA="[$APP_ID_TYPE=\"$APP_ID\"]"
     fi
 
-    # Apply layout - ensure the window exists before applying
-    swaymsg "$CRITERIA mark $MARK_NAME, move to scratchpad, scratchpad show, floating enable"
-    sleep 0.2
-    swaymsg "[con_mark=\"$MARK_NAME\"] resize set width ${WIDTH_PCT}ppt height ${HEIGHT_PCT}ppt"
-    sleep 0.1
-    swaymsg "[con_mark=\"$MARK_NAME\"] move position ${win_x} ${win_y}"
-    sleep 0.1
-    swaymsg "[con_mark=\"$MARK_NAME\"] border pixel 4, border color #7dcfff"
+    # Apply all layout operations in a single command to prevent window jumping
+    swaymsg "$CRITERIA mark $MARK_NAME, move to scratchpad, scratchpad show, floating enable, \
+             resize set width ${WIDTH_PCT}ppt height ${HEIGHT_PCT}ppt, \
+             move position ${win_x} ${win_y}, \
+             border pixel 4, border color #7dcfff"
 fi

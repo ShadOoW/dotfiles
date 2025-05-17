@@ -9,12 +9,15 @@ wayland_packages=(
     swaylock
     wttrbar
     wlsunset
+    wl-screenrec
+    swaycwd
     grim
     xdg-desktop-portal-wlr
     pacman-contrib
     aurutils
     slurp
     jq
+    gron
 
     # Rofi
     rofi-wayland

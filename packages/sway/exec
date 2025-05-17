@@ -4,7 +4,13 @@ exec {
     wl-paste --watch cliphist store &
     
     # Start applications in background with consistent naming convention
-    kitty --class terminal-mark &
-    kitty --class music-mark ncmpcpp &
-    thunar --name explorer-mark &
+    sp_terminal &
+    sp_music &
+    sp_explorer &
+    
+    # Start browser
+    vivaldi-stable &
 }
+
+# Create all workspaces at startup to make them persistent
+exec ~/.config/sway/scripts/init-workspaces.sh

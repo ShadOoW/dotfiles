@@ -1,11 +1,9 @@
 ### Rules
 for_window {
   [shell="xwayland"] title_format "%title [XWayland]"
-  [app_id="Vivaldi-stable"] inhibit_idle fullscreen
-  [app_id="firefox"] inhibit_idle fullscreen
 
   # Media
-  [app_id="mpv"] inhibit_idle fullscreen
+  [app_id="mpv"] fullscreen
   [class="feh"] fullscreen
 
   # Popups
@@ -16,11 +14,6 @@ for_window {
   [window_type="dialog"] floating enable
   [window_role="pop-up"] floating enable
   [window_role="task_dialog"] floating enable
-  [app_id="lxqt-policykit-agent"] floating enable
-  
-  # terminal
-  [app_id=$term_id] move to scratchpad, scratchpad show, $t_pos
-  [app_id=$other_term_id] move to scratchpad, scratchpad show, t_pos
 
   # Thunar file operation progress window
   [app_id="thunar" title="File Operation Progress"] floating enable, border pixel 1
@@ -33,3 +26,7 @@ for_window {
   [app_id="music-mark"] mark music, border pixel 4, border color #7dcfff, move scratchpad
   [app_id="explorer-mark"] mark explorer, border pixel 4, border color #7dcfff, move scratchpad
 }
+
+# Workspace assignments
+assign [app_id="vivaldi-stable"] workspace number 2
+#assign [class="vivaldi-stable"] workspace number 2

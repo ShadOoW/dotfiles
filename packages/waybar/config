@@ -5,14 +5,29 @@
     "reload_style_on_change": true,
     "modules-left": [
       "custom/updates",
+      "group/audio"
+    ],
+    "modules-center": [
       "sway/workspaces",
-      "sway/mode",
-      "group/info"
+      "sway/mode"
     ],
     "sway/workspaces": {
       "format": "{icon}",
       "on-click": "activate",
       "all-outputs": true,
+      "show-special": false,
+      "persistent_workspaces": {
+          "1": [],
+          "2": [],
+          "3": [],
+          "4": [],
+          "5": [],
+          "6": [],
+          "7": [],
+          "8": [],
+          "9": [],
+          "10": []
+      },
       "format-icons": {
         "1": "१",
         "2": "२",
@@ -26,61 +41,8 @@
         "10": "०"
       }
     },
-    "sway/submap": {
-      "format": "<b>󰇘</b>",
-      "max-length": 8,
-      "tooltip": true
-    },
-    "group/info": {
-      "orientation": "inherit",
-      "drawer": {
-        "transition-duration": 500,
-        "transition-left-to-right": false
-      },
-      "modules": [
-        "custom/dmark",
-        "group/gcpu",
-        "memory",
-        "disk"
-      ]
-    },
-    "custom/dmark": {
-      "format": "",
-      "tooltip": false
-    },
-    "group/gcpu": {
-      "orientation": "inherit",
-      "modules": [
-        "custom/cpu-icon",
-        "custom/cputemp",
-        "cpu"
-      ]
-    },
-    "custom/cpu-icon": {
-      "format": "󰻠",
-      "tooltip": false
-    },
-    "custom/cputemp": {
-      "format": "{}",
-      "exec": "~/.config/waybar/cputemp.sh",
-      "interval": 10,
-      "return-type": "json"
-    },
-    "cpu": {
-      "format": "<b>{usage}󱉸</b>",
-      "on-click": "kitty btop"
-    },
-    "memory": {
-      "format": "<b>  \n{:2}󱉸</b>"
-    },
-    "disk": {
-      "interval": 600,
-      "format": "<b> 󰋊 \n{percentage_used}󱉸</b>",
-      "path": "/"
-    },
     "modules-right": [
       "custom/recorder",
-      "group/sound",
       "group/connection",
       "group/together",
       "group/cnoti",
@@ -151,12 +113,6 @@
       "orientation": "vertical",
       "device": "intel_backlight"
     },
-    "group/sound": {
-      "orientation": "inherit",
-      "modules": [
-        "group/audio"
-      ]
-    },
     "group/audio": {
       "orientation": "inherit",
       "drawer": {
@@ -185,8 +141,9 @@
     "group/together": {
       "orientation": "inherit",
       "modules": [
-        "group/utils",
-        "clock"
+        "custom/weather",
+        "clock",
+        "group/utils"
       ]
     },
     "group/utils": {
@@ -197,7 +154,6 @@
       },
       "modules": [
         "custom/mark",
-        "custom/weather",
         "custom/colorpicker",
         "custom/sunset",
         "idle_inhibitor",

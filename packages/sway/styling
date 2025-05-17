@@ -1,11 +1,10 @@
-### Output configuration
+# Output configuration
 output * bg ./wallpaper.jpg fill
 
 # Set font (affects titlebars and waybar if using Swaybar)
 font pango:JetBrains Mono Nerd Font 10
 
 # Remove window titlebars
-default_border none
 default_floating_border none
 hide_edge_borders --i3 smart
 focus_on_window_activation smart
@@ -20,4 +19,9 @@ bar {
 }
 
 ### Window Gaps
-gaps inner 6
+gaps inner 8
+
+# Borders
+default_border pixel 2
+smart_borders on
+

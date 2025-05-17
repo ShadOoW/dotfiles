@@ -1,0 +1,16 @@
+### Variables
+#
+# Logo key. Use Mod1 for Alt.
+set {
+    $mod Mod4
+    $term kitty
+    $term_cwd $term --working-directory "$(swaycwd 2>/dev/null || echo $HOME)"
+    $menu ~/.config/rofi/open-close.sh "rofi -show run"
+    $window ~/.config/rofi/open-close.sh "rofi -show window"
+    $clipboard ~/.config/rofi/open-close.sh "cliphist list | rofi -dmenu -display-columns 2 | cliphist decode | wl-copy"
+    
+    # Scratchpad settings
+    $sp_terminal "~/.config/sway/scripts/toggle-scratchpad.sh terminal app_id terminal-mark 'kitty --app-id terminal-mark' 100 50 50"
+    $sp_music "~/.config/sway/scripts/toggle-scratchpad.sh music app_id music-mark 'kitty --app-id music-mark ncmpcpp' 80 40 5"
+    $sp_explorer "~/.config/sway/scripts/toggle-scratchpad.sh explorer app_id explorer-mark 'kitty --app-id explorer-mark lf' 100 50 0"
+}

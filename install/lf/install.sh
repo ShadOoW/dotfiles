@@ -7,6 +7,7 @@ pacman_packages=(
     xdotool
     xclip
     bat
+    less
     ripdrag
 )
 
