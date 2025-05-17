@@ -22,11 +22,10 @@ for_window {
   [class="com-intellij-updater-Runner" instance="com-intellij-updater-Runner"] floating enable, border pixel
 
   # Marks for our scratchpad applications
-  [app_id="terminal-mark"] mark terminal, border pixel 4, border color #7dcfff, move scratchpad
-  [app_id="music-mark"] mark music, border pixel 4, border color #7dcfff, move scratchpad
-  [app_id="explorer-mark"] mark explorer, border pixel 4, border color #7dcfff, move scratchpad
+  [app_id="terminal-mark"] floating enable, mark terminal, move scratchpad, border pixel 4, border color #7dcfff
+  [app_id="music-mark"] floating enable, mark music, move scratchpad, border pixel 4, border color #7dcfff  
+  [app_id="explorer-mark"] floating enable, mark explorer, move scratchpad, border pixel 4, border color #7dcfff
 }
 
 # Workspace assignments
 assign [app_id="vivaldi-stable"] workspace number 2
-#assign [class="vivaldi-stable"] workspace number 2

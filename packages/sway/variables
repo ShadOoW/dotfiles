@@ -10,7 +10,7 @@ set {
     $clipboard ~/.config/rofi/open-close.sh "cliphist list | rofi -dmenu -display-columns 2 | cliphist decode | wl-copy"
     
     # Scratchpad settings
-    $sp_terminal "~/.config/sway/scripts/toggle-scratchpad.sh terminal app_id terminal-mark 'kitty --app-id terminal-mark' 100 50 50"
-    $sp_music "~/.config/sway/scripts/toggle-scratchpad.sh music app_id music-mark 'kitty --app-id music-mark ncmpcpp' 80 40 5"
-    $sp_explorer "~/.config/sway/scripts/toggle-scratchpad.sh explorer app_id explorer-mark 'kitty --app-id explorer-mark lf' 100 50 0"
+    $sp_terminal "~/.config/sway/scripts/toggle-scratchpad.sh terminal app_id terminal-mark 'kitty --app-id terminal-mark'"
+    $sp_music "~/.config/sway/scripts/toggle-scratchpad.sh music app_id music-mark 'kitty --app-id music-mark ncmpcpp'"
+    $sp_explorer "~/.config/sway/scripts/toggle-scratchpad.sh explorer app_id explorer-mark 'kitty --app-id explorer-mark lf'"
 }
