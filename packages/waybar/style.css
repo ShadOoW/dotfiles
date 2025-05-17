@@ -49,6 +49,13 @@ tooltip label {
   animation-direction: alternate;
 }
 
+.modules-center {
+  margin: 0px 4px 4px 4px;
+  border-radius: 0px;
+  background: alpha(@background, 0.4);
+  color: lighter(@active);
+}
+
 .modules-right {
   margin: 0px 6px 6px 6px;
   border-radius: 4px;
@@ -85,6 +92,10 @@ tooltip label {
   border-radius: 4px;
   margin: 2px 2px 4px 2px;
   background: alpha(darker(@active), 0.3);
+}
+
+#audio {
+  margin-top: 5px;
 }
 
 #custom-github {
@@ -136,12 +147,19 @@ tooltip label {
   color: @foreground;
   background: transparent;
   border-radius: 4px;
-  color: alpha(@foreground, 0.3);
 }
 
 #workspaces button.urgent {
   font-weight: bold;
   color: @foreground;
+}
+
+#workspaces button.empty {
+  color: alpha(@foreground, 0.3);
+}
+
+#workspaces button:not(.empty) {
+  color: alpha(@active, 0.7);
 }
 
 #workspaces button.active,
@@ -196,13 +214,6 @@ tooltip label {
 #clock {
   font-weight: bold;
   padding: 4px 2px 2px 2px;
-}
-
-#pulseaudio.mic {
-  border-radius: 4px;
-  color: @background;
-  background: alpha(darker(@foreground), 0.6);
-  padding-left: 4px;
 }
 
 #backlight-slider slider,

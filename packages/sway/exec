@@ -11,6 +11,3 @@ exec {
     # Start browser
     vivaldi-stable &
 }
-
-# Create all workspaces at startup to make them persistent
-exec ~/.config/sway/scripts/init-workspaces.sh
