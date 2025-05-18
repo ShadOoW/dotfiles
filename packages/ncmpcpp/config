@@ -78,11 +78,11 @@ song_columns_list_format = "(50)[magenta]{t|f:Title} (0)[magenta]{a}"
 
 # Use special formatting for current song with leading indicator
 song_list_format = "{$r%n │ $9}{$8%t$9}|{$8%f$9} {$3$9}$R{$8%a - %b$9}"
-current_item_prefix = "$b"
+current_item_prefix = "$(red)❯$(yellow)❯$(green)❯ $b"
 current_item_suffix = "$/b"
 
 # Adding special alternative format for currently playing item
-alternative_header_first_line_format = "$b$5«$7 {%t}|{%f} $5»$/b"
+alternative_header_first_line_format = "$b$(red)❯$(yellow)❯$(green)❯ {%t}|{%f} $(red)❮$(yellow)❮$(green)❮$/b"
 alternative_header_second_line_format = "{$b$8%a$/b$9}{ - $7%b$9}"
 
 # Key bindings for seeking
