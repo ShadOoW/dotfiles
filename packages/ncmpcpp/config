@@ -24,7 +24,7 @@ centered_cursor = "yes"
 # Highlight current song better
 current_item_inactive_column_prefix = "$(magenta)"
 current_item_inactive_column_suffix = "$(end)"
-now_playing_prefix = "$(magenta)►►► "
+now_playing_prefix = "$(red)❯$(yellow)❯$(green)❯ $(magenta)"
 now_playing_suffix = ""
 
 # Auto-play settings
