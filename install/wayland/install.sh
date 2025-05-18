@@ -11,7 +11,6 @@ wayland_packages=(
     wlsunset
     wl-screenrec
     sway-screenshot 
-    swaycwd
     xdg-desktop-portal-wlr
     pacman-contrib
     aurutils
