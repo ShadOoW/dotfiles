@@ -11,43 +11,8 @@ source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring
 source /usr/share/zsh/plugins/fzf-tab-git/fzf-tab.zsh
 source /usr/share/zsh/plugins/zsh-fzf-plugin/fzf.plugin.zsh 
 
-# Lazy load nvm only when needed
-export NVM_DIR="$HOME/.nvm"
-nvm() {
-  unset -f nvm node npm npx yarn
-  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
-  nvm "$@"
-}
-
-# Define node, npm, and other related commands as functions that will trigger nvm loading
-node() {
-  unset -f nvm node npm npx yarn
-  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
-  node "$@"
-}
-
-npm() {
-  unset -f nvm node npm npx yarn
-  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
-  npm "$@"
-}
-
-npx() {
-  unset -f nvm node npm npx yarn
-  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
-  npx "$@"
-}
-
-yarn() {
-  unset -f nvm node npm npx yarn
-  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
-  yarn "$@"
-}
+# Fast Node Manager (FNM)
+eval "$(fnm env --use-on-cd --shell zsh)"
 
 # Set-up icons for files/directories in terminal using lsd
 alias ls='lsd'
@@ -123,6 +88,13 @@ bindkey '^[[A' history-substring-search-up      # Up arrow
 bindkey '^[[B' history-substring-search-down    # Down arrow
 bindkey '^[OA' history-substring-search-up      # Up arrow (alternate)
 bindkey '^[OB' history-substring-search-down    # Down arrow (alternate)
+
+# Word navigation with Ctrl+Left and Ctrl+Right
+bindkey "^[[1;5D" backward-word                 # Ctrl+Left
+bindkey "^[[1;5C" forward-word                  # Ctrl+Right
+# Alternative key codes for some terminals
+bindkey "^[Od" backward-word                    # Ctrl+Left (alternate)
+bindkey "^[Oc" forward-word                     # Ctrl+Right (alternate)
 
 # Improved prompt
 autoload -Uz vcs_info

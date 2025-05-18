@@ -4,7 +4,6 @@ set -e
 # Base development packages
 pacman_pkg=(
     kitty
-    nvm
     base-devel
     findutils
     stow

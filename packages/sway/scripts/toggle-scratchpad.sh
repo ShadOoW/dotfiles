@@ -17,10 +17,10 @@ COMMAND=${4:-""}
 set_window_properties() {
     case "$MARK_NAME" in
         "terminal")
-            swaymsg "[con_mark=\"$MARK_NAME\"] resize set width 100ppt height 50ppt, move position 0 50ppt"
+            swaymsg "[con_mark=\"$MARK_NAME\"] resize set width 100ppt height 40ppt, move position 0 60ppt"
             ;;
         "music")
-            swaymsg "[con_mark=\"$MARK_NAME\"] resize set width 80ppt height 40ppt, move position center, move up 45ppt"
+            swaymsg "[con_mark=\"$MARK_NAME\"] resize set width 60ppt height 40ppt, move position center, move to 0 15"
             ;;
         "explorer")
             swaymsg "[con_mark=\"$MARK_NAME\"] resize set width 100ppt height 50ppt, move position center"

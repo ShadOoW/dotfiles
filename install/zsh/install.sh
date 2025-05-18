@@ -9,6 +9,7 @@ pacman_packages=(
     bat
     zoxide
     findutils
+    fnm
     zsh-completions
     zsh-history-substring-search
     zsh-autosuggestions
@@ -32,6 +33,11 @@ install_packages_aur "${pacman_packages[@]}" || exit 1
 if ! command -v zsh >/dev/null; then
     log "error" "ZSH installation failed"
     exit 1
+fi
+
+# Check if fnm is installed
+if ! command -v fnm >/dev/null; then
+    log "warning" "FNM installation may have failed. If not available, install manually:"
 fi
 
 log "info" "Note: This script only installs ZSH and plugins. It does not modify .zshrc or change the default shell"
