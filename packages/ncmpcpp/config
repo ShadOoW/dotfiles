@@ -58,11 +58,11 @@ colors_enabled = "yes"
 discard_colors_if_item_is_selected = "no"
 
 # Basic colors
-main_window_color = "white"
-color1 = "white"
+main_window_color = "green"
+color1 = "yellow"
 color2 = "blue"
-statusbar_color = "white"
-header_window_color = "white"
+statusbar_color = "yellow"
+header_window_color = "yellow"
 volume_color = "magenta"
 state_line_color = "blue"
 state_flags_color = "magenta"
@@ -74,7 +74,7 @@ active_window_border = "magenta"
 song_window_title_format = "Now Playing - {%a - }{%t}|{%f}"
 
 # Custom formats with special indicators for currently playing
-song_columns_list_format = "(50)[white]{t|f:Title} (0)[magenta]{a}"
+song_columns_list_format = "(50)[magenta]{t|f:Title} (0)[magenta]{a}"
 
 # Use special formatting for current song with leading indicator
 song_list_format = "{$r%n │ $9}{$8%t$9}|{$8%f$9} {$3$9}$R{$8%a - %b$9}"
