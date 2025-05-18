@@ -1,9 +1,3 @@
 #!/bin/bash
-# Clean up preview images
-kitty +kitten icat --clear
-
-# Kill any processes that might have been started by the preview script
-pkill -P $$ 2>/dev/null
-
-# Reset terminal
-printf "\033[2J\033[H\033[m"
+# Simple cleaner script that just kills any processes started by the preview
+pkill -P $$ 2>/dev/null || true

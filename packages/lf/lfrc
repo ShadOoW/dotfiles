@@ -5,32 +5,13 @@ set cleaner ~/.config/lf/cleaner
 # Display settings
 set drawbox
 set icons true
-set iconpath ~/.config/lf/icons
 set incsearch
 set scrolloff 5
 set smartcase
 set mouse
 
 # Color scheme
-set cursorpreviewfmt "\033[7;2m"
-set colors          # Use the color scheme from ~/.config/lf/colors
-set colorfg default # Default foreground color
-set colorbg default # Default background color
-
-# UI Colors
-set fg 7
-set bg -1
-
-set statusfg 7
-set statusbg -1
-
-set cursoractivefg 0
-set cursoractivebg 4
-
-set cursorfg 0
-set cursorbg 4
-
-set borderfg 8
+set cursorpreviewfmt ""  # No highlighting for cursor in preview pane
 
 # File type colors
 cmap <enter> &{{
@@ -81,9 +62,27 @@ cmd fzf_jump ${{
     lf -remote "send $id $cmd \"$res\""
 }}
 
+# Improved open command that handles missing browsers
 cmd open ${{
     case $(file --mime-type "$f" -bL) in
         text/*|application/json) $EDITOR "$f";;
-        *) xdg-open "$f" ;;
+        image/*) 
+            # Try to find an image viewer that exists
+            for viewer in imv feh sxiv display; do
+                if command -v $viewer >/dev/null 2>&1; then
+                    $viewer "$f" > /dev/null 2>&1 &
+                    exit 0
+                fi
+            done
+            echo "No suitable image viewer found. Install imv, feh, or sxiv."
+            ;;
+        *)
+            # Safer approach to open files
+            if command -v xdg-open >/dev/null 2>&1; then
+                xdg-open "$f" > /dev/null 2>&1 &
+            else
+                echo "xdg-open not found. Cannot open this file type."
+            fi
+            ;;
     esac
 }}

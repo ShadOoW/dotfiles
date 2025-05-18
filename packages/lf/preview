@@ -13,9 +13,18 @@ MIME=$(file -Lb --mime-type "$FILE")
 
 # Preview based on file type
 case "$MIME" in
-    # Image previews
+    # Image previews - use ASCII art for images to avoid GPU issues
     image/*)
-        kitty +kitten icat --transfer-mode=stream --stdin=no --place="${WIDTH}x${HEIGHT}@${X}x${Y}" "$FILE"
+        if [ "$TERM" = "xterm-kitty" ] && command -v kitty >/dev/null 2>&1; then
+            kitty +kitten icat --transfer-mode=file --place=60x20@0x0 "$file" < /dev/null > /dev/tty
+        elif command -v chafa >/dev/null 2>&1; then
+            chafa -s "${WIDTH}x${HEIGHT}" "$FILE"
+        elif command -v img2txt >/dev/null 2>&1; then
+            img2txt -W "$WIDTH" -H "$HEIGHT" "$FILE"
+        else
+            echo "Image: $FILE"
+            echo "Install chafa or libcaca for ASCII art image previews"
+        fi
         ;;
     
     # PDF previews
@@ -70,4 +79,6 @@ Permissions: %A" "$FILE"
         ;;
 esac
 
+# Text-based previews should exit with code 0
+# This tells lf it can cache the output for better performance
 exit 0

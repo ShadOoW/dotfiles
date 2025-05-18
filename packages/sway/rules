@@ -7,6 +7,7 @@ for_window {
   [class="feh"] fullscreen
 
   # Popups
+  [app_id="xarchiver"] floating enable
   [app_id="ulauncher"] floating enable, border none
   [window_role="pop-up"] floating enable
   [window_role="bubble"] floating enable
