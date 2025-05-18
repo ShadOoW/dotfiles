@@ -6,9 +6,24 @@ This repository contains my personal dotfiles for configuring Arch with Sway.
 
 ## Screenshots
 
-![Screenshot 1](screenshot-1.png)
-
-![Screenshot 2](screenshot-2.png)
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="screenshot-1.png" width="400px" alt="Helix + Kitty">
+        <p>Dev Environment</p>
+      </td>
+      <td align="center">
+        <img src="screenshot-2.png" width="400px" alt="Tig + Ncmpcpp">
+        <p>Tig + Ncmpcpp</p>
+      </td>
+      <td align="center">
+        <img src="screenshot-3.png" width="400px" alt="Rofi + Waybar">
+        <p>Rofi + Waybar</p>
+      </td>
+    </tr>
+  </table>
+</div>
 
 ## Workflow
 
