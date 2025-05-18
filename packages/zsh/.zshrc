@@ -1,51 +1,53 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+# Enable Completion
+autoload -Uz compinit
+compinit
 
-# TODO: Remove dependency on Oh-My-Zsh
-export ZSH="$HOME/.config/oh-my-zsh"
-
-ZSH_THEME="zhann"
-
-plugins=(
-    git
-    archlinux
-    zsh-autosuggestions
-    zsh-syntax-highlighting
-    copybuffer
-    copyfile
-    extract
-    nvm
-)
-
-source $ZSH/oh-my-zsh.sh
+# Source plugins
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
 
-lazy_load_nvm() {
-  unset -f node nvm
-  export NVM_DIR=~/.nvm
-  [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
-}
+# FZF plugins
+source /usr/share/zsh/plugins/fzf-tab-git/fzf-tab.zsh
+source /usr/share/zsh/plugins/zsh-fzf-plugin/fzf.plugin.zsh 
 
-node() {
-  lazy_load_nvm
-  node $@
-}
-
+# Lazy load nvm only when needed
+export NVM_DIR="$HOME/.nvm"
 nvm() {
-  lazy_load_nvm
-  node $@
+  unset -f nvm node npm npx yarn
+  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+  nvm "$@"
 }
 
-# Check archlinux plugin commands here
-# https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/archlinux
+# Define node, npm, and other related commands as functions that will trigger nvm loading
+node() {
+  unset -f nvm node npm npx yarn
+  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+  node "$@"
+}
 
-# Display Pokemon-colorscripts
-# Project page: https://gitlab.com/phoneybadger/pokemon-colorscripts#on-other-distros-and-macos
-#pokemon-colorscripts --no-title -s -r #without fastfetch
-#pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
+npm() {
+  unset -f nvm node npm npx yarn
+  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+  npm "$@"
+}
 
-# fastfetch. Will be disabled if above colorscript was chosen to install
-# fastfetch -c $HOME/.config/fastfetch/config-compact.jsonc
+npx() {
+  unset -f nvm node npm npx yarn
+  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+  npx "$@"
+}
+
+yarn() {
+  unset -f nvm node npm npx yarn
+  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+  yarn "$@"
+}
 
 # Set-up icons for files/directories in terminal using lsd
 alias ls='lsd'
@@ -55,6 +57,16 @@ alias lla='ls -la'
 alias lt='ls --tree'
 alias cat="bat --theme=gruvbox-dark"
 alias drag="ripdrag"
+
+# Function to copy file content to clipboard
+cf() {
+  if [ -z "$1" ]; then
+    echo "Usage: cf <filename>"
+    return 1
+  fi
+  echo -n "$1" | xclip -selection clipboard
+  echo "Copied '$1' to clipboard."
+}
 
 # Function to use fzf with ripdrag
 zdrag() {
@@ -111,3 +123,11 @@ bindkey '^[[A' history-substring-search-up      # Up arrow
 bindkey '^[[B' history-substring-search-down    # Down arrow
 bindkey '^[OA' history-substring-search-up      # Up arrow (alternate)
 bindkey '^[OB' history-substring-search-down    # Down arrow (alternate)
+
+# Improved prompt
+autoload -Uz vcs_info
+precmd() { vcs_info }
+zstyle ':vcs_info:git:*' formats ' %F{yellow}(%b)%f'
+setopt prompt_subst
+PROMPT='%B%F{blue}%c%B%F{magenta} %{$reset_color%}% %F{red}❯%F{yellow}❯%F{green}❯%f '
+RPROMPT='%B%F{green}${vcs_info_msg_0_}%f'
