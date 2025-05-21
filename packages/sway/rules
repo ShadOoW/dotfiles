@@ -15,17 +15,18 @@ for_window {
   [window_type="dialog"] floating enable
   [window_role="pop-up"] floating enable
   [window_role="task_dialog"] floating enable
-
-  # Thunar file operation progress window
   [app_id="thunar" title="File Operation Progress"] floating enable, border pixel 1
+
 
   # Intellij
   [class="com-intellij-updater-Runner" instance="com-intellij-updater-Runner"] floating enable, border pixel
 
   # Marks for our scratchpad applications
   [app_id="terminal-mark"] floating enable, mark terminal, move scratchpad, border pixel 4, border color #7dcfff
-  [app_id="music-mark"] floating enable, mark music, move scratchpad, border pixel 4, border color #7dcfff  
-  [app_id="explorer-mark"] floating enable, mark explorer, move scratchpad, border pixel 4, border color #7dcfff
+  [app_id="music-mark"] floating enable, mark music, move scratchpad, border pixel 4, border color #7dcfff
+  [app_id="org.gnome.Nautilus"] floating enable, mark explorer, move scratchpad, move position center, border pixel 4, border color #7dcfff
+  [app_id="org.qutebrowser.qutebrowser"] floating enable, mark chatgpt, move scratchpad, move position center, border pixel 4, border color #7dcfff
+  [app_id="org.qutebrowser.qutebrowser"] floating enable, mark whatapp, move scratchpad, move position center, border pixel 4, border color #7dcfff
 }
 
 # Workspace assignments

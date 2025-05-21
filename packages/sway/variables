@@ -12,5 +12,7 @@ set {
     # Scratchpad settings
     $sp_terminal "~/.config/sway/scripts/toggle-scratchpad.sh terminal app_id terminal-mark 'kitty --app-id terminal-mark'"
     $sp_music "~/.config/sway/scripts/toggle-scratchpad.sh music app_id music-mark 'kitty --app-id music-mark ncmpcpp'"
-    $sp_explorer "~/.config/sway/scripts/toggle-scratchpad.sh explorer app_id explorer-mark 'kitty --app-id explorer-mark lf'"
+    $sp_explorer "~/.config/sway/scripts/toggle-scratchpad.sh explorer app_id org.gnome.Nautilus 'nautilus'"
+    $sp_chatgpt "~/.config/sway/scripts/toggle-scratchpad.sh chatgpt app_id org.qutebrowser.qutebrowser 'qutebrowser https://chatgpt.com'"
+    $sp_whatsapp "~/.config/sway/scripts/toggle-scratchpad.sh whatsapp app_id org.qutebrowser.qutebrowser 'whatsapp https://web.whatsapp.com'"
 }
