@@ -1,0 +1,92 @@
+# https://github.com/doneill/doneill.github.io/blob/9ff6bfbbaf4ab275e36768a5f79829e34eb2996e/source/_posts/helix-jvm-setup.md?plain=1#L38
+
+# [language-server.jdtls]
+# command = "jdtls"
+# args = ["-data", "~/.cache/jdtls/workspace"]
+
+[[language]]
+name = "java"
+scope = "source.java"
+file-types = ["java"]
+roots = ["pom.xml", "build", "gradle", ".gitignore", ".git"]
+language-servers = ["jdtls"]
+
+# Web
+[language-server.typescript-language-server]
+command = "typescript-language-server"
+args = ["--stdio"]
+
+[language-server.css-ls]
+command = "vscode-css-language-server"
+args = ["--stdio"]
+
+[language-server.html-ls]
+command = "vscode-html-language-server"
+args = ["--stdio"]
+
+[language-server.astro-ls]
+command = "astro-ls"
+args = ["--stdio"]
+config = { typescript = { tsdk = "/usr/lib/node_modules/typescript/lib" }, environment = "node" }
+
+# TypeScript configuration
+[[language]]
+name = "typescript"
+scope = "source.ts"
+file-types = ["ts", "tsx"]
+language-servers = ["typescript-language-server"]
+formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath", "{file}", "--parser", "typescript"] }
+auto-format = true
+
+# JavaScript configuration
+[[language]]
+name = "javascript"
+scope = "source.js"
+file-types = ["js", "jsx", "mjs"]
+language-servers = ["typescript-language-server"]
+formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath", "{file}", "--parser", "babel"] }
+auto-format = true
+
+# JSON configuration
+[[language]]
+name = "json"
+scope = "source.json"
+file-types = ["json", "jsonc"]
+language-servers = ["typescript-language-server"]
+formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath", "{file}", "--parser", "json"] }
+auto-format = true
+
+# Markdown configuration
+[[language]]
+name = "markdown"
+scope = "source.markdown"
+file-types = ["md", "markdown"]
+language-servers = ["marksman"]
+formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath", "{file}", "--parser", "markdown"] }
+auto-format = true
+
+[[language]]
+name = "astro"
+scope = "source.astro"
+injection-regex = "astro"
+file-types = ["astro"]
+language-servers = ["astro-ls"]
+formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath", "{file}", "--parser", "astro"] }
+auto-format = true
+roots = ["package.json", "astro.config.ts", "tsconfig.json", "tailwind.config.ts"]
+
+[[language]]
+name = "css"
+file-types = ["css", "scss", "less"]
+language-servers = ["css-ls"]
+formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath", "{file}", "--parser", "css"] }
+auto-format = true
+
+[[language]]
+name = "html"
+scope = "source.html"
+file-types = ["html", "htm"]
+language-servers = ["html-ls"]
+formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath", "{file}", "--parser", "html"] }
+auto-format = true
+

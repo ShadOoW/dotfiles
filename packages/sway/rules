@@ -31,3 +31,5 @@ for_window {
 
 # Workspace assignments
 assign [app_id="vivaldi-stable"] workspace number 2
+assign [app_id="vivaldi-chatgpt.com__-Default"] workspace number 10
+assign [app_id="vivaldi-web.whatsapp.com__-Default"] workspace number 10

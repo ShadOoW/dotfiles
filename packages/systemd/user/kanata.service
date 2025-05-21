@@ -1,0 +1,11 @@
+[Unit]
+Description=Kanata Keyboard Remapping Daemon
+After=graphical.target
+
+[Service]
+ExecStart=/usr/bin/kanata --cfg /home/shad/.config/kanata/config.kbd
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

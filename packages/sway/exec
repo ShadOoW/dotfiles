@@ -12,4 +12,8 @@ exec {
     
     # Start browser
     vivaldi-stable &
+    
+    # Start web apps
+    vivaldi-stable --app=https://chatgpt.com &
+    vivaldi-stable --app=https://web.whatsapp.com &
 }

@@ -44,6 +44,11 @@ declare -A TARGET_DIRS=(
     ["mpv"]="$HOME/.config/mpv"
     ["systemd"]="$HOME/.config/systemd"
     ["lf"]="$HOME/.config/lf"
+    ["helix"]="$HOME/.config/helix"
+    ["nvim"]="$HOME/.config/nvim"
+    ["xfce4"]="$HOME/.config/xfce4"
+    ["prettierd"]="$HOME/.config/prettierd"
+    ["kanata"]="$HOME/.config/kanata"
 )
 
 # Store setup scripts to run after stowing
