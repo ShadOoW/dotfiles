@@ -21,4 +21,7 @@ return {
 	require(
 		"plugins.ui.lualine"
 	),
+	require(
+		"plugins.ui.onedark"
+	),
 }

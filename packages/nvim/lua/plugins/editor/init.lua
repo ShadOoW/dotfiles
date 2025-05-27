@@ -21,4 +21,7 @@ return {
 	require(
 		"plugins.editor.golf"
 	),
+	require(
+		"plugins.editor.autotag"
+	),
 }

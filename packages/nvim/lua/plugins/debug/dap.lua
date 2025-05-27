@@ -154,7 +154,9 @@ return {
 		).setup({
 			delve = {
 				-- On Windows delve must be run attached or it crashes.
-				detached = vim.fn.has("win32")
+				detached = vim.fn.has(
+					"win32"
+				)
 					== 0,
 			},
 		})

@@ -23,7 +23,14 @@ return {
 			enable = true,
 		},
 	},
-	dependencies = {
-		"windwp/nvim-ts-autotag",
-	},
+	config = function(
+		_,
+		opts
+	)
+		require(
+			"nvim-treesitter.configs"
+		).setup(
+			opts
+		)
+	end,
 }

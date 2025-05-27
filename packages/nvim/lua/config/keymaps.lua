@@ -167,3 +167,14 @@ keymap.n(
 	":%s/<C-r><C-w>//g<Left><Left>",
 	"Search and replace word under cursor"
 )
+
+-- Open mini.files with '\'
+keymap.n(
+	"\\",
+	function()
+		require(
+			"mini.files"
+		).open()
+	end,
+	"Open MiniFiles file explorer"
+)

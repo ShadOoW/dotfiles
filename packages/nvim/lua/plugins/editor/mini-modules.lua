@@ -71,13 +71,13 @@ return {
 			mappings = {
 				go_in = "<CR>",
 				go_in_plus = "<C-CR>",
-				go_out = "-",
-				go_out_plus = "_",
+				go_out = "<BS>",
+				go_out_plus = "-",
 				show_help = "g?",
 				synchronize = "=",
 				trim_left = "<",
 				trim_right = ">",
-				close = "q", -- Add q to close
+				close = "q",
 			},
 			options = {
 				-- Don't use netrw (prevents neo-tree from opening)
@@ -113,22 +113,6 @@ return {
 			end,
 			{
 				desc = "Toggle MiniFiles",
-			}
-		)
-
-		-- Add a dedicated close keymap
-		vim.keymap.set(
-			"n",
-			"<leader>fc",
-			function()
-				require(
-					"mini.files"
-				).close()
-				files_win_config =
-					nil
-			end,
-			{
-				desc = "Close MiniFiles",
 			}
 		)
 

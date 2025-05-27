@@ -11,6 +11,8 @@ return {
 				}, -- Disable italics in comments
 			},
 		})
-		vim.cmd.colorscheme("tokyonight-night")
+		vim.cmd.colorscheme(
+			"tokyonight-night"
+		)
 	end,
 }

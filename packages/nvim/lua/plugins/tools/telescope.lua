@@ -7,8 +7,9 @@ return {
 			"nvim-telescope/telescope-fzf-native.nvim",
 			build = "make",
 			cond = function()
-				return vim.fn.executable("make")
-					== 1
+				return vim.fn.executable(
+					"make"
+				) == 1
 			end,
 		},
 		"nvim-telescope/telescope-ui-select.nvim",
@@ -60,7 +61,9 @@ return {
 
 		-- Set keymaps
 		local builtin =
-			require("telescope.builtin")
+			require(
+				"telescope.builtin"
+			)
 		vim.keymap.set(
 			"n",
 			"<leader>sh",
@@ -182,7 +185,9 @@ return {
 			"<leader>sn",
 			function()
 				builtin.find_files({
-					cwd = vim.fn.stdpath("config"),
+					cwd = vim.fn.stdpath(
+						"config"
+					),
 				})
 			end,
 			{
