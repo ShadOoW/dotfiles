@@ -128,3 +128,16 @@ vim.api.nvim_set_hl(0, "ModeMsg", {
 }) -- Customize mode message color
 vim.opt.showmode = true -- Show current mode in status line
 vim.opt.statusline = "%{mode()}" -- Show mode in status line
+
+-- Use latest version of file.
+vim.opt.autoread = true
+vim.api.nvim_create_autocmd({"FocusGained", "BufEnter", "CursorHold"}, {
+    command = "checktime"
+})
+vim.opt.swapfile = true
+vim.opt.backup = true
+vim.opt.writebackup = true
+vim.opt.backupcopy = "auto"
+vim.opt.directory = "/tmp/nvim/swap//"
+vim.opt.backupdir = "/tmp/nvim/backup//"
+vim.opt.undodir = "/tmp/nvim/undo//"

@@ -49,6 +49,8 @@ declare -A TARGET_DIRS=(
     ["xfce4"]="$HOME/.config/xfce4"
     ["prettierd"]="$HOME/.config/prettierd"
     ["kanata"]="$HOME/.config/kanata"
+    ["tmux"]="$HOME/.config/tmux"
+    ["zellij"]="$HOME/.config/zellij"
 )
 
 # Store setup scripts to run after stowing

@@ -22,6 +22,7 @@ alias lla='ls -la'
 alias lt='ls --tree'
 alias cat="bat --theme=gruvbox-dark"
 alias drag="ripdrag"
+alias n="nvim"
 
 # Function to copy file content to clipboard
 cf() {

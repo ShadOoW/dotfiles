@@ -19,15 +19,7 @@ keymap.n("<C-S-j>", "<C-w>J", "Move window to the bottom")
 keymap.n("<C-S-k>", "<C-w>K", "Move window to the top")
 
 -- Telescope keymaps
-keymap.n("<leader>ff", "<cmd>Telescope find_files<cr>", "Find files")
-keymap.n("<leader>fg", "<cmd>Telescope live_grep<cr>", "Live grep")
-keymap.n("<leader>fb", "<cmd>Telescope buffers<cr>", "Find buffers")
-keymap.n("<leader>fh", "<cmd>Telescope help_tags<cr>", "Help tags")
-
--- File explorer keymaps
-keymap.n("<leader>fe", "<cmd>NvimTreeFindFile<cr>", "Select file in explorer")
-keymap.n("<leader>e", "<cmd>NvimTreeToggle<cr>", "Toggle file explorer")
-keymap.n("<leader>o", "<cmd>NvimTreeFocus<cr>", "Focus file explorer")
+keymap.n("<leader>ff", "<cmd>Telescope find_files<cr>", "File Operations")
 
 -- Buffer navigation
 keymap.n("<S-h>", "<cmd>BufferLineCyclePrev<cr>", "Previous buffer")
@@ -36,29 +28,18 @@ keymap.n("<leader>bp", "<cmd>BufferLinePick<cr>", "Pick buffer")
 keymap.n("<leader>bc", "<cmd>BufferLinePickClose<cr>", "Pick and close buffer")
 keymap.n("<M-~>", ":BufferLineCycleNext<CR>", "Next buffer tab")
 keymap.n("<M-S-~>", ":BufferLineCyclePrev<CR>", "Previous buffer tab")
+-- Buffer navigation with leader+arrow keys
+keymap.n("<leader><Right>", "<cmd>bnext<CR>", "Next buffer")
+keymap.n("<leader><Left>", "<cmd>bprevious<CR>", "Previous buffer")
 
 -- Comment keymaps
 keymap.n("<leader>/", "<cmd>lua require('Comment.api').toggle.linewise.current()<cr>", "Toggle comment")
 keymap.v("<leader>/", "<esc><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<cr>", "Toggle comment")
 
 -- LSP keymaps
-keymap.n("gd", "<cmd>lua vim.lsp.buf.definition()<cr>", "Go to definition")
-keymap.n("gr", "<cmd>lua vim.lsp.buf.references()<cr>", "Go to references")
 keymap.n("K", "<cmd>lua vim.lsp.buf.hover()<cr>", "Hover documentation")
-keymap.n("<leader>ca", "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code action")
-keymap.n("<leader>rn", "<cmd>lua vim.lsp.buf.rename()<cr>", "Rename symbol")
-
--- Mason keymaps
-keymap.n("<leader>m", "<cmd>Mason<cr>", "Open Mason")
-
--- Format keymap
-keymap.n("<leader>f", "<cmd>lua require('conform').format()<cr>", "Format file")
-
--- Window resizing
-keymap.n("<C-Up>", "<cmd>resize -2<CR>", "Decrease window height")
-keymap.n("<C-Down>", "<cmd>resize +2<CR>", "Increase window height")
-keymap.n("<C-Left>", "<cmd>vertical resize +2<CR>", "Decrease window width")
-keymap.n("<C-Right>", "<cmd>vertical resize -2<CR>", "Increase window width")
+keymap.n("<leader>aa", "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code action")
+keymap.n("<leader>ar", "<cmd>lua vim.lsp.buf.rename()<cr>", "Rename symbol")
 
 -- Indentation in visual mode
 keymap.v("<", "<gv", "Outdent line")

@@ -1,2 +1,2 @@
 -- Git plugins
-return {require("plugins.git.gitsigns")}
+return {require("plugins.git.gitsigns"), require("plugins.git.fugitive")}

@@ -1,0 +1,10 @@
+[Unit]
+Description=Start tmux server
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/tmux new-session -d -s keepalive
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target

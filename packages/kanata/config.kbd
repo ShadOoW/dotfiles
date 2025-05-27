@@ -14,12 +14,12 @@
 )
 
 (deflayer base
-  caps f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 prtsc pause
+  esc f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 prtsc pause
   ins home pgup del end pgdn up
   left down right
   grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
-  esc  a    s    d    f    g    h    j    k    l    ;    '    ret
+  caps  a    s    d    f    g    h    j    k    l    ;    '    ret
   (tap-hold-press 0 1 lsft (one-shot 2000 lsft)) z x c v b n m , . / (tap-hold-press 0 1 rsft (one-shot 2000 rsft))
   (tap-hold-press 0 1 lctl (one-shot 2000 lctl)) (tap-hold 0 1 lmeta (one-shot 2000 (layer-while-held workspace))) lalt spc ralt (tap-hold 0 1 rmeta (one-shot 2000 (layer-while-held workspace))) (tap-hold-press 0 1 rctl (one-shot 2000 rctl))
 )

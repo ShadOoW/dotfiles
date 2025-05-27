@@ -17,8 +17,8 @@ return {
         -- Configure individual LSP servers
         lspconfig.html.setup(common_settings)
         lspconfig.cssls.setup(common_settings)
-        -- Using ts_ls instead of deprecated tsserver
-        lspconfig.typescript.setup(common_settings)
+        -- Using correct name for TypeScript server
+        lspconfig.ts_ls.setup(common_settings)
         lspconfig.eslint.setup(common_settings)
         lspconfig.tailwindcss.setup(common_settings)
         lspconfig.astro.setup(common_settings)
@@ -55,31 +55,7 @@ return {
             }
         }))
 
-        -- Java specific configuration
-        lspconfig.jdtls.setup(vim.tbl_deep_extend("force", common_settings, {
-            settings = {
-                java = {
-                    configuration = {
-                        runtimes = {{
-                            name = "JavaSE-17",
-                            path = "/usr/lib/jvm/java-17-openjdk",
-                            default = true
-                        }, {
-                            name = "JavaSE-1.8",
-                            path = "/usr/lib/jvm/java-8-openjdk"
-                        }}
-                    },
-                    format = {
-                        settings = {
-                            url = "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
-                            profile = "GoogleStyle"
-                        }
-                    },
-                    debug = {
-                        vmArgs = "-ea"
-                    }
-                }
-            }
-        }))
+        -- Java is configured in a separate plugin (nvim-jdtls)
+        -- See lua/plugins/lsp/jdtls.lua for Java-specific configuration
     end
 }

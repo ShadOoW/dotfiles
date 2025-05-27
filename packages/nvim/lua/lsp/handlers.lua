@@ -18,38 +18,21 @@ function M.on_attach(client, bufnr)
         })
     end
 
-    -- Rename the variable under your cursor
-    buf_map('n', 'grn', vim.lsp.buf.rename, '[R]e[n]ame')
+    -- Goto places
+    buf_map('n', 'gga', vim.lsp.buf.code_action, '[G]oto Code [A]ction')
+    buf_map('n', 'ggr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+    buf_map('n', 'ggi', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+    buf_map('n', 'ggg', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+    buf_map('n', 'ggd', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+    buf_map('n', 'ggt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
 
-    -- Execute a code action
-    buf_map('n', 'gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction')
-    buf_map('x', 'gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction')
-
-    -- Find references for the word under your cursor
-    buf_map('n', 'grr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-
-    -- Jump to the implementation of the word under your cursor
-    buf_map('n', 'gri', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-
-    -- Jump to the definition of the word under your cursor
-    buf_map('n', 'grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-
-    -- Goto Declaration
-    buf_map('n', 'grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-
-    -- Document symbols
-    buf_map('n', 'gO', require('telescope.builtin').lsp_document_symbols, 'Open Document Symbols')
-
-    -- Workspace symbols
-    buf_map('n', 'gW', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Open Workspace Symbols')
-
-    -- Type definition
-    buf_map('n', 'grt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
+    -- LSP actions
+    buf_map('n', 'gr', vim.lsp.buf.rename, '[R]e[n]ame')
+    buf_map('n', 'gs', require('telescope.builtin').lsp_document_symbols, 'Open Document Symbols')
+    buf_map('n', 'gw', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Open Workspace Symbols')
 
     -- Inlay hints toggle (if supported)
-    if client.supports_method and client.supports_method("textDocument/inlayHint", {
-        bufnr = bufnr
-    }) then
+    if client.server_capabilities.inlayHintProvider then
         -- Enable inlay hints by default
         vim.lsp.inlay_hint.enable(true, {
             bufnr = bufnr
@@ -62,29 +45,33 @@ function M.on_attach(client, bufnr)
         end, '[T]oggle Inlay [H]ints')
     end
 
-    -- Document highlight
-    if client.supports_method and client.supports_method("textDocument/documentHighlight", {
-        bufnr = bufnr
-    }) then
-        local highlight_group = vim.api.nvim_create_augroup('lsp-document-highlight', {
-            clear = false
+    -- Document highlight with better error handling
+    if client.server_capabilities.documentHighlightProvider == true then
+        local highlight_group = vim.api.nvim_create_augroup('lsp-document-highlight-' .. bufnr, {
+            clear = true
         })
 
         vim.api.nvim_create_autocmd({'CursorHold', 'CursorHoldI'}, {
             buffer = bufnr,
             group = highlight_group,
-            callback = vim.lsp.buf.document_highlight
+            callback = function()
+                pcall(vim.lsp.buf.document_highlight)
+            end,
+            desc = 'Document highlight on cursor hold'
         })
 
         vim.api.nvim_create_autocmd({'CursorMoved', 'CursorMovedI'}, {
             buffer = bufnr,
             group = highlight_group,
-            callback = vim.lsp.buf.clear_references
+            callback = function()
+                pcall(vim.lsp.buf.clear_references)
+            end,
+            desc = 'Clear document highlight on cursor move'
         })
     end
 
     -- Format on save if the LSP supports it
-    if client.supports_method and client.supports_method("textDocument/formatting") then
+    if client.server_capabilities.documentFormattingProvider then
         buf_map('n', '<leader>f', function()
             vim.lsp.buf.format({
                 async = true

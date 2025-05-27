@@ -18,7 +18,7 @@ return {
             ensure_installed = { -- Web Development
             "html", -- HTML
             "cssls", -- CSS
-            "typescript-language-server", -- TypeScript/JavaScript (ts_ls)
+            "ts_ls", -- TypeScript/JavaScript (ts_ls)
             "eslint", -- ESLint
             "tailwindcss", -- Tailwind CSS
             "astro", -- Astro

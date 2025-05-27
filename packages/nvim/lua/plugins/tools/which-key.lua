@@ -14,11 +14,20 @@ return {
             }
         },
         spec = {{
+            '<leader>w',
+            group = 'Window'
+        }, {
+            '<leader>f',
+            group = 'File'
+        }, {
             '<leader>s',
-            group = '[S]earch'
+            group = 'Search'
         }, {
             '<leader>t',
-            group = '[T]oggle'
+            group = 'Toggle'
+        }, {
+            '<leader>a',
+            group = 'Actions'
         }, {
             '<leader>h',
             group = 'Git [H]unk',

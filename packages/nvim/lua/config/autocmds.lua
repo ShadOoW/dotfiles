@@ -22,3 +22,16 @@ vim.api.nvim_create_autocmd('BufReadPost', {
         end
     end
 })
+
+-- Disable document highlight for file types that often cause issues
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = {'markdown', 'text', 'txt', 'help', 'log', 'json', 'yaml', 'toml', 'conf'},
+    callback = function(args)
+        -- Clear any existing document highlight autocommands for this buffer
+        vim.api.nvim_clear_autocmds({
+            group = 'lsp-document-highlight-' .. args.buf,
+            buffer = args.buf
+        })
+    end,
+    desc = 'Disable document highlight for specific file types'
+})

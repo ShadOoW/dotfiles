@@ -1,37 +1,25 @@
 return {
-    'stevearc/conform.nvim',
-    event = {'BufWritePre'},
-    cmd = {'ConformInfo'},
-    keys = {{
-        '<leader>f',
-        function()
-            require('conform').format {
-                async = true,
-                lsp_format = 'fallback'
-            }
-        end,
-        mode = '',
-        desc = '[F]ormat buffer'
-    }},
+    "stevearc/conform.nvim",
+    event = "BufWritePre",
     opts = {
-        notify_on_error = false,
-        format_on_save = function(bufnr)
-            -- Disable automatic formatting for certain filetypes
-            local disable_filetypes = {
-                c = true,
-                cpp = true
-            }
-            if disable_filetypes[vim.bo[bufnr].filetype] then
-                return nil
-            else
-                return {
-                    timeout_ms = 500,
-                    lsp_format = 'fallback'
-                }
-            end
-        end,
+        format_on_save = true,
         formatters_by_ft = {
-            lua = {'stylua'}
+            html = {"prettier"},
+            css = {"prettier"},
+            typescript = {"prettier"},
+            typescriptreact = {"prettier"},
+            astro = {"prettier"},
+            javascript = {"prettier"},
+            javascriptreact = {"prettier"},
+            lua = {"stylua"}
+            -- Add rustywind for tailwind class sorting if desired
+        },
+        formatters = {
+            rustywind = {
+                command = "rustywind",
+                args = {"--stdin"},
+                stdin = true
+            }
         }
     }
 }
