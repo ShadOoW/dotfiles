@@ -19,9 +19,6 @@ return {
 		indent = {
 			enable = true,
 		},
-		autotag = {
-			enable = true,
-		},
 	},
 	config = function(
 		_,
