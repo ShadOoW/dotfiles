@@ -1,5 +1,5 @@
 return {
-    'NMAC427/guess-indent.nvim',
-    event = 'BufReadPre',
-    opts = {}
+	"NMAC427/guess-indent.nvim",
+	event = "BufReadPre",
+	opts = {},
 }
