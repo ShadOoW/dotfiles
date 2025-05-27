@@ -103,7 +103,6 @@ vim.api.nvim_create_autocmd(
 						)
 					local line =
 						vim.api.nvim_get_current_line()
-					-- Check if cursor is between ><
 					if
 						col
 							> 0
@@ -119,13 +118,7 @@ vim.api.nvim_create_autocmd(
 							)
 							== "<"
 					then
-						return "<CR><CR><Up>"
-							.. vim.api.nvim_replace_termcodes(
-								"<Tab>",
-								true,
-								false,
-								true
-							)
+						return "<CR><CR><Up><C-f>"
 					else
 						return "<CR>"
 					end
