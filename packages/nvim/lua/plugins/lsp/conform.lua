@@ -4,49 +4,25 @@ return {
   opts = {
     format_on_save = true,
     formatters_by_ft = {
-      html = {
-        'prettier',
-      },
-      css = {
-        'prettier',
-      },
-      typescript = {
-        'prettier',
-      },
-      typescriptreact = {
-        'prettier',
-      },
-      astro = {
-        'prettier',
-      },
-      javascript = {
-        'prettier',
-      },
-      javascriptreact = {
-        'prettier',
-      },
-      lua = {
-        'stylua',
-      },
+      html = { 'prettier' },
+      css = { 'prettier' },
+      typescript = { 'prettier' },
+      typescriptreact = { 'prettier' },
+      astro = { 'prettier' },
+      javascript = { 'prettier' },
+      javascriptreact = { 'prettier' },
+      lua = { 'stylua' },
+      java = {},
       -- Add rustywind for tailwind class sorting if desired
     },
     formatters = {
       rustywind = {
         command = 'rustywind',
-        args = {
-          '--stdin',
-        },
+        args = { '--stdin' },
         stdin = true,
       },
       stylua = {
-        prepend_args = {
-          '--column-width',
-          '0',
-          '--collapse-simple-statement',
-          'Never',
-          '--indent-width',
-          '2',
-        },
+        prepend_args = { '--column-width', '0', '--collapse-simple-statement', 'Never', '--indent-width', '2' },
       },
     },
   },

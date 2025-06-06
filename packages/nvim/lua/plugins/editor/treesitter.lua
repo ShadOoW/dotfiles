@@ -4,14 +4,7 @@ return {
   build = ':TSUpdate',
   event = 'BufReadPost',
   opts = {
-    ensure_installed = {
-      'html',
-      'css',
-      'typescript',
-      'tsx',
-      'javascript',
-      'astro',
-    },
+    ensure_installed = { 'html', 'css', 'typescript', 'tsx', 'javascript', 'astro', 'java' },
     auto_install = true,
     highlight = {
       enable = true,

@@ -1,8 +1,6 @@
 return {
   'nvim-lualine/lualine.nvim',
-  dependencies = {
-    'nvim-tree/nvim-web-devicons',
-  },
+  dependencies = { 'nvim-tree/nvim-web-devicons' },
   config = function()
     -- Get colors from Tokyo Night theme to match tmux
     local colors = {
@@ -17,6 +15,8 @@ return {
       magenta = '#bb9af7',
       blue = '#7aa2f7',
       red = '#f7768e',
+      bg_highlight = '#292e42',
+      terminal_black = '#414868',
     }
 
     local conditions = {
@@ -32,16 +32,20 @@ return {
     local config = {
       options = {
         component_separators = '',
-        section_separators = '',
+        section_separators = {
+          left = '',
+          right = '',
+        },
         theme = {
           normal = {
             a = {
-              fg = colors.fg,
-              bg = colors.bg,
+              fg = colors.bg,
+              bg = colors.blue,
+              gui = 'bold',
             },
             b = {
               fg = colors.fg,
-              bg = colors.bg,
+              bg = colors.bg_highlight,
             },
             c = {
               fg = colors.fg,
@@ -49,13 +53,58 @@ return {
             },
             z = {
               fg = colors.fg,
+              bg = colors.bg_highlight,
+            },
+          },
+          insert = {
+            a = {
+              fg = colors.bg,
+              bg = colors.green,
+              gui = 'bold',
+            },
+            b = {
+              fg = colors.fg,
+              bg = colors.bg_highlight,
+            },
+            c = {
+              fg = colors.fg,
+              bg = colors.bg,
+            },
+          },
+          visual = {
+            a = {
+              fg = colors.bg,
+              bg = colors.magenta,
+              gui = 'bold',
+            },
+            b = {
+              fg = colors.fg,
+              bg = colors.bg_highlight,
+            },
+            c = {
+              fg = colors.fg,
+              bg = colors.bg,
+            },
+          },
+          command = {
+            a = {
+              fg = colors.bg,
+              bg = colors.orange,
+              gui = 'bold',
+            },
+            b = {
+              fg = colors.fg,
+              bg = colors.bg_highlight,
+            },
+            c = {
+              fg = colors.fg,
               bg = colors.bg,
             },
           },
           inactive = {
             a = {
               fg = colors.fg,
-              bg = colors.bg,
+              bg = colors.terminal_black,
             },
             b = {
               fg = colors.fg,
@@ -84,40 +133,27 @@ return {
         lualine_a = {
           {
             'mode',
-            color = function()
-              local mode_color = {
-                n = colors.blue,
-                i = colors.green,
-                v = colors.magenta,
-                [''] = colors.magenta,
-                V = colors.magenta,
-                c = colors.orange,
-                no = colors.red,
-                s = colors.orange,
-                S = colors.orange,
-                [''] = colors.orange,
-                ic = colors.yellow,
-                R = colors.violet,
-                Rv = colors.violet,
-                cv = colors.red,
-                ce = colors.red,
-                r = colors.cyan,
-                rm = colors.cyan,
-                ['r?'] = colors.cyan,
-                ['!'] = colors.red,
-                t = colors.red,
-              }
-              return {
-                fg = mode_color[vim.fn.mode()] or colors.fg,
-              }
-            end,
-            padding = {
-              left = 1,
-              right = 1,
+            separator = {
+              left = '',
             },
+            right_padding = 2,
           },
         },
         lualine_b = {
+          {
+            'filename',
+            file_status = true,
+            newfile_status = true,
+            path = 1,
+            symbols = {
+              modified = '[+]',
+              readonly = '[-]',
+              unnamed = '[No Name]',
+              newfile = '[New]',
+            },
+          },
+        },
+        lualine_c = {
           {
             'branch',
             icon = '',
@@ -147,25 +183,10 @@ return {
             cond = conditions.hide_in_width,
           },
         },
-        lualine_c = {
-          {
-            'filename',
-            file_status = true,
-            path = 1,
-            shorting_target = 40,
-            symbols = {
-              modified = '[+]',
-              readonly = '[-]',
-              unnamed = '[No Name]',
-            },
-          },
-        },
         lualine_x = {
           {
             'diagnostics',
-            sources = {
-              'nvim_diagnostic',
-            },
+            sources = { 'nvim_diagnostic' },
             symbols = {
               error = ' ',
               warn = ' ',
@@ -187,7 +208,7 @@ return {
             function()
               local msg = 'No LSP'
               local buf_ft = vim.api.nvim_buf_get_option(0, 'filetype')
-              local clients = vim.lsp.get_active_clients()
+              local clients = vim.lsp.get_clients()
               if next(clients) == nil then return msg end
               for _, client in ipairs(clients) do
                 local filetypes = client.config.filetypes
@@ -226,22 +247,18 @@ return {
         lualine_z = {
           {
             'location',
-            color = {
-              fg = colors.fg,
-              gui = 'bold',
+            separator = {
+              right = '',
             },
+            left_padding = 2,
           },
         },
       },
       inactive_sections = {
         lualine_a = {},
         lualine_b = {},
-        lualine_c = {
-          'filename',
-        },
-        lualine_x = {
-          'location',
-        },
+        lualine_c = { 'filename' },
+        lualine_x = { 'location' },
         lualine_y = {},
         lualine_z = {},
       },

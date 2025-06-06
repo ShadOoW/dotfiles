@@ -1,11 +1,7 @@
 -- Mason for LSP, DAP, and Linter installation
 return {
   'williamboman/mason.nvim',
-  dependencies = {
-    'williamboman/mason-lspconfig.nvim',
-    'neovim/nvim-lspconfig',
-    'jay-babu/mason-nvim-dap.nvim',
-  },
+  dependencies = { 'williamboman/mason-lspconfig.nvim', 'neovim/nvim-lspconfig', 'jay-babu/mason-nvim-dap.nvim' },
   config = function()
     require('mason').setup({
       ui = {
@@ -32,6 +28,7 @@ return {
         'denols', -- Deno
         -- Java Development
         'jdtls', -- Java
+        'gradle_ls', -- Gradle
         -- C/C++ Development
         'clangd', -- C/C++/Objective-C
         -- General
@@ -45,9 +42,7 @@ return {
 
     -- Configure Mason DAP
     require('mason-nvim-dap').setup({
-      ensure_installed = {
-        'codelldb',
-      },
+      ensure_installed = { 'codelldb', 'java-debug-adapter', 'java-test' },
       automatic_installation = true,
       handlers = {
         ['codelldb'] = function(config)

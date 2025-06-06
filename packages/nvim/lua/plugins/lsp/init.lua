@@ -4,6 +4,7 @@ return {
   require('plugins.lsp.lazydev'),
   require('plugins.lsp.nvim-lspconfig'),
   require('plugins.lsp.mason'),
+  require('plugins.lsp.mason-tool-installer'),
   require('plugins.lsp.servers'),
   require('plugins.lsp.jdtls'),
 }

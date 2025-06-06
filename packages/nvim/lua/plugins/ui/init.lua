@@ -8,4 +8,5 @@ return {
   require('plugins.ui.output-panel'),
   require('plugins.ui.lualine'),
   require('plugins.ui.onedark'),
+  require('plugins.ui.trouble'),
 }

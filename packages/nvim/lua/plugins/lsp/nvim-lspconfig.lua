@@ -17,24 +17,7 @@ return { -- Main LSP Configuration
     -- Initialize LSP setup from lsp/setup.lua
     require('lsp.setup').setup()
 
-    -- Ensure the servers and tools are installed
-    require('mason-tool-installer').setup({
-      ensure_installed = {
-        'lua-language-server',
-        'stylua', -- Used to format Lua code
-        'jdtls', -- Java language server
-        'java-debug-adapter', -- Java debugger
-        'java-test', -- Java test runner
-        'checkstyle', -- Java style checker
-        'google-java-format', -- Java formatter
-      },
-    })
-
-    require('mason-lspconfig').setup({
-      ensure_installed = {
-        'jdtls',
-      },
-      automatic_installation = true,
-    })
+    -- LSP servers will be installed by mason-tool-installer
+    -- and configured by mason-lspconfig in their respective files
   end,
 }

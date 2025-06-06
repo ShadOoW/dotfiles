@@ -130,11 +130,7 @@ vim.opt.statusline = '%{mode()}' -- Show mode in status line
 
 -- Use latest version of file.
 vim.opt.autoread = true
-vim.api.nvim_create_autocmd({
-  'FocusGained',
-  'BufEnter',
-  'CursorHold',
-}, {
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold' }, {
   command = 'checktime',
 })
 vim.opt.swapfile = true
@@ -144,3 +140,53 @@ vim.opt.backupcopy = 'auto'
 vim.opt.directory = '/tmp/nvim/swap//'
 vim.opt.backupdir = '/tmp/nvim/backup//'
 vim.opt.undodir = '/tmp/nvim/undo//'
+
+-- Clipboard configuration
+vim.opt.clipboard = 'unnamedplus'
+
+-- Fix clipboard issues on Linux
+if vim.fn.has('linux') == 1 then
+  if vim.fn.executable('wl-copy') == 1 and vim.fn.executable('wl-paste') == 1 then
+    -- Wayland clipboard
+    vim.g.clipboard = {
+      name = 'wl-clipboard',
+      copy = {
+        ['+'] = 'wl-copy',
+        ['*'] = 'wl-copy',
+      },
+      paste = {
+        ['+'] = 'wl-paste --no-newline',
+        ['*'] = 'wl-paste --no-newline',
+      },
+      cache_enabled = 0,
+    }
+  elseif vim.fn.executable('xclip') == 1 then
+    -- X11 clipboard with xclip
+    vim.g.clipboard = {
+      name = 'xclip',
+      copy = {
+        ['+'] = 'xclip -selection clipboard',
+        ['*'] = 'xclip -selection primary',
+      },
+      paste = {
+        ['+'] = 'xclip -selection clipboard -o',
+        ['*'] = 'xclip -selection primary -o',
+      },
+      cache_enabled = 0,
+    }
+  elseif vim.fn.executable('xsel') == 1 then
+    -- X11 clipboard with xsel
+    vim.g.clipboard = {
+      name = 'xsel',
+      copy = {
+        ['+'] = 'xsel --clipboard --input',
+        ['*'] = 'xsel --primary --input',
+      },
+      paste = {
+        ['+'] = 'xsel --clipboard --output',
+        ['*'] = 'xsel --primary --output',
+      },
+      cache_enabled = 0,
+    }
+  end
+end

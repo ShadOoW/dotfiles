@@ -26,11 +26,6 @@ function M.on_attach(client, bufnr)
   buf_map('n', 'ggd', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
   buf_map('n', 'ggt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
 
-  -- LSP actions
-  buf_map('n', 'gr', vim.lsp.buf.rename, '[R]e[n]ame')
-  buf_map('n', 'gs', require('telescope.builtin').lsp_document_symbols, 'Open Document Symbols')
-  buf_map('n', 'gw', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Open Workspace Symbols')
-
   -- Inlay hints toggle (if supported)
   if client.server_capabilities.inlayHintProvider then
     -- Enable inlay hints by default
@@ -56,20 +51,14 @@ function M.on_attach(client, bufnr)
       clear = true,
     })
 
-    vim.api.nvim_create_autocmd({
-      'CursorHold',
-      'CursorHoldI',
-    }, {
+    vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
       buffer = bufnr,
       group = highlight_group,
       callback = function() pcall(vim.lsp.buf.document_highlight) end,
       desc = 'Document highlight on cursor hold',
     })
 
-    vim.api.nvim_create_autocmd({
-      'CursorMoved',
-      'CursorMovedI',
-    }, {
+    vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
       buffer = bufnr,
       group = highlight_group,
       callback = function() pcall(vim.lsp.buf.clear_references) end,
