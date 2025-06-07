@@ -81,7 +81,7 @@ return {
 
         local function jdtls_setup(event)
             -- Check if JDTLS is already running for this buffer
-            local existing_clients = vim.lsp.get_active_clients({
+            local existing_clients = vim.lsp.get_clients({
                 name = "jdtls"
             })
             for _, client in ipairs(existing_clients) do
@@ -373,7 +373,7 @@ return {
         -- Add commands for debugging and manual restart
         vim.api.nvim_create_user_command("JdtlsRestart", function()
             -- Stop all existing JDTLS clients
-            local clients = vim.lsp.get_active_clients({
+            local clients = vim.lsp.get_clients({
                 name = "jdtls"
             })
             for _, client in ipairs(clients) do
@@ -397,7 +397,7 @@ return {
 
         vim.api.nvim_create_user_command("JdtlsCleanWorkspace", function()
             -- Stop all existing JDTLS clients first
-            local clients = vim.lsp.get_active_clients({
+            local clients = vim.lsp.get_clients({
                 name = "jdtls"
             })
             for _, client in ipairs(clients) do
@@ -449,7 +449,7 @@ return {
         })
 
         vim.api.nvim_create_user_command("JdtlsStatus", function()
-            local clients = vim.lsp.get_active_clients({
+            local clients = vim.lsp.get_clients({
                 name = "jdtls"
             })
             if #clients > 0 then
@@ -497,7 +497,7 @@ return {
             print("Final root would be: " .. final_root)
 
             -- Check active JDTLS clients
-            local clients = vim.lsp.get_active_clients({
+            local clients = vim.lsp.get_clients({
                 name = "jdtls"
             })
             if #clients > 0 then

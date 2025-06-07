@@ -35,11 +35,8 @@ keymap.n('<leader><Left>', '<cmd>bprevious<CR>', 'Previous buffer')
 
 -- Comment keymaps
 keymap.n('<leader>/', '<cmd>lua require(\'Comment.api\').toggle.linewise.current()<cr>', 'Toggle comment')
-keymap.v(
-  '<leader>/',
-  '<esc><cmd>lua require(\'Comment.api\').toggle.linewise(vim.fn.visualmode())<cr>',
-  'Toggle comment'
-)
+keymap.v('<leader>/', '<esc><cmd>lua require(\'Comment.api\').toggle.linewise(vim.fn.visualmode())<cr>',
+    'Toggle comment')
 
 -- LSP keymaps
 keymap.n('K', '<cmd>lua vim.lsp.buf.hover()<cr>', 'Hover documentation')
@@ -56,12 +53,14 @@ keymap.v('K', ':m \'<-2<CR>gv=gv', 'Move selection up')
 
 -- Search and replace current word
 keymap.n('<leader>sr', ':%s/<C-r><C-w>//g<Left><Left>', 'Search and replace word under cursor')
-keymap.n('<leader>ss', function() require('telescope.builtin').lsp_document_symbols() end, 'Open Document Symbols')
-keymap.n(
-  '<leader>sS',
-  function() require('telescope.builtin').lsp_dynamic_workspace_symbols() end,
-  'Open Workspace Symbols'
-)
+keymap.n('<leader>ss', function()
+    require('telescope.builtin').lsp_document_symbols()
+end, 'Open Document Symbols')
+keymap.n('<leader>sS', function()
+    require('telescope.builtin').lsp_dynamic_workspace_symbols()
+end, 'Open Workspace Symbols')
 
 -- Open mini.files with '\'
-keymap.n('\\', function() require('mini.files').open() end, 'Open MiniFiles file explorer')
+keymap.n('\\', function()
+    require('mini.files').open()
+end, 'Open MiniFiles file explorer')
