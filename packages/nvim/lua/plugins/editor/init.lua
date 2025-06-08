@@ -8,4 +8,5 @@ return {
   require('plugins.editor.undotree'),
   require('plugins.editor.golf'),
   require('plugins.editor.autotag'),
+  require('plugins.editor.session-management'),
 }

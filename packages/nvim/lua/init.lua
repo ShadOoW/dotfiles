@@ -72,7 +72,8 @@ require('lazy').setup({
 require('utils.keymap')
 require('utils.file')
 require('utils.string')
-require('utils.reload').setup() -- Setup the config reload command
+require('utils.reload')
+require('utils.tmux').setup()
 
 -- LSP setup was here before. It's better to handle LSP setup as part of
 -- an lsp plugin configuration (e.g., in lua/plugins/lsp.lua or similar)

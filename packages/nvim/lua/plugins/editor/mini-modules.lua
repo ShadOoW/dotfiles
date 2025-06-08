@@ -61,7 +61,7 @@ return {
         go_out = '<BS>',
         go_out_plus = '-',
         show_help = 'g?',
-        synchronize = '=',
+        synchronize = '=', -- THIS IS KEY! Use this to save changes to disk
         trim_left = '<',
         trim_right = '>',
         close = 'q',
@@ -86,6 +86,20 @@ return {
       desc = 'Toggle MiniFiles',
     })
 
+    -- Enhanced keybindings and autocmds for better user experience
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'MiniFilesBufferCreate',
+      callback = function(args)
+        local buf_id = args.data.buf_id
+
+        -- Add custom keybindings for this buffer
+        vim.keymap.set('n', '<C-s>', function() require('mini.files').synchronize() end, {
+          buffer = buf_id,
+          desc = 'Synchronize changes (save/create files)',
+        })
+      end,
+    })
+
     -- Movement & Navigation
     -- Jump to locations based on first typed character
     require('mini.jump').setup({})
@@ -95,15 +109,6 @@ return {
 
     -- Track and visit recent files and buffers
     require('mini.visits').setup({})
-
-    -- File and Session Management
-    -- Simple session management
-    require('mini.sessions').setup({
-      -- Auto-write current session
-      autowrite = true,
-      -- Directory to store sessions
-      directory = vim.fn.stdpath('data') .. '/sessions',
-    })
 
     -- Utilities & Extras
     -- Remove buffers without losing window layout

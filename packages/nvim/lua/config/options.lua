@@ -128,18 +128,60 @@ vim.api.nvim_set_hl(0, 'ModeMsg', {
 vim.opt.showmode = true -- Show current mode in status line
 vim.opt.statusline = '%{mode()}' -- Show mode in status line
 
--- Use latest version of file.
+-- Use latest version of file with enhanced tmux integration
 vim.opt.autoread = true
-vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold' }, {
-  command = 'checktime',
+
+-- Enhanced auto-reload with better focus detection for tmux
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHoldI' }, {
+  group = vim.api.nvim_create_augroup('auto-reload-enhanced', {
+    clear = true,
+  }),
+  desc = 'Enhanced auto-reload for tmux environments',
+  callback = function(event)
+    local buf = event.buf
+
+    -- Skip if buffer is not a file or is modified
+    if vim.bo[buf].buftype ~= '' or vim.bo[buf].modified then return end
+
+    -- Skip if file doesn't exist
+    local file_path = vim.api.nvim_buf_get_name(buf)
+    if file_path == '' or vim.fn.filereadable(file_path) == 0 then return end
+
+    -- Check for external changes
+    vim.cmd('checktime')
+  end,
 })
+
+-- Better swap, backup, and undo file management for multi-instance scenarios
 vim.opt.swapfile = true
 vim.opt.backup = true
 vim.opt.writebackup = true
 vim.opt.backupcopy = 'auto'
-vim.opt.directory = '/tmp/nvim/swap//'
-vim.opt.backupdir = '/tmp/nvim/backup//'
-vim.opt.undodir = '/tmp/nvim/undo//'
+
+-- Create directories if they don't exist
+local data_dir = vim.fn.stdpath('data')
+local swap_dir = data_dir .. '/swap'
+local backup_dir = data_dir .. '/backup'
+local undo_dir = data_dir .. '/undo'
+
+vim.fn.mkdir(swap_dir, 'p')
+vim.fn.mkdir(backup_dir, 'p')
+vim.fn.mkdir(undo_dir, 'p')
+
+vim.opt.directory = swap_dir .. '//'
+vim.opt.backupdir = backup_dir .. '//'
+vim.opt.undodir = undo_dir .. '//'
+
+-- Enhanced focus events for tmux
+if vim.env.TMUX then
+  -- Better focus detection in tmux
+  vim.opt.ttimeoutlen = 10
+  vim.opt.ttimeout = true
+
+  -- Enable focus events
+  vim.api.nvim_command('set eventignore-=FocusGained')
+  vim.api.nvim_command('set eventignore-=FocusLost')
+end
 
 -- Clipboard configuration
 vim.opt.clipboard = 'unnamedplus'

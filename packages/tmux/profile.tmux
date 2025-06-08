@@ -19,10 +19,10 @@ set -g  clock-mode-style 24
 set -g  set-titles on
 set -g  set-titles-string "#{pane_current_command} #{=-10:pane_current_path}"
 set -g  renumber-windows on
-set -g  automatic-rename on
+set -g  automatic-rename off
 set -g  allow-rename on
 set -g  remain-on-exit off
-set -g  detach-on-destroy off
+set -g  detach-on-destroy on
 set -g  focus-events on
 set -g  extended-keys on
 set -s  escape-time 0

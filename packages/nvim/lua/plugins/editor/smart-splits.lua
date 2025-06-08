@@ -7,15 +7,9 @@ return {
     -- Setup smart-splits with minimal config to avoid nil comparison errors
     smart_splits.setup({
       -- Ignored filetypes (only while resizing)
-      ignored_filetypes = {
-        'nofile',
-        'quickfix',
-        'prompt',
-      },
+      ignored_filetypes = { 'nofile', 'quickfix', 'prompt' },
       -- Ignored buffer types (only while resizing)
-      ignored_buftypes = {
-        'NvimTree',
-      },
+      ignored_buftypes = { 'NvimTree' },
       -- Default split direction
       default_amount = 3,
       -- Whether the cursor should follow the window when swapping
@@ -107,7 +101,7 @@ return {
       desc = 'Split window vertically',
     })
 
-    vim.keymap.set('n', '<leader>wh', '<cmd>split<CR>', {
+    vim.keymap.set('n', '<leader>ws', '<cmd>split<CR>', {
       desc = 'Split window horizontally',
     })
 
