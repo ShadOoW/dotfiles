@@ -25,11 +25,7 @@ for_window {
   [app_id="terminal-mark"] floating enable, mark terminal, move scratchpad, border pixel 4, border color #7dcfff
   [app_id="music-mark"] floating enable, mark music, move scratchpad, border pixel 4, border color #7dcfff
   [app_id="org.gnome.Nautilus"] floating enable, mark explorer, move scratchpad, move position center, border pixel 4, border color #7dcfff
-  [app_id="org.qutebrowser.qutebrowser"] floating enable, mark chatgpt, move scratchpad, move position center, border pixel 4, border color #7dcfff
-  [app_id="org.qutebrowser.qutebrowser"] floating enable, mark whatapp, move scratchpad, move position center, border pixel 4, border color #7dcfff
 }
 
 # Workspace assignments
 assign [app_id="vivaldi-stable"] workspace number 2
-assign [app_id="vivaldi-chatgpt.com__-Default"] workspace number 10
-assign [app_id="vivaldi-web.whatsapp.com__-Default"] workspace number 10

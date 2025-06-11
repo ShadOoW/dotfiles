@@ -117,8 +117,8 @@ bind -T prefix > display-menu -T \
   "#{?#{>:#{window_panes},1},,-}#{?window_zoomed_flag,Unzoom,Zoom}"  z { resize-pane -Z }
 #  ╶╶╶╶╶╶───────╴──────╴──────╴─────╴────╴───╴──╴─╴─╶
 bind -T prefix   C-r display-menu -T \
-  '#[align=centre]#{window_index}:#{window_name} #[fg=#{@WBG}]' \
-  '#[fg=colour4] ⏻ #[fg=#{@SBG}] Source' \
+  '#[align=centre]#{window_index}:#{window_name} #[fg=#{@theme_fg}]' \
+  '#[fg=#{@theme_accent}] ⏻ #[fg=#{@theme_fg}] Source' \
   r { source-file "$TMUX_CONFIG_DIR/tmux.conf" };
 #  ╶╶╶╶╶╶───────╴──────╴──────╴─────╴────╴───╴──╴─╴─╶
 bind -T prefix M command-prompt -T target { move-window -t "%%" }

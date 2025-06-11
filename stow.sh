@@ -51,6 +51,7 @@ declare -A TARGET_DIRS=(
     ["kanata"]="$HOME/.config/kanata"
     ["tmux"]="$HOME/.config/tmux"
     ["zellij"]="$HOME/.config/zellij"
+    ["qutebrowser"]="$HOME/.config/qutebrowser"
 )
 
 # Store setup scripts to run after stowing

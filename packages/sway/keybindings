@@ -9,11 +9,16 @@ bindsym {
     $mod+d exec $menu
     $mod+Shift+d exec $window
     $mod+c exec $clipboard
+    $mod+x exec $commands
     $mod+a exec $sp_explorer
     $mod+m exec $sp_music
     $mod+z exec $sp_terminal
-    $mod+x exec $sp_chatgpt
+    $mod+Shift+x exec $sp_chatgpt
     $mod+w exec $sp_whatsapp
+    # Start wiki development environment
+    $mod+Shift+m exec ~/.config/dotfiles/packages/sway/scripts/start-wiki-dev.sh
+    # Generate AI header image
+    $mod+o exec ~/.config/dotfiles/packages/sway/scripts/generate-ai-header.sh
     # Pin window in foreground of every workspace
     $mod+Shift+i sticky toggle
 

@@ -1,0 +1,10 @@
+[Unit]
+Description=Start tmux wiki session
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/tmux new-session -d -s wiki -c /mnt/share/wiki
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target

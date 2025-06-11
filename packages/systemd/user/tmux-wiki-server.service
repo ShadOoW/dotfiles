@@ -1,0 +1,10 @@
+[Unit]
+Description=Start wiki server
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/mdbook serve /mnt/share/wiki -p 2001
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target

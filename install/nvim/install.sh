@@ -6,6 +6,9 @@ pacman_pkg=(
     nvim-lazy
     luarocks
     markdownlint-cli2
+    vscode-langservers-extracted
+    ctags
+    pandoc-cli
 )
 
 # Source global functions

@@ -1,2 +1,2 @@
 -- AI Completion plugins
-return { require('plugins.ai.codeium') }
+return { require("plugins.ai.codeium") }

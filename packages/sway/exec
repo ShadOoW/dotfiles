@@ -2,18 +2,14 @@ exec {
     swayidle &
     autotiling-rs 3 4 5 6 7 8 9 10 &
     wl-paste --watch cliphist store &
-    
+
     # Start applications in background with consistent naming convention
     sp_terminal &
     sp_music &
     sp_explorer &
     sp_chatgpt &
     sp_whatapp &
-    
+
     # Start browser
     vivaldi-stable &
-    
-    # Start web apps
-    vivaldi-stable --app=https://chatgpt.com &
-    vivaldi-stable --app=https://web.whatsapp.com &
 }

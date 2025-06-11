@@ -117,23 +117,8 @@ set -g pane-border-status top
 set -g pane-border-format "#{pane_index} #{pane_current_command}"
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Plugin Configuration for Development
+# Session management will be handled by unified modern approach
 # ═══════════════════════════════════════════════════════════════════════════════
-
-# tmux-resurrect configuration for neovim sessions
-set -g @resurrect-strategy-nvim 'session'
-set -g @resurrect-capture-pane-contents 'on'
-set -g @resurrect-save-shell-history 'on'
-
-# tmux-continuum for automatic session save/restore
-set -g @continuum-restore 'on'
-set -g @continuum-save-interval '15'
-
-# Resurrect additional programs
-set -g @resurrect-processes 'nvim vim nano emacs'
-
-# Save/restore neovim sessions
-set -g @resurrect-strategy-nvim 'session'
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Mouse Configuration

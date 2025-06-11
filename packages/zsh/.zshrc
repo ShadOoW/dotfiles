@@ -30,7 +30,7 @@ cf() {
     echo "Usage: cf <filename>"
     return 1
   fi
-  echo -n "$1" | xclip -selection clipboard
+  echo -n "$1" | wl-copy
   echo "Copied '$1' to clipboard."
 }
 
