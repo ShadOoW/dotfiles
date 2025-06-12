@@ -16,13 +16,10 @@ return {
     -- Configure Mason LSP
     require('mason-lspconfig').setup({
       ensure_installed = { -- Web Development
-        'html', -- HTML
         'cssls', -- CSS
-        'ts_ls', -- TypeScript/JavaScript (ts_ls)
         'eslint', -- ESLint
         'tailwindcss', -- Tailwind CSS
         'astro', -- Astro
-        'emmet_ls', -- Emmet
         'jsonls', -- JSON
         'yamlls', -- YAML
         'denols', -- Deno

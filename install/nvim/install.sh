@@ -7,6 +7,8 @@ pacman_pkg=(
     luarocks
     markdownlint-cli2
     vscode-langservers-extracted
+    superhtml-bin
+    prettierd
     ctags
     pandoc-cli
 )

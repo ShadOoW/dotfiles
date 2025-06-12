@@ -1,6 +1,14 @@
--- TypeScript/JavaScript LSP server configuration
+-- Modern VTSLS (Vue TypeScript Language Server) configuration
+-- VTSLS is the successor to ts_ls with better performance and Vue support
 return {
   settings = {
+    vtsls = {
+      experimental = {
+        completion = {
+          enableServerSideFuzzyMatch = true,
+        },
+      },
+    },
     typescript = {
       inlayHints = {
         includeInlayParameterNameHints = 'literal', -- 'none' | 'literals' | 'all'
@@ -99,12 +107,20 @@ return {
       completeFunctionCalls = true,
     },
   },
-  filetypes = { 'javascript', 'javascriptreact', 'javascript.jsx', 'typescript', 'typescriptreact', 'typescript.tsx' },
+  filetypes = {
+    'javascript',
+    'javascriptreact',
+    'javascript.jsx',
+    'typescript',
+    'typescriptreact',
+    'typescript.tsx',
+    'vue', -- Vue support built-in
+  },
   init_options = {
     hostInfo = 'neovim',
     maxTsServerMemory = 8192,
     typescript = {
-      tsdk = vim.fn.stdpath('data') .. '/mason/packages/typescript-language-server/node_modules/typescript/lib',
+      tsdk = vim.fn.stdpath('data') .. '/mason/packages/vtsls/node_modules/typescript/lib',
     },
     preferences = {
       disableSuggestions = false,

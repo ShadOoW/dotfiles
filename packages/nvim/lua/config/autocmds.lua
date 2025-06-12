@@ -90,10 +90,11 @@ vim.api.nvim_create_autocmd('FileType', {
   desc = 'Disable document highlight for specific file types',
 })
 
--- Auto-indent and split tags on <CR> in HTML-like files
+-- Enhanced auto-indent and split tags on <CR> in web framework files (excluding pure HTML)
 vim.api.nvim_create_autocmd('FileType', {
-  pattern = { 'html', 'xml', 'typescriptreact', 'javascriptreact', 'tsx', 'jsx', 'astro' },
+  pattern = { 'xml', 'typescriptreact', 'javascriptreact', 'tsx', 'jsx', 'astro', 'vue', 'svelte' },
   callback = function()
+    -- Auto-split tags for frameworks (HTML handled separately for superhtml compatibility)
     vim.keymap.set('i', '<CR>', function()
       local row, col = unpack(vim.api.nvim_win_get_cursor(0))
       local line = vim.api.nvim_get_current_line()
@@ -105,7 +106,36 @@ vim.api.nvim_create_autocmd('FileType', {
     end, {
       expr = true,
       buffer = true,
+      desc = 'Auto-split tags in web frameworks',
     })
+
+    -- Enable embedded language highlighting
+    vim.bo.suffixesadd = '.js,.ts,.css,.scss,.less'
+
+    -- Set specific options for better web development
+    vim.bo.shiftwidth = 2
+    vim.bo.tabstop = 2
+    vim.bo.softtabstop = 2
+    vim.bo.expandtab = true
+  end,
+  desc = 'Configure web framework files (excluding HTML for superhtml compatibility)',
+})
+
+-- Enhanced HTML/CSS/JS error checking
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'html', 'css', 'javascript', 'typescript' },
+  callback = function()
+    -- Enable more aggressive diagnostics for web files
+    vim.diagnostic.config({
+      virtual_text = {
+        severity = vim.diagnostic.severity.ERROR,
+        source = 'always',
+      },
+      signs = true,
+      underline = true,
+      update_in_insert = false,
+      severity_sort = true,
+    }, vim.api.nvim_get_current_buf())
   end,
 })
 
@@ -155,6 +185,70 @@ vim.api.nvim_create_autocmd('BufWritePre', {
     if not vim.tbl_contains(skip_filetypes, vim.bo.filetype) then require('mini.trailspace').trim() end
   end,
   desc = 'Trim trailing whitespace on save',
+})
+
+-- Enhanced HTML5 compliance for superhtml
+vim.api.nvim_create_autocmd('FileType', {
+  group = trailspace_group,
+  pattern = { 'html', 'htm', 'xhtml' },
+  callback = function()
+    -- Ensure HTML files follow HTML5 standards for superhtml
+    vim.bo.shiftwidth = 2
+    vim.bo.tabstop = 2
+    vim.bo.softtabstop = 2
+    vim.bo.expandtab = true
+
+    -- Set buffer options for HTML5 compliance
+    vim.bo.textwidth = 120 -- Match superhtml wrapLineLength
+
+    -- Enhanced keymap for HTML5 void elements (self-closing tags that shouldn't close)
+    vim.keymap.set('i', '<CR>', function()
+      local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+      local line = vim.api.nvim_get_current_line()
+      local before_cursor = line:sub(1, col)
+      local after_cursor = line:sub(col + 1)
+
+      -- Check for HTML5 void elements that should NOT be self-closing
+      local void_elements = {
+        'area',
+        'base',
+        'br',
+        'col',
+        'embed',
+        'hr',
+        'img',
+        'input',
+        'link',
+        'meta',
+        'source',
+        'track',
+        'wbr',
+      }
+
+      -- Enhanced tag splitting for proper HTML5 formatting
+      if col > 0 and before_cursor:match('<%w+[^>]*>$') and after_cursor:match('^</%w+>') then
+        -- Split between opening and closing tags
+        return '<CR><CR><Up><C-f>'
+      elseif before_cursor:match('<(' .. table.concat(void_elements, '|') .. ')[^>]*/>$') then
+        -- Convert self-closing void elements to proper HTML5 format
+        local element = before_cursor:match('<(%w+)')
+        if element and vim.tbl_contains(void_elements, element) then
+          -- Remove the slash from void elements (HTML5 standard)
+          local new_line = before_cursor:gsub('/>$', '>')
+          vim.api.nvim_set_current_line(new_line .. after_cursor)
+          vim.api.nvim_win_set_cursor(0, { row, #new_line })
+        end
+        return '<CR>'
+      else
+        return '<CR>'
+      end
+    end, {
+      expr = true,
+      buffer = true,
+      desc = 'Enhanced HTML5-compliant tag splitting',
+    })
+  end,
+  desc = 'Configure HTML files for superhtml and HTML5 compliance',
 })
 
 -- Mini.files enhanced keybindings
@@ -525,4 +619,15 @@ vim.api.nvim_create_user_command('WikiClean', function()
   })
 end, {
   desc = 'Clean wiki build directory',
+})
+
+-- Ensure files always end with a newline when saving
+vim.api.nvim_create_autocmd('BufWritePre', {
+  pattern = '*',
+  callback = function()
+    -- Ensure the file ends with a newline
+    local buf = vim.api.nvim_get_current_buf()
+    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    if #lines > 0 and lines[#lines] ~= '' then vim.api.nvim_buf_set_lines(buf, -1, -1, false, { '' }) end
+  end,
 })

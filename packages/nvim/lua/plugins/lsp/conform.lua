@@ -8,76 +8,82 @@ return {
       lsp_format = 'fallback',
     },
     formatters_by_ft = {
-      -- Web Development - JavaScript/TypeScript
-      javascript = { 'biome', 'prettierd', 'prettier' },
-      javascriptreact = { 'biome', 'prettierd', 'prettier' },
-      typescript = { 'biome', 'prettierd', 'prettier' },
-      typescriptreact = { 'biome', 'prettierd', 'prettier' },
-      vue = { 'prettierd', 'prettier' },
-      svelte = { 'prettierd', 'prettier' },
+      -- Web Development - JavaScript/TypeScript (prettierd only)
+      javascript = { 'prettierd' },
+      javascriptreact = { 'prettierd' },
+      typescript = { 'prettierd' },
+      typescriptreact = { 'prettierd' },
+      vue = { 'prettierd' },
+      svelte = { 'prettierd' },
 
-      -- Web Development - HTML/CSS
-      html = { 'prettierd', 'prettier' },
-      css = { 'prettierd', 'prettier' },
-      scss = { 'prettierd', 'prettier' },
-      less = { 'prettierd', 'prettier' },
+      -- Web Development - HTML/CSS (prettierd only)
+      html = { 'prettierd' },
+      css = { 'prettierd' },
+      scss = { 'prettierd' },
+      less = { 'prettierd' },
 
-      -- Modern Web Frameworks
-      astro = { 'prettierd', 'prettier' },
+      -- Modern Web Frameworks (prettierd only)
+      astro = { 'prettierd' },
 
-      -- Data & Config
-      json = { 'biome', 'prettierd', 'prettier' },
-      jsonc = { 'biome', 'prettierd', 'prettier' },
-      json5 = { 'prettierd', 'prettier' },
-      yaml = { 'prettierd', 'prettier' },
-      yml = { 'prettierd', 'prettier' },
+      -- Data & Config (prettierd for supported formats)
+      json = { 'prettierd' },
+      jsonc = { 'prettierd' },
+      json5 = { 'prettierd' },
+      yaml = { 'prettierd' },
+      yml = { 'prettierd' },
       toml = { 'taplo' },
-      xml = { 'xmlformat', 'prettierd', 'prettier' },
+      xml = { 'xmlformat', 'prettierd' },
 
-      -- Documentation
-      markdown = { 'prettierd', 'prettier' },
-      mdx = { 'prettierd', 'prettier' },
+      -- Documentation (prettierd only)
+      markdown = { 'prettierd' },
+      mdx = { 'prettierd' },
 
-      -- Lua
+      -- Lua (stylua specialized)
       lua = { 'stylua' },
 
-      -- Java
+      -- Java (specialized formatter)
       java = { 'google-java-format' },
 
-      -- Python
+      -- Python (specialized formatters)
       python = { 'isort', 'black' },
 
-      -- Shell
+      -- Shell (specialized formatter)
       sh = { 'shfmt' },
       bash = { 'shfmt' },
       zsh = { 'shfmt' },
 
-      -- Go
+      -- Go (specialized formatters)
       go = { 'gofumpt', 'goimports' },
 
-      -- Rust
+      -- Rust (specialized formatter)
       rust = { 'rustfmt' },
 
-      -- C/C++
+      -- C/C++ (specialized formatter)
       c = { 'clang-format' },
       cpp = { 'clang-format' },
 
-      -- SQL
+      -- SQL (specialized formatter)
       sql = { 'sql-formatter' },
 
-      -- Docker
-      dockerfile = { 'prettier' },
+      -- Docker (prettierd)
+      dockerfile = { 'prettierd' },
     },
 
     formatters = {
-      -- Enhanced Prettier daemon for speed
+      -- Enhanced Prettier daemon for speed and consistency
       prettierd = {
         env = {
-          PRETTIERD_DEFAULT_CONFIG = vim.fn.expand('~/.config/prettier/.prettierrc.json'),
+          PRETTIERD_DEFAULT_CONFIG = vim.fn.expand('~/.config/prettierd/.prettierrc.json'),
+          -- Set NODE_PATH to include the node_modules from our custom prettier installation
+          NODE_PATH = vim.fn.expand('~/.config/prettierd/node_modules'),
+          -- Set PRETTIERD_LOCAL_PRETTIER_ONLY to use local prettier installation
+          PRETTIERD_LOCAL_PRETTIER_ONLY = '1',
         },
+        -- Specify the prettier module path for prettierd to use
+        cwd = function() return vim.fn.expand('~/.config/prettierd') end,
       },
 
-      -- Biome for fast JS/TS formatting
+      -- Biome for fast JS/TS formatting (alternative to prettierd)
       biome = {
         command = 'biome',
         args = { 'format', '--stdin-file-path', '$FILENAME' },
@@ -164,17 +170,10 @@ return {
       -- Auto-sort Tailwind classes after save
       local ft = vim.bo[bufnr].filetype
       if
-        vim.tbl_contains({
-          'html',
-          'css',
-          'javascript',
-          'typescript',
-          'javascriptreact',
-          'typescriptreact',
-          'vue',
-          'svelte',
-          'astro',
-        }, ft)
+        vim.tbl_contains(
+          { 'html', 'css', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'vue', 'svelte', 'astro' },
+          ft
+        )
       then
         local conform = require('conform')
         conform.format({

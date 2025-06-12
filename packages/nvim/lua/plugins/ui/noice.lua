@@ -164,14 +164,9 @@ return {
             {
               kind = 'confirm',
             },
-            {
-              kind = 'return_prompt',
-            },
           },
         },
-        opts = {
-          skip = true,
-        },
+        view = 'confirm',
       },
       {
         -- Route command output to split view instead of notifications

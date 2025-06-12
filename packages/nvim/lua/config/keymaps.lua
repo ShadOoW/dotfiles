@@ -465,3 +465,86 @@ keymap.n('<leader>d?', function()
 ]]
   vim.notify(help_text, vim.log.levels.INFO)
 end, '[D]ebug Help (?)')
+
+-- Modern Web Development Keymaps
+
+-- Web Development Utility Functions
+keymap.n('<leader>wf', function()
+  -- Format current buffer with web-specific formatter
+  local ft = vim.bo.filetype
+  if vim.tbl_contains({ 'html', 'css', 'javascript', 'typescript' }, ft) then
+    vim.cmd('lua require("conform").format({ async = true })')
+  else
+    vim.notify('Not a web file type', vim.log.levels.WARN)
+  end
+end, 'Format web file')
+
+-- Toggle embedded language highlighting
+keymap.n('<leader>we', function()
+  if vim.bo.filetype == 'html' then
+    -- Toggle highlighting for embedded JS/CSS
+    vim.cmd('syntax sync fromstart')
+    vim.notify('Refreshed embedded language highlighting', vim.log.levels.INFO)
+  end
+end, 'Refresh embedded language highlighting')
+
+-- Quick tag wrapping
+keymap.v('<leader>wt', function()
+  local tag = vim.fn.input('Tag name: ')
+  if tag ~= '' then vim.cmd(string.format('\'<,\'>s/\\%V\\(.*\\)\\%V/<' .. tag .. '>\\1<\\/' .. tag .. '>/')) end
+end, 'Wrap selection with HTML tag')
+
+-- Live server toggle (if live-server is installed)
+keymap.n('<leader>wl', function()
+  local cwd = vim.fn.getcwd()
+  vim.fn.jobstart({ 'live-server', cwd }, {
+    detach = true,
+    on_exit = function() vim.notify('Live server stopped', vim.log.levels.INFO) end,
+  })
+  vim.notify('Live server started for: ' .. cwd, vim.log.levels.INFO)
+end, 'Start live server')
+
+-- Open in browser
+keymap.n('<leader>wo', function()
+  local filepath = vim.fn.expand('%:p')
+  if vim.bo.filetype == 'html' then
+    if vim.fn.has('mac') == 1 then
+      vim.fn.jobstart({ 'open', filepath }, {
+        detach = true,
+      })
+    elseif vim.fn.has('unix') == 1 then
+      vim.fn.jobstart({ 'xdg-open', filepath }, {
+        detach = true,
+      })
+    end
+    vim.notify('Opened in browser: ' .. vim.fn.expand('%:t'), vim.log.levels.INFO)
+  else
+    vim.notify('Not an HTML file', vim.log.levels.WARN)
+  end
+end, 'Open HTML file in browser')
+
+-- Tailwind utilities
+keymap.n('<leader>wT', function()
+  -- Sort Tailwind classes in current line
+  local line = vim.api.nvim_get_current_line()
+  local cursor_pos = vim.api.nvim_win_get_cursor(0)
+
+  -- Simple Tailwind class sorting (basic implementation)
+  local sorted_line = line:gsub('class="([^"]*)"', function(classes)
+    local class_list = vim.split(classes, '%s+')
+    table.sort(class_list)
+    return 'class="' .. table.concat(class_list, ' ') .. '"'
+  end)
+
+  vim.api.nvim_set_current_line(sorted_line)
+  vim.api.nvim_win_set_cursor(0, cursor_pos)
+end, 'Sort Tailwind classes')
+
+-- Quick console.log for debugging
+keymap.n('<leader>wL', function()
+  local word = vim.fn.expand('<cword>')
+  local log_line = string.format('console.log(\'%s:\', %s);', word, word)
+  vim.api.nvim_put({ log_line }, 'l', true, true)
+end, 'Insert console.log for word under cursor')
+
+-- Additional development keymaps...

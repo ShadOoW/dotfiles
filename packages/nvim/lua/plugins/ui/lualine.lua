@@ -238,15 +238,35 @@ return {
           },
           {
             function()
-              local msg = 'No LSP'
               local buf_ft = vim.api.nvim_buf_get_option(0, 'filetype')
-              local clients = vim.lsp.get_clients()
-              if next(clients) == nil then return msg end
-              for _, client in ipairs(clients) do
-                local filetypes = client.config.filetypes
-                if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then return client.name end
+              local clients = vim.lsp.get_clients({
+                bufnr = 0,
+              })
+
+              if next(clients) == nil then return 'No LSP' end
+
+              -- Get all active LSP client names for current buffer
+              local client_names = {}
+              for _, client in pairs(clients) do
+                if client.attached_buffers[vim.api.nvim_get_current_buf()] then
+                  table.insert(client_names, client.name)
+                end
               end
-              return msg
+
+              if #client_names == 0 then
+                return 'No LSP'
+              elseif #client_names == 1 then
+                return client_names[1]
+              else
+                -- Show multiple LSPs, truncate if too many
+                local display_names = client_names
+                if #client_names > 3 then
+                  display_names = { client_names[1], client_names[2], client_names[3] }
+                  return table.concat(display_names, ',') .. '+' .. (#client_names - 3)
+                else
+                  return table.concat(client_names, ',')
+                end
+              end
             end,
             icon = ' LSP:',
             color = {

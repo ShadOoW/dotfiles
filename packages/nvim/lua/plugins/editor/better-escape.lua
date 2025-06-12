@@ -1,15 +1,14 @@
 -- Better escape plugin - allows escaping insert mode with key combinations like 'jk'
 return {
-  'jdhao/better-escape.vim',
+  'max397574/better-escape.nvim',
   event = 'InsertEnter',
   config = function()
-    -- Set escape shortcuts - supporting multiple combinations
-    vim.g.better_escape_shortcut = { 'jk', 'jj' }
-
-    -- Set time interval threshold in milliseconds
-    vim.g.better_escape_interval = 120
-
-    -- Enable debug mode to check timing (optional)
-    vim.g.better_escape_debug = 0
+    require('better_escape').setup({
+      -- Mapping to escape insert mode
+      mapping = { 'asd', 'jk', 'jj' }, -- a table with mappings to use
+      timeout = 120, -- the time in which the keys must be hit in ms. Use option timeoutlen by default
+      clear_empty_lines = false, -- clear line after escaping if there is only whitespace
+      keys = '<Esc>', -- keys used for escaping, if it is a function will be called every time
+    })
   end,
 }

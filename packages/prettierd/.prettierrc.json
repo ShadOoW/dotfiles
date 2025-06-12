@@ -1,0 +1,69 @@
+{
+  "plugins": [
+    "@awmottaz/prettier-plugin-void-html"
+  ],
+  "printWidth": 80,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "quoteProps": "as-needed",
+  "jsxSingleQuote": false,
+  "trailingComma": "es5",
+  "bracketSpacing": true,
+  "bracketSameLine": false,
+  "arrowParens": "avoid",
+  "proseWrap": "preserve",
+  "htmlWhitespaceSensitivity": "ignore",
+  "endOfLine": "lf",
+  "embeddedLanguageFormatting": "auto",
+  "singleAttributePerLine": false,
+  "overrides": [
+    {
+      "files": "*.html",
+      "options": {
+        "htmlWhitespaceSensitivity": "ignore",
+        "bracketSameLine": false,
+        "printWidth": 120
+      }
+    },
+    {
+      "files": ["*.css", "*.scss", "*.less"],
+      "options": {
+        "singleQuote": false,
+        "printWidth": 120
+      }
+    },
+    {
+      "files": ["*.js", "*.jsx", "*.ts", "*.tsx"],
+      "options": {
+        "singleQuote": false,
+        "jsxSingleQuote": false,
+        "trailingComma": "es5",
+        "arrowParens": "avoid"
+      }
+    },
+    {
+      "files": ["*.json", "*.jsonc"],
+      "options": {
+        "trailingComma": "none",
+        "singleQuote": false
+      }
+    },
+    {
+      "files": ["*.md", "*.mdx"],
+      "options": {
+        "proseWrap": "preserve",
+        "printWidth": 80,
+        "tabWidth": 2
+      }
+    },
+    {
+      "files": ["*.yaml", "*.yml"],
+      "options": {
+        "singleQuote": false,
+        "bracketSpacing": true
+      }
+    }
+  ]
+} 

@@ -57,20 +57,6 @@ function M.on_attach(client, bufnr)
       desc = 'Clear document highlight on cursor move',
     })
   end
-
-  -- Format on save if the LSP supports it
-  if client.server_capabilities.documentFormattingProvider then
-    buf_map(
-      'n',
-      '<leader>f',
-      function()
-        vim.lsp.buf.format({
-          async = true,
-        })
-      end,
-      '[F]ormat document'
-    )
-  end
 end
 
 -- Configure diagnostics

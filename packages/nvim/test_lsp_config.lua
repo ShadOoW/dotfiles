@@ -1,12 +1,10 @@
 -- Test script to verify LSP server configurations
 local servers = {
-  'html',
+  'superhtml',
   'cssls',
-  'ts_ls',
   'eslint',
   'tailwindcss',
   'astro',
-  'emmet_ls',
   'jsonls',
   'yamlls',
   'marksman',

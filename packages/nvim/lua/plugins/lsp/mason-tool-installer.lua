@@ -6,17 +6,18 @@ return {
     require('mason-tool-installer').setup({
       ensure_installed = { -- LSP Servers
         -- Web Development
-        'html-lsp', -- HTML
         'css-lsp', -- CSS
-        'typescript-language-server', -- TypeScript/JavaScript
+        'vtsls', -- Modern TypeScript/JavaScript
         'eslint-lsp', -- ESLint
         'tailwindcss-language-server', -- Tailwind CSS
         'astro-language-server', -- Astro
-        'emmet-ls', -- Emmet
-        'vtsls', -- Advanced TypeScript/JavaScript (alternative to ts_ls)
         'unocss-language-server', -- UnoCSS
         'svelte-language-server', -- Svelte
         'vue-language-server', -- Vue
+        'angular-language-server', -- Angular
+        'lit-plugin', -- Lit (Web Components)
+        'htmx-lsp', -- HTMX support
+        'superhtml', -- Better HTML validation (new!)
         -- Data & Configuration
         'json-lsp', -- JSON
         'yaml-language-server', -- YAML
@@ -37,6 +38,7 @@ return {
         -- Linters
         -- Web Development
         'eslint_d', -- Fast ESLint
+        'biome', -- Modern linter/formatter (replaces eslint for some cases)
         'stylelint', -- CSS/SCSS linter
         'htmlhint', -- HTML linter
         'alex', -- Inclusive language linter
@@ -54,8 +56,9 @@ return {
         -- Web Development
         'prettier', -- Universal formatter
         'prettierd', -- Fast Prettier daemon
+        'biome', -- Fast JS/TS/JSON/CSS formatter (modern alternative)
         'rustywind', -- Tailwind class sorter
-        'biome', -- Fast JS/TS/JSON formatter
+        'dprint', -- Fast formatter
         -- General
         'stylua', -- Lua formatter
         'shfmt', -- Shell script formatter
@@ -78,7 +81,7 @@ return {
         'bash-debug-adapter', -- Bash debugger
         'java-debug-adapter', -- Java debugger
         'java-test', -- Java test runner
-        -- Additional Tools
+        -- Additional Modern Tools
         'tree-sitter-cli', -- Tree-sitter CLI
         'grammarly-languageserver', -- Grammarly integration
         'ltex-ls', -- LaTeX/Markdown grammar checker

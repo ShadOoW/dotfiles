@@ -35,7 +35,7 @@ return {
   },
   init_options = {
     typescript = {
-      tsdk = vim.fn.stdpath('data') .. '/mason/packages/typescript-language-server/node_modules/typescript/lib',
+      tsdk = vim.fn.stdpath('data') .. '/mason/packages/vtsls/node_modules/typescript/lib',
     },
   },
   filetypes = {
