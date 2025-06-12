@@ -15,35 +15,50 @@ require('config.cursor').setup()
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
-    vim.fn.system({'git', 'clone', '--filter=blob:none', '--branch=stable', -- latest stable release
-    'https://github.com/folke/lazy.nvim.git', lazypath})
+  vim.fn.system({
+    'git',
+    'clone',
+    '--filter=blob:none',
+    '--branch=stable', -- latest stable release
+    'https://github.com/folke/lazy.nvim.git',
+    lazypath,
+  })
 end
 vim.opt.rtp:prepend(lazypath)
 
 -- Setup lazy.nvim with plugins
 require('lazy').setup({
-    spec = {{
-        import = 'plugins'
-    } -- Import all plugin configurations
+  spec = {
+    {
+      import = 'plugins',
+    }, -- Import all plugin configurations
+  },
+  defaults = {
+    lazy = false, -- Load plugins on startup
+  },
+  install = {
+    colorscheme = { 'tokyonight' },
+  },
+  performance = {
+    rtp = {
+      disabled_plugins = {
+        'gzip',
+        'matchit',
+        'matchparen',
+        'netrwPlugin',
+        'tarPlugin',
+        'tohtml',
+        'tutor',
+        'zipPlugin',
+      },
     },
-    defaults = {
-        lazy = false -- Load plugins on startup
-    },
-    install = {
-        colorscheme = {'tokyonight'}
-    },
-    performance = {
-        rtp = {
-            disabled_plugins = {'gzip', 'matchit', 'matchparen', 'netrwPlugin', 'tarPlugin', 'tohtml', 'tutor',
-                                'zipPlugin'}
-        }
-    },
-    change_detection = {
-        notify = false
-    },
-    ui = {
-        icons = vim.g.have_nerd_font and {} or {}
-    }
+  },
+  change_detection = {
+    notify = false,
+  },
+  ui = {
+    icons = vim.g.have_nerd_font and {} or {},
+  },
 })
 
 -- Load utility modules

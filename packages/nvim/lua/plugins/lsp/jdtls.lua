@@ -243,6 +243,13 @@ return {
               guessMethodArguments = true,
               includeDecompiledSources = true,
               overwrite = false,
+              -- IntelliJ-like completion preferences
+              postfix = {
+                enabled = false, -- Disable postfix completions for cleaner experience
+              },
+              chain = {
+                enabled = true, -- Enable method chaining completions
+              },
             },
             -- Content assist (auto-completion) settings
             contentAssist = {
@@ -274,6 +281,13 @@ return {
                 enabled = true,
               },
               includeDecompiledSources = true,
+            },
+            -- Enhanced source actions
+            sources = {
+              organizeImports = {
+                starThreshold = 99,
+                staticStarThreshold = 99,
+              },
             },
             configuration = {
               updateBuildConfiguration = 'automatic',
