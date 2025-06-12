@@ -8,6 +8,7 @@ set -euo pipefail
 # Define commands: "Name|Command"
 declare -a COMMANDS=(
     " ChatGPT|env QT_QPA_PLATFORM=xcb qutebrowser --target window --qt-arg name chatgpt-browser https://chatgpt.com &"
+    " Perplexity|env QT_QPA_PLATFORM=xcb qutebrowser --target window --qt-arg name perplexity-browser https://perplexity.ai &"
     "󰭻 WhatsApp|env QT_QPA_PLATFORM=xcb qutebrowser --target window --qt-arg name whatsapp-browser https://web.whatsapp.com &"
     "󰖬 Wiki|env QT_QPA_PLATFORM=xcb qutebrowser --target window --qt-arg name wiki-browser http://localhost:2001 &"
     " Wiki Dev Environment|~/.config/dotfiles/packages/sway/scripts/start-wiki-dev.sh &"
