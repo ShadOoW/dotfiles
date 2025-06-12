@@ -165,14 +165,14 @@ return {
       },
     },
 
-    -- Enhanced incremental selection
+    -- Enhanced incremental selection with intuitive keymaps
     incremental_selection = {
       enable = true,
       keymaps = {
-        init_selection = 'gnn',
-        node_incremental = 'grn',
-        scope_incremental = 'grc',
-        node_decremental = 'grm',
+        init_selection = '<CR>', -- Enter to start selection
+        node_incremental = '<CR>', -- Enter to expand selection
+        scope_incremental = '<S-CR>', -- Shift+Enter for scope
+        node_decremental = '<BS>', -- Backspace to shrink selection
       },
     },
 

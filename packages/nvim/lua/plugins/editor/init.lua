@@ -8,4 +8,5 @@ return {
   require('plugins.editor.session'),
   require('plugins.editor.hbac'),
   require('plugins.editor.better-escape'),
+  require('plugins.editor.flash'),
 }

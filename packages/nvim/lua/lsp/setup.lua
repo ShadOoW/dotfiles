@@ -15,8 +15,16 @@ function M.setup()
   local servers = {}
 
   -- Default server configuration with shared capabilities
+  local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+  -- Disable snippet support in LSP completions to keep them separate
+  capabilities.textDocument.completion.completionItem.snippetSupport = false
+  capabilities.textDocument.completion.completionItem.resolveSupport = {
+    properties = { 'documentation', 'detail', 'additionalTextEdits' },
+  }
+
   local default_config = {
-    capabilities = require('cmp_nvim_lsp').default_capabilities(),
+    capabilities = capabilities,
     on_attach = handlers.on_attach,
   }
 

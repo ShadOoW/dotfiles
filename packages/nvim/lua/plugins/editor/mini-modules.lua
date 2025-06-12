@@ -134,9 +134,6 @@ return {
     })
 
     -- Movement & Navigation
-    -- Jump to locations based on first typed character
-    require('mini.jump').setup({})
-
     -- Jump to any visible location with two-character input
     require('mini.jump2d').setup({
       mappings = {

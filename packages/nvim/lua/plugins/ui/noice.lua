@@ -69,7 +69,7 @@ return {
     -- you can enable a preset for easier configuration
     presets = {
       bottom_search = true, -- use a classic bottom cmdline for search
-      command_palette = true, -- position the cmdline and popupmenu together
+      command_palette = false, -- disable to fix race condition with command line
       long_message_to_split = true, -- long messages will be sent to a split
       inc_rename = true, -- enables an input dialog for inc-rename.nvim
       lsp_doc_border = true, -- add a border to hover docs and signature help
@@ -127,7 +127,7 @@ return {
         },
       },
     },
-    routes = {
+    routes = { -- Skip file write notifications
       {
         filter = {
           event = 'msg_show',
@@ -137,9 +137,8 @@ return {
         opts = {
           skip = true,
         },
-      },
+      }, -- Make confirmation dialogs visible in cmdline (not hidden)
       {
-        -- Skip confirmation dialogs entirely - let vim handle them
         filter = {
           event = 'msg_show',
           any = {
@@ -162,75 +161,58 @@ return {
               find = 'No write since last change',
             },
             {
+              find = 'really want to',
+            },
+            {
+              find = 'Are you sure',
+            },
+            {
+              find = 'Confirm',
+            },
+            {
               kind = 'confirm',
+            },
+            {
+              kind = 'return_prompt',
             },
           },
         },
-        view = 'confirm',
-      },
+        view = 'cmdline', -- Show in cmdline for immediate visibility
+      }, -- Route other long messages to notifications
       {
-        -- Route command output to split view instead of notifications
         filter = {
           event = 'msg_show',
           min_height = 3,
-        },
-        view = 'notify',
-      },
-      {
-        -- Route long messages but exclude interactive prompts
-        filter = {
-          event = 'msg_show',
-          find = '.+',
-          -- Exclude confirmation dialogs, prompts, and interactive messages
           ['not'] = {
             any = {
               {
                 find = '%[Y/n%]',
-              }, -- Yes/No prompts
+              },
               {
                 find = '%[y/N%]',
-              }, -- yes/No prompts
+              },
               {
                 find = '%[Y/N/C%]',
-              }, -- Yes/No/Cancel prompts
+              },
               {
                 find = '%[y/n/c%]',
-              }, -- yes/no/cancel prompts
+              },
               {
                 find = 'Press ENTER',
-              }, -- Press ENTER prompts
+              },
               {
-                find = 'More %(%d+%%%)',
-              }, -- More paging prompts
-              {
-                find = '^E%d+:',
-              }, -- Error messages that need visibility
-              {
-                find = 'really want to',
-              }, -- Common confirmation text
-              {
-                find = 'Are you sure',
-              }, -- Common confirmation text
-              {
-                find = 'Confirm',
-              }, -- Confirmation dialogs
-              {
-                find = '^--',
-              }, -- Command output that should stay visible
+                find = 'More %(%d+%%%',
+              },
               {
                 kind = 'confirm',
-              }, -- Explicit confirm kind
+              },
               {
                 kind = 'return_prompt',
-              }, -- Return prompts
+              },
             },
           },
         },
         view = 'notify',
-        opts = {
-          replace = false,
-          merge = false,
-        },
       },
     },
   },

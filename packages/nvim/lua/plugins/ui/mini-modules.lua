@@ -3,8 +3,7 @@ return {
   'echasnovski/mini.nvim',
   version = false,
   config = function()
-    -- Highlight word under cursor
-    require('mini.cursorword').setup({})
+    -- Removed mini.cursorword - replaced with nvim-cursorline
 
     -- Color manipulation utilities and unique colorscheme
     require('mini.colors').setup({})

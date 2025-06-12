@@ -137,8 +137,36 @@ return {
       -- Make sure the directory exists
       vim.fn.mkdir(workspace_dir, 'p')
 
-      -- Get the capabilities and adjust as needed for completion
+      -- Get capabilities and optimize for Java completion like IntelliJ IDEA
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+      -- Enhanced completion capabilities for Java
+      capabilities.textDocument.completion.completionItem.snippetSupport = false
+      capabilities.textDocument.completion.completionItem.resolveSupport = {
+        properties = {
+          'documentation',
+          'detail',
+          'additionalTextEdits',
+          'sortText',
+          'filterText',
+          'insertText',
+          'textEdit',
+          'insertTextFormat',
+        },
+      }
+
+      -- Enable advanced completion features
+      capabilities.textDocument.completion.completionItem.documentationFormat = { 'markdown', 'plaintext' }
+      capabilities.textDocument.completion.completionItem.deprecatedSupport = true
+      capabilities.textDocument.completion.completionItem.preselectSupport = true
+      capabilities.textDocument.completion.completionItem.tagSupport = {
+        valueSet = { 1 }, -- Deprecated
+      }
+      capabilities.textDocument.completion.completionItem.insertReplaceSupport = true
+      capabilities.textDocument.completion.completionItem.labelDetailsSupport = true
+
+      -- Enhanced completion context
+      capabilities.textDocument.completion.contextSupport = true
 
       -- Get bundles for debugging and testing
       local bundles = {}
@@ -183,6 +211,70 @@ return {
         capabilities = capabilities,
         settings = {
           java = {
+            -- IntelliJ IDEA-like completion settings
+            completion = {
+              enabled = true,
+              maxResults = 50, -- Limit results for better performance
+              favoriteStaticMembers = {
+                'org.junit.Assert.*',
+                'org.junit.Assume.*',
+                'org.junit.jupiter.api.Assertions.*',
+                'org.junit.jupiter.api.Assumptions.*',
+                'org.junit.jupiter.api.DynamicContainer.*',
+                'org.junit.jupiter.api.DynamicTest.*',
+                'org.mockito.Mockito.*',
+                'org.mockito.ArgumentMatchers.*',
+                'org.mockito.Answers.*',
+                'java.util.Objects.requireNonNull',
+                'java.util.Objects.requireNonNullElse',
+                'java.util.Objects.requireNonNullElseGet',
+                'java.util.Collections.*',
+                'java.util.stream.Collectors.*',
+                'java.lang.System.*',
+              },
+              filteredTypes = {
+                'com.sun.*',
+                'sun.*',
+                'jdk.internal.*',
+                'org.graalvm.*',
+                'io.micrometer.shaded.*',
+              },
+              importOrder = { 'java', 'javax', 'org', 'com', '' },
+              guessMethodArguments = true,
+              includeDecompiledSources = true,
+              overwrite = false,
+            },
+            -- Content assist (auto-completion) settings
+            contentAssist = {
+              enabled = true,
+              favoriteStaticMembers = {
+                'org.junit.Assert.*',
+                'org.junit.Assume.*',
+                'org.junit.jupiter.api.Assertions.*',
+                'org.mockito.Mockito.*',
+                'java.util.Objects.requireNonNull',
+                'java.util.Collections.*',
+                'java.util.stream.Collectors.*',
+                'java.lang.System.*',
+              },
+            },
+            -- Signature help settings
+            signatureHelp = {
+              enabled = true,
+              description = {
+                enabled = true,
+              },
+            },
+            -- Import settings for better organization
+            imports = {
+              gradle = {
+                enabled = true,
+              },
+              maven = {
+                enabled = true,
+              },
+              includeDecompiledSources = true,
+            },
             configuration = {
               updateBuildConfiguration = 'automatic',
               -- Configure source path when no project files are found
@@ -370,6 +462,23 @@ return {
         end,
         init_options = {
           bundles = bundles,
+          -- Enhanced initialization for better completion
+          extendedClientCapabilities = {
+            progressReportProvider = false,
+            classFileContentsSupport = true,
+            generateToStringPromptSupport = true,
+            hashCodeEqualsPromptSupport = true,
+            advancedExtractRefactoringSupport = true,
+            advancedOrganizeImportsSupport = true,
+            generateConstructorsPromptSupport = true,
+            generateDelegateMethodsPromptSupport = true,
+            moveRefactoringSupport = true,
+            overrideMethodsPromptSupport = true,
+            executeClientCommandSupport = true,
+            workspaceSymbolProvider = true,
+            -- Enable better completion resolution
+            resolveAdditionalTextEditsSupport = true,
+          },
         },
       }
 
