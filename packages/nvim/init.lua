@@ -1,6 +1,17 @@
 -- Main Neovim configuration entry point
 -- This file is the entry point that Neovim loads first
 -- All actual configuration is handled in lua/init.lua
+-- Early buffer prevention - set before anything else loads
+if vim.fn.argc() == 0 then
+  -- Prevent netrw from loading and creating buffers
+  vim.g.loaded_netrw = 1
+  vim.g.loaded_netrwPlugin = 1
+
+  -- Disable automatic buffer creation for empty vim
+  vim.opt.shortmess:append('I')
+  vim.opt.hidden = true
+end
+
 -- Bootstrap the main configuration
 -- Since this file is in the config directory, Neovim automatically
 -- includes the lua/ subdirectory in the runtime path

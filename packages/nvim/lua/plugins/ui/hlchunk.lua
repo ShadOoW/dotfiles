@@ -23,6 +23,26 @@ return {
         error_sign = false,
         duration = 150, -- Subtle animation for modern feel
         delay = 50,
+        -- Exclude special filetypes
+        exclude_filetypes = {
+          'lazy',
+          'mason',
+          'trouble',
+          'neo-tree',
+          'NvimTree',
+          'TelescopePrompt',
+          'help',
+          'startify',
+          'gitcommit',
+          'packer',
+          'lspinfo',
+          'lspsagaoutline',
+          'checkhealth',
+          'man',
+          'git',
+          'prompt',
+          'floaterm',
+        },
       },
       indent = {
         enable = true,
@@ -36,6 +56,26 @@ return {
         chars = { '┃' }, -- Slightly thicker line for better visibility
         ahead_lines = 5,
         delay = 0,
+        -- Exclude special filetypes
+        exclude_filetypes = {
+          'lazy',
+          'mason',
+          'trouble',
+          'neo-tree',
+          'NvimTree',
+          'TelescopePrompt',
+          'help',
+          'startify',
+          'gitcommit',
+          'packer',
+          'lspinfo',
+          'lspsagaoutline',
+          'checkhealth',
+          'man',
+          'git',
+          'prompt',
+          'floaterm',
+        },
       },
       line_num = {
         enable = false,

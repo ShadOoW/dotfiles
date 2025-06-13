@@ -16,6 +16,10 @@ return {
     'nvim-telescope/telescope-project.nvim',
     'nvim-telescope/telescope-frecency.nvim',
     'nvim-telescope/telescope-symbols.nvim',
+    {
+      'nvim-telescope/telescope-file-browser.nvim',
+      dependencies = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim' },
+    },
   },
   config = function()
     local telescope = require('telescope')
@@ -411,6 +415,27 @@ return {
           ignore_patterns = { '*.git/*', '*/tmp/*' },
           disable_devicons = true, -- Disable icons to fix display issues
         },
+
+        file_browser = {
+          theme = 'ivy',
+          hijack_netrw = true, -- Hijack netrw to use telescope file browser
+          mappings = {
+            ['i'] = {
+              -- your custom insert mode mappings
+            },
+            ['n'] = {
+              -- your custom normal mode mappings
+            },
+          },
+          -- Optional: Show hidden files by default
+          hidden = true,
+          -- Optional: Respect .gitignore
+          respect_gitignore = false,
+          -- Optional: Show parent directory
+          grouped = true,
+          -- Optional: Initial mode
+          initial_mode = 'normal',
+        },
       },
     })
 
@@ -420,6 +445,7 @@ return {
     pcall(telescope.load_extension, 'frecency')
     pcall(telescope.load_extension, 'project')
     pcall(telescope.load_extension, 'aerial')
+    pcall(telescope.load_extension, 'file_browser')
 
     -- Enhanced keymaps with better organization
     local builtin = require('telescope.builtin')
@@ -482,7 +508,7 @@ return {
     vim.keymap.set('n', '<leader>sr', builtin.resume, {
       desc = 'Resume last search',
     })
-    vim.keymap.set('n', '<leader>sh', builtin.help_tags, {
+    vim.keymap.set('n', '<leader>sH', builtin.help_tags, {
       desc = 'Help tags',
     })
     vim.keymap.set('n', '<leader>sk', builtin.keymaps, {
@@ -583,7 +609,27 @@ return {
     })
 
     -- Extension Keymaps
-    -- File browser removed due to compatibility issues
+    vim.keymap.set(
+      'n',
+      '<leader>se',
+      function()
+        require('telescope').extensions.file_browser.file_browser({
+          path = vim.fn.expand('%:p:h'),
+          cwd = vim.fn.getcwd(),
+          respect_gitignore = false,
+          hidden = true,
+          grouped = true,
+          previewer = false,
+          initial_mode = 'normal',
+          layout_config = {
+            height = 40,
+          },
+        })
+      end,
+      {
+        desc = 'File browser',
+      }
+    )
 
     vim.keymap.set(
       'n',
@@ -694,54 +740,10 @@ return {
 
     vim.keymap.set(
       'n',
-      '<leader>tc',
-      function()
-        builtin.lsp_document_symbols(vim.tbl_extend('force', enhanced_symbols_config(), {
-          symbols = { 'class', 'interface', 'struct' },
-          prompt_title = '🏗️  Classes & Types',
-        }))
-      end,
-      {
-        desc = 'Classes & Types',
-        silent = true,
-      }
-    )
-
-    vim.keymap.set(
-      'n',
-      '<leader>tv',
-      function()
-        builtin.lsp_document_symbols(vim.tbl_extend('force', enhanced_symbols_config(), {
-          symbols = { 'variable', 'field', 'property', 'constant' },
-          prompt_title = '📦 Variables & Fields',
-        }))
-      end,
-      {
-        desc = 'Variables & Fields',
-        silent = true,
-      }
-    )
-
-    -- Advanced symbol features
-    vim.keymap.set('n', '<leader>tq', function()
-      local input = vim.fn.input('Symbol: ')
-      if input ~= '' then
-        builtin.lsp_workspace_symbols({
-          query = input,
-          prompt_title = '🔍 Search: ' .. input,
-        })
-      end
-    end, {
-      desc = 'Quick Symbol Search',
-      silent = true,
-    })
-
-    vim.keymap.set(
-      'n',
-      '<leader>tr',
+      '<leader>th',
       function()
         builtin.jumplist(themes.get_dropdown({
-          prompt_title = '📋 Recent Locations',
+          prompt_title = '📋 Locations',
           layout_config = {
             width = 0.8,
             height = 0.6,
@@ -749,7 +751,7 @@ return {
         }))
       end,
       {
-        desc = 'Recent Locations',
+        desc = 'Locations History',
         silent = true,
       }
     )

@@ -43,8 +43,6 @@ keymap.v('K', ':m \'<-2<CR>gv=gv', 'Move selection up')
 
 -- Search and replace current word
 keymap.n('<leader>sr', ':%s/<C-r><C-w>//g<Left><Left>', 'Word under cursor')
-keymap.n('<leader>ss', function() require('telescope.builtin').lsp_document_symbols() end, 'Symbols Document')
-keymap.n('<leader>sS', function() require('telescope.builtin').lsp_dynamic_workspace_symbols() end, 'Symbols Workspace')
 keymap.n('<leader>sm', '<cmd>NoiceTelescope<cr>', 'Noice messages')
 
 -- Open mini.files with '\'
@@ -131,39 +129,32 @@ keymap.n('<S-F12>', '<cmd>lua vim.lsp.buf.hover()<CR>', 'LSP hover')
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Tmux Integration
-keymap.n('<leader>Aa', '<cmd>TmuxPanes<cr>', '[A]dmin List nvim p[a]nes in tmux session')
+keymap.n('<leader>Aa', '<cmd>TmuxPanes<cr>', 'List nvim panes in tmux session')
 
 keymap.n('<leader>Ar', function()
   vim.cmd('checktime')
   vim.notify('Checked all buffers for external changes', vim.log.levels.INFO)
-end, '[A]dmin [R]eload all buffers from disk')
-
-keymap.n('<leader>As', function()
-  -- Force focus sync and file check
-  vim.cmd('redraw!')
-  vim.cmd('checktime')
-  if vim.env.TMUX then require('utils.tmux').refresh_client() end
-end, '[A]dmin Force focus [s]ync and file check')
+end, 'Reload all buffers from disk')
 
 -- Noice Integration
 
-keymap.n('<leader>Al', function() require('noice').cmd('last') end, '[A]dmin Noice [L]ast message')
+keymap.n('<leader>Al', function() require('noice').cmd('last') end, 'Noice Last message')
 
-keymap.n('<leader>Ah', function() require('noice').cmd('history') end, '[A]dmin Noice [H]istory')
+keymap.n('<leader>Ah', function() require('noice').cmd('history') end, 'Noice History')
 
-keymap.n('<leader>AD', function() require('noice').cmd('dismiss') end, '[A]dmin Noice [D]ismiss all')
+keymap.n('<leader>AD', function() require('noice').cmd('dismiss') end, 'Noice Dismiss all')
 
 -- Session and Project Management
 keymap.n('<leader>Ap', function()
   -- Switch to project root and setup session
   local tmux = require('utils.tmux')
   if tmux.is_tmux() then tmux.setup_project_workflow() end
-end, '[A]dmin Setup [p]roject workflow')
+end, 'Setup project workflow')
 
-keymap.n('<leader>Ao', '<cmd>OutputPanel<CR>', '[A]dmin Toggle [O]utput Panel')
+keymap.n('<leader>Ao', '<cmd>OutputPanel<CR>', 'Toggle output panel')
 
 -- Diagnostic keymaps
-keymap.n('<leader>pq', vim.diagnostic.setloclist, 'Open diagnostic [Q]uickfix list')
+keymap.n('<leader>pq', vim.diagnostic.setloclist, 'Open diagnostic quickfix list')
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Tab Management

@@ -323,3 +323,42 @@ vim.api.nvim_create_user_command('LspInfo', function()
 end, {
   desc = 'Show LSP client information',
 })
+
+-- ===== Buffer Debug Commands =====
+
+vim.api.nvim_create_user_command('BufDebug', function()
+  print('=== Buffer Debug Info ===')
+  print('Arguments count: ' .. vim.fn.argc())
+  print('Current working directory: ' .. vim.fn.getcwd())
+  print('')
+
+  local buffers = vim.api.nvim_list_bufs()
+  print('Total buffers: ' .. #buffers)
+  print('')
+
+  for i, buf in ipairs(buffers) do
+    if vim.api.nvim_buf_is_valid(buf) then
+      local bufname = vim.api.nvim_buf_get_name(buf)
+      local buftype = vim.api.nvim_get_option_value('buftype', {
+        buf = buf,
+      })
+      local filetype = vim.api.nvim_get_option_value('filetype', {
+        buf = buf,
+      })
+      local loaded = vim.api.nvim_buf_is_loaded(buf)
+      local listed = vim.api.nvim_get_option_value('buflisted', {
+        buf = buf,
+      })
+
+      print(string.format('Buffer %d:', buf))
+      print(string.format('  Name: %s', bufname ~= '' and bufname or '[No Name]'))
+      print(string.format('  Type: %s', buftype ~= '' and buftype or 'normal'))
+      print(string.format('  Filetype: %s', filetype ~= '' and filetype or 'none'))
+      print(string.format('  Loaded: %s', loaded))
+      print(string.format('  Listed: %s', listed))
+      print('')
+    end
+  end
+end, {
+  desc = 'Debug buffer information',
+})

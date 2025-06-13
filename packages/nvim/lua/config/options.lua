@@ -143,6 +143,84 @@ end, {
 -- Enable true color support
 vim.opt.termguicolors = true
 
+-- Prevent unnamed buffer creation on startup
+vim.opt.shortmess:append('I') -- Remove intro message
+vim.opt.cmdheight = 0 -- Hide command line when not in use
+
+-- Additional options to prevent unwanted buffer creation
+vim.opt.hidden = true -- Allow hidden buffers
+vim.opt.confirm = false -- Don't confirm when abandoning buffers
+
+-- Disable netrw completely since we're using telescope file browser
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
+-- Completely disable buffer creation when starting without arguments
+vim.api.nvim_create_autocmd('VimEnter', {
+  group = vim.api.nvim_create_augroup('NoUnnamedBuffer', {
+    clear = true,
+  }),
+  callback = function()
+    -- Only act if no arguments were provided
+    if vim.fn.argc() == 0 then
+      -- Force close all buffers and start clean
+      vim.schedule(function()
+        -- Get all current buffers
+        local all_buffers = vim.api.nvim_list_bufs()
+
+        -- Delete all existing buffers
+        for _, buf in ipairs(all_buffers) do
+          if vim.api.nvim_buf_is_valid(buf) then
+            local bufname = vim.api.nvim_buf_get_name(buf)
+            local buftype = vim.api.nvim_get_option_value('buftype', {
+              buf = buf,
+            })
+
+            -- Delete any normal buffer (including unnamed ones and directory buffers)
+            if buftype == '' then
+              pcall(vim.api.nvim_buf_delete, buf, {
+                force = true,
+                unload = false,
+              })
+            end
+          end
+        end
+
+        -- Ensure we have no buffers listed
+        local remaining = vim.tbl_filter(
+          function(buf)
+            return vim.api.nvim_buf_is_valid(buf)
+              and vim.api.nvim_buf_is_loaded(buf)
+              and vim.api.nvim_get_option_value('buftype', {
+                  buf = buf,
+                })
+                == ''
+          end,
+          vim.api.nvim_list_bufs()
+        )
+
+        -- If no normal buffers remain, the file browser autocmd should trigger
+        if #remaining == 0 then
+          -- Create a minimal scratch buffer to prevent vim from creating one
+          local scratch_buf = vim.api.nvim_create_buf(false, true)
+          vim.api.nvim_set_option_value('buftype', 'nofile', {
+            buf = scratch_buf,
+          })
+          vim.api.nvim_set_option_value('bufhidden', 'wipe', {
+            buf = scratch_buf,
+          })
+          vim.api.nvim_set_option_value('swapfile', false, {
+            buf = scratch_buf,
+          })
+          vim.api.nvim_win_set_buf(0, scratch_buf)
+
+          -- The file browser will open and replace this scratch buffer
+        end
+      end)
+    end
+  end,
+})
+
 -- Session options
 vim.opt.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions'
 

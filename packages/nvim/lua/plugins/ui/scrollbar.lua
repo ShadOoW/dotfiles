@@ -81,8 +81,6 @@ return {
         'noice',
         'prompt',
         'TelescopePrompt',
-        'alpha',
-        'dashboard',
         'neo-tree',
         'Trouble',
         'trouble',

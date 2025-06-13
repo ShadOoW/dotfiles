@@ -146,11 +146,50 @@ return {
             newfile_status = true,
             path = 1,
             symbols = {
-              modified = '[+]',
-              readonly = '[-]',
+              modified = '', -- Hide default indicator, we'll use custom one
+              readonly = '', -- Hide default indicator, we'll use custom one
               unnamed = '[No Name]',
-              newfile = '[New]',
+              newfile = '', -- Hide default indicator, we'll use custom one
             },
+          },
+          {
+            -- Modified file indicator with nerd font icon
+            function()
+              if vim.bo.modified then
+                return '●' -- Blue circle for modified
+              elseif vim.bo.readonly then
+                return '●' -- Red circle for readonly
+              elseif vim.fn.expand('%:t') == '' and vim.bo.buftype == '' then
+                return '●' -- Green circle for new file
+              end
+              return ''
+            end,
+            color = function()
+              if vim.bo.modified then
+                return {
+                  fg = colors.blue, -- Blue for modified
+                  bg = colors.bg_highlight,
+                  gui = 'bold',
+                }
+              elseif vim.bo.readonly then
+                return {
+                  fg = colors.red, -- Red for readonly
+                  bg = colors.bg_highlight,
+                  gui = 'bold',
+                }
+              elseif vim.fn.expand('%:t') == '' and vim.bo.buftype == '' then
+                return {
+                  fg = colors.green, -- Green for new file
+                  bg = colors.bg_highlight,
+                  gui = 'bold',
+                }
+              end
+              return {
+                fg = colors.fg,
+                bg = colors.bg,
+              }
+            end,
+            separator = '',
           },
           {
             -- HBAC Pin status indicator

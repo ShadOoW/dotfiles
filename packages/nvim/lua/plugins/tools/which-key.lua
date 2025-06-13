@@ -78,27 +78,72 @@ return {
           '<leader><Up>',
           group = ' Next & Previous Tab ',
         },
+        {
+          '<leader>1',
+          desc = 'Tab 1',
+          hidden = true,
+        },
+        {
+          '<leader>2',
+          desc = 'Tab 2',
+          hidden = true,
+        },
+        {
+          '<leader>3',
+          desc = 'Tab 3',
+          hidden = true,
+        },
+        {
+          '<leader>4',
+          desc = 'Tab 4',
+          hidden = true,
+        },
+        {
+          '<leader>5',
+          desc = 'Tab 5',
+          hidden = true,
+        },
+        {
+          '<leader>6',
+          desc = 'Tab 6',
+          hidden = true,
+        },
+        {
+          '<leader>7',
+          desc = 'Tab 7',
+          hidden = true,
+        },
+        {
+          '<leader>8',
+          desc = 'Tab 8',
+          hidden = true,
+        },
+        {
+          '<leader>9',
+          desc = 'Tab 9',
+          hidden = true,
+        },
+        {
+          '<leader><Down>',
+          desc = 'Previous Tab',
+          hidden = true,
+        },
+        {
+          '<leader><Left>',
+          desc = 'Previous Buffer',
+          hidden = true,
+        },
+        {
+          '<leader><Right>',
+          desc = 'Next Buffer',
+          hidden = true,
+        },
+        {
+          '<leader><Up>',
+          desc = 'Next Tab',
+          hidden = true,
+        },
       },
-    })
-
-    -- Hide individual leader+1 to leader+9 keys
-    wk.register({
-      ['<leader>1'] = 'Tab 1',
-      ['<leader>2'] = 'Tab 2',
-      ['<leader>3'] = 'Tab 3',
-      ['<leader>4'] = 'Tab 4',
-      ['<leader>5'] = 'Tab 5',
-      ['<leader>6'] = 'Tab 6',
-      ['<leader>7'] = 'Tab 7',
-      ['<leader>8'] = 'Tab 8',
-      ['<leader>9'] = 'Tab 9',
-      ['<leader><Right>'] = 'Next Buffer',
-      ['<leader><Left>'] = 'Previous Buffer',
-      ['<leader><Up>'] = 'Next Tab',
-      ['<leader><Down>'] = 'Previous Tab',
-    }, {
-      mode = 'n',
-      hidden = true,
     })
   end,
 }
