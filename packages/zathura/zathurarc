@@ -1,0 +1,14 @@
+# Dark mode for Zathura
+set recolor true
+set recolor-keephue true
+
+# Optional: UI color tweaks
+set default-bg "#1e1e2e"
+set default-fg "#cdd6f4"
+set statusbar-bg "#1e1e2e"
+set statusbar-fg "#89b4fa"
+set inputbar-bg "#1e1e2e"
+set inputbar-fg "#f38ba8"
+
+# Keybindings
+map R recolor

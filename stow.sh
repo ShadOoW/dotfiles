@@ -52,6 +52,7 @@ declare -A TARGET_DIRS=(
     ["tmux"]="$HOME/.config/tmux"
     ["zellij"]="$HOME/.config/zellij"
     ["qutebrowser"]="$HOME/.config/qutebrowser"
+    ["zathura"]="$HOME/.config/zathura"
 )
 
 # Store setup scripts to run after stowing
