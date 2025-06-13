@@ -1,10 +1,9 @@
--- nvim-genghis: File operations from within the buffer
+-- File operations from within the buffer
+-- Provides convenient file operations like rename, move, copy, etc.
 return {
   'chrisgrieser/nvim-genghis',
   event = 'VeryLazy',
-  dependencies = {
-    'stevearc/dressing.nvim', -- For better UI
-  },
+  dependencies = { 'stevearc/dressing.nvim' }, -- For better UI
   config = function()
     -- Setup genghis with proper configuration
     require('genghis').setup({

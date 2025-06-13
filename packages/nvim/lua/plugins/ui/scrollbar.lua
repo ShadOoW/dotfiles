@@ -1,6 +1,7 @@
 -- Enhanced scrollbar with tokyo night colors
 return {
   'petertriho/nvim-scrollbar',
+  dependencies = { 'kevinhwang91/nvim-hlslens' },
   event = { 'BufReadPost', 'BufNewFile' },
   config = function()
     local colors = require('tokyonight.colors').setup()

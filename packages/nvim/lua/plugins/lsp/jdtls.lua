@@ -168,6 +168,30 @@ return {
       -- Enhanced completion context
       capabilities.textDocument.completion.contextSupport = true
 
+      -- Custom LSP handlers to suppress duplicate notifications
+      local custom_handlers = {}
+
+      -- Suppress window/showMessage notifications (but keep them in lualine status)
+      custom_handlers['window/showMessage'] = function(err, result, ctx, config)
+        -- Don't show notifications for progress messages, just log them
+        if result and result.message then
+          -- Only log important messages, suppress routine ones
+          if result.type == 1 then -- Error
+            vim.notify(result.message, vim.log.levels.ERROR)
+          elseif result.type == 2 and not result.message:match('Loading') and not result.message:match('Building') then -- Warning
+            vim.notify(result.message, vim.log.levels.WARN)
+          end
+          -- Suppress Info (3) and Log (4) level messages to avoid duplicates
+        end
+        return result
+      end
+
+      -- Suppress window/showMessageRequest (but keep in status)
+      custom_handlers['window/showMessageRequest'] = function(err, result, ctx, config)
+        -- Let status line show these, don't popup notifications
+        return result
+      end
+
       -- Get bundles for debugging and testing
       local bundles = {}
       local mason_path = vim.fn.stdpath('data') .. '/mason/packages/'
@@ -494,6 +518,7 @@ return {
             resolveAdditionalTextEditsSupport = true,
           },
         },
+        handlers = custom_handlers, -- Add custom handlers to suppress notifications
       }
 
       -- Start the server

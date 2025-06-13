@@ -20,7 +20,7 @@ return {
       set_number = true,
 
       -- Disable in special buffers for clean experience
-      ignore_filetypes = { 'NvimTree', 'TelescopePrompt', 'lazy', 'mason', 'trouble', 'neo-tree' },
+      ignore = { 'NvimTree', 'TelescopePrompt', 'lazy', 'mason', 'trouble', 'neo-tree' },
     })
   end,
 }

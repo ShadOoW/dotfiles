@@ -156,18 +156,18 @@ return {
             -- Modified file indicator with nerd font icon
             function()
               if vim.bo.modified then
-                return '●' -- Blue circle for modified
+                return '●' -- Green circle for modified
               elseif vim.bo.readonly then
                 return '●' -- Red circle for readonly
               elseif vim.fn.expand('%:t') == '' and vim.bo.buftype == '' then
-                return '●' -- Green circle for new file
+                return '●' -- Blue circle for new file
               end
               return ''
             end,
             color = function()
               if vim.bo.modified then
                 return {
-                  fg = colors.blue, -- Blue for modified
+                  fg = colors.green, -- Green for modified
                   bg = colors.bg_highlight,
                   gui = 'bold',
                 }
@@ -179,7 +179,7 @@ return {
                 }
               elseif vim.fn.expand('%:t') == '' and vim.bo.buftype == '' then
                 return {
-                  fg = colors.green, -- Green for new file
+                  fg = colors.blue, -- Blue for new file
                   bg = colors.bg_highlight,
                   gui = 'bold',
                 }

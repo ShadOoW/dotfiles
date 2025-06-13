@@ -238,7 +238,7 @@ return {
           else
             debug_log('No session file found - cleaning up for fresh start')
 
-            -- No session exists, clean up any buffers and let file browser auto-open
+            -- No session exists, clean up any buffers and start fresh
             vim.defer_fn(function()
               local buffers = vim.api.nvim_list_bufs()
               for _, buf in ipairs(buffers) do
@@ -259,28 +259,14 @@ return {
                 end
               end
 
-              -- Open telescope file browser instead of showing dashboard
-              require('telescope').extensions.file_browser.file_browser({
-                cwd = vim.fn.getcwd(),
-                respect_gitignore = false,
-                hidden = true,
-                grouped = true,
-                previewer = false,
-                initial_mode = 'normal',
-                prompt_title = 'File Browser - ' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':t'),
-                layout_config = {
-                  height = 0.8,
-                  width = 0.8,
-                },
-              })
+              -- Start with clean empty buffer for 'nvim .' with no session
+              vim.notify('No session found for: ' .. vim.fn.fnamemodify(cwd, ':t'), vim.log.levels.INFO)
             end, 50)
           end
         else
-          if argc == 0 then
-            debug_log('No arguments - letting dashboard show')
-          else
-            debug_log('Conditions not met for auto-restore (argc=' .. argc .. ', arg1=' .. tostring(argv[1]) .. ')')
-          end
+          debug_log('Session restoration not triggered - normal nvim startup')
+          -- For 'nvim' without arguments or with file arguments, just start normally
+          -- No special handling needed - let nvim start with its normal behavior
         end
       end,
       nested = true,
