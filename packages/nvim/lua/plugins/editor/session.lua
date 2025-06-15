@@ -50,6 +50,43 @@ return {
         'oil',
         'NvimTree',
         'LazyGit',
+        'noice',
+        'notify',
+        'messages',
+        'checkhealth',
+        'lspinfo',
+        'null-ls-info',
+        'qf',
+        'help',
+      }
+
+      -- Additional patterns for buffer names that should be excluded
+      local problematic_patterns = {
+        'noice://',
+        'notify://',
+        'messages',
+        'Noice',
+        'NoiceHistory',
+        'NoiceLsp',
+        'NoicePopup',
+        'NoiceConfirm',
+        'NoiceInput',
+        'NoiceSelect',
+        'NoiceFormat',
+        'NoiceVirtualText',
+        'NoiceCmdline',
+        'NoiceSearch',
+        'NoiceMessage',
+        'NoiceNotify',
+        'NoiceErrors',
+        'NoiceWarnings',
+        'NoiceInfo',
+        'NoiceDebug',
+        'NoiceTrace',
+        '^%s*$', -- empty or whitespace-only names
+        'term://',
+        'fugitive://',
+        'gitsigns://',
       }
 
       for _, buf in ipairs(vim.api.nvim_list_bufs()) do
@@ -61,21 +98,57 @@ return {
             buf = buf,
           })
           local bufname = vim.api.nvim_buf_get_name(buf)
+          local modified = vim.api.nvim_get_option_value('modified', {
+            buf = buf,
+          })
 
-          -- Skip unnamed buffers and problematic types
+          -- Check if buffer should be closed
           local should_close = vim.tbl_contains(problematic_buftypes, buftype)
             or vim.tbl_contains(problematic_filetypes, filetype)
             or (bufname == '' and buftype == '')
 
-          if should_close then pcall(vim.api.nvim_buf_delete, buf, {
-            force = true,
-          }) end
+          -- Check against problematic patterns
+          if not should_close then
+            for _, pattern in ipairs(problematic_patterns) do
+              if bufname:match(pattern) then
+                should_close = true
+                break
+              end
+            end
+          end
+
+          if should_close then
+            -- Force close without saving to avoid :qall issues
+            pcall(vim.api.nvim_buf_delete, buf, {
+              force = true,
+            })
+          elseif modified and buftype == '' and bufname ~= '' then
+            -- Save modified normal file buffers to avoid :qall issues
+            pcall(vim.api.nvim_buf_call, buf, function() vim.cmd('silent! write') end)
+          end
+        end
+      end
+
+      -- Additional cleanup: close any remaining noice-related windows
+      for _, win in ipairs(vim.api.nvim_list_wins()) do
+        if vim.api.nvim_win_is_valid(win) then
+          local buf = vim.api.nvim_win_get_buf(win)
+          if vim.api.nvim_buf_is_valid(buf) then
+            local filetype = vim.api.nvim_get_option_value('filetype', {
+              buf = buf,
+            })
+            local bufname = vim.api.nvim_buf_get_name(buf)
+
+            if filetype == 'noice' or bufname:match('noice') or bufname:match('Noice') then
+              pcall(vim.api.nvim_win_close, win, true)
+            end
+          end
         end
       end
 
       -- Save views for all remaining buffers to preserve folds and cursor positions
-      vim.cmd('silent! wall') -- Save all buffers
-      vim.cmd('silent! mkview!') -- Save current view
+      pcall(function() vim.cmd('silent! wall') end) -- Save all buffers
+      pcall(function() vim.cmd('silent! mkview!') end) -- Save current view
     end,
 
     -- Enhanced callback after loading session
@@ -172,6 +245,32 @@ return {
       end
       return false
     end
+
+    -- Handle :qall issues by auto-saving modified buffers
+    vim.api.nvim_create_autocmd('VimLeavePre', {
+      group = vim.api.nvim_create_augroup('PersistenceQuitHandler', {
+        clear = true,
+      }),
+      callback = function()
+        -- Auto-save all modified normal file buffers before quitting
+        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+          if vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_is_loaded(buf) then
+            local buftype = vim.api.nvim_get_option_value('buftype', {
+              buf = buf,
+            })
+            local modified = vim.api.nvim_get_option_value('modified', {
+              buf = buf,
+            })
+            local bufname = vim.api.nvim_buf_get_name(buf)
+
+            -- Save modified normal file buffers
+            if modified and buftype == '' and bufname ~= '' and vim.fn.filereadable(bufname) == 1 then
+              pcall(vim.api.nvim_buf_call, buf, function() vim.cmd('silent! write') end)
+            end
+          end
+        end
+      end,
+    })
 
     -- Enhanced auto-restore session when starting nvim
     vim.api.nvim_create_autocmd('VimEnter', {

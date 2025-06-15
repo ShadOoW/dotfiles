@@ -77,8 +77,14 @@ function M.DebugTreesitter()
   }
 
   for _, obj in ipairs(test_objects) do
-    local available = ts_swap.swap_next(obj, true) -- dry run
-    print(obj .. ': ' .. (available and 'Available' or 'Not available'))
+    local success, available = pcall(function()
+      return ts_swap.swap_next(obj, true) -- dry run
+    end)
+    if success then
+      print(obj .. ': ' .. (available and 'Available' or 'Not available'))
+    else
+      print(obj .. ': Error testing')
+    end
   end
 end
 
