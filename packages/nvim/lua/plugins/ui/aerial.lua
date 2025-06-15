@@ -216,19 +216,9 @@ return {
       desc = 'Close aerial for special buffer types',
     })
 
-    -- Enhanced keybindings
-    vim.keymap.set('n', '<leader>tN', '<cmd>AerialNav<CR>', {
-      desc = 'Aerial Navigation',
-    })
-
     -- Buffer-aware toggle function
-    vim.keymap.set('n', '<leader>ps', function() require('aerial').toggle() end, {
+    vim.keymap.set('n', '<leader>pa', function() require('aerial').toggle() end, {
       desc = 'Toggle Aerial Panel',
-    })
-
-    -- Telescope integration
-    vim.keymap.set('n', '<leader>ta', '<cmd>Telescope aerial<CR>', {
-      desc = 'Telescope Aerial',
     })
   end,
 }

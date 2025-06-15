@@ -83,7 +83,7 @@ keymap.n('<F6>', function()
     minifiles.open()
   end
 end, 'Open file explorer')
-keymap.n('<F7>', '<cmd>Telescope find_files<CR>', 'Find files')
+-- F7 removed - use <leader>sf for find files
 keymap.n('<F8>', '<cmd>Telescope live_grep<CR>', 'Live grep')
 
 -- F9-F12: Development Tools & Advanced Features

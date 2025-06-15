@@ -66,8 +66,26 @@ return {
 
       -- Custom close command that respects our never-modified tracking
       close_command = function(bufnr)
-        -- Only close if buffer was never modified
-        if never_modified_buffers[bufnr] == true then vim.api.nvim_buf_delete(bufnr, {}) end
+        -- Don't close buffers in command-line window or special contexts
+        if vim.fn.getcmdwintype() ~= '' then return end
+
+        -- Don't close if we're in a special buffer context
+        local current_buf = vim.api.nvim_get_current_buf()
+        local current_filetype = vim.api.nvim_get_option_value('filetype', {
+          buf = current_buf,
+        })
+        local current_buftype = vim.api.nvim_get_option_value('buftype', {
+          buf = current_buf,
+        })
+
+        if current_buftype ~= '' or current_filetype == 'TelescopePrompt' then return end
+
+        -- Only close if buffer was never modified and it's safe to do so
+        if never_modified_buffers[bufnr] == true then
+          pcall(vim.api.nvim_buf_delete, bufnr, {
+            force = false,
+          })
+        end
       end,
     })
 

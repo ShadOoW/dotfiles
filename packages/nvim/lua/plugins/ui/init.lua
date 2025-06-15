@@ -16,4 +16,6 @@ return {
   require('plugins.ui.beacon'),
   require('plugins.ui.modes'),
   require('plugins.ui.hlchunk'),
+  require('plugins.ui.notifications'),
+  require('plugins.ui.statusline'),
 }

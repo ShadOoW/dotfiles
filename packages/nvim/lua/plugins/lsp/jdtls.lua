@@ -435,6 +435,14 @@ return {
           -- Regular on_attach from your handlers
           handlers.on_attach(client, bufnr)
 
+          -- Force workspace symbol indexing for better search results
+          vim.defer_fn(function()
+            if client.server_capabilities.workspaceSymbolProvider then
+              -- Trigger initial workspace symbol indexing
+              vim.lsp.buf.workspace_symbol('')
+            end
+          end, 2000) -- Wait 2 seconds after server is ready
+
           -- jdtls-specific keymaps
           if jdtls.organize_imports then
             vim.keymap.set('n', '<leader>jo', jdtls.organize_imports, {
@@ -497,6 +505,57 @@ return {
           if jdtls.setup_dap then jdtls.setup_dap({
             hotcodereplace = 'auto',
           }) end
+
+          -- Debug keymaps for Java
+          vim.keymap.set('n', '<leader>db', function() require('dap').toggle_breakpoint() end, {
+            buffer = bufnr,
+            desc = 'Toggle Breakpoint',
+          })
+
+          vim.keymap.set(
+            'n',
+            '<leader>dB',
+            function() require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: ')) end,
+            {
+              buffer = bufnr,
+              desc = 'Set Conditional Breakpoint',
+            }
+          )
+
+          vim.keymap.set('n', '<leader>dc', function() require('dap').continue() end, {
+            buffer = bufnr,
+            desc = 'Debug Continue',
+          })
+
+          vim.keymap.set('n', '<leader>di', function() require('dap').step_into() end, {
+            buffer = bufnr,
+            desc = 'Debug Step Into',
+          })
+
+          vim.keymap.set('n', '<leader>do', function() require('dap').step_over() end, {
+            buffer = bufnr,
+            desc = 'Debug Step Over',
+          })
+
+          vim.keymap.set('n', '<leader>dO', function() require('dap').step_out() end, {
+            buffer = bufnr,
+            desc = 'Debug Step Out',
+          })
+
+          vim.keymap.set('n', '<leader>dr', function() require('dap').repl.open() end, {
+            buffer = bufnr,
+            desc = 'Debug REPL',
+          })
+
+          vim.keymap.set('n', '<leader>ds', function() require('dap').terminate() end, {
+            buffer = bufnr,
+            desc = 'Debug Stop',
+          })
+
+          vim.keymap.set('n', '<leader>du', function() require('dapui').toggle() end, {
+            buffer = bufnr,
+            desc = 'Debug UI Toggle',
+          })
         end,
         init_options = {
           bundles = bundles,

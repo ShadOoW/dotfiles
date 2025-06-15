@@ -8,6 +8,9 @@ return {
     local lspconfig = require('lspconfig')
     local handlers = require('lsp.handlers')
 
+    -- Configure diagnostics first
+    handlers.setup_diagnostics()
+
     -- Common LSP settings
     local common_settings = {
       capabilities = require('cmp_nvim_lsp').default_capabilities(),
@@ -21,13 +24,20 @@ return {
       return common_settings
     end
 
-    -- Configure individual LSP servers with their specific configurations
-
     -- HTML/Template files: superhtml (structure), tailwindcss (classes)
+    -- Enhanced HTML configuration to ensure consistent attachment
+    local html_config = load_server_config('superhtml')
+    html_config.autostart = true
+    html_config.single_file_support = true
+    lspconfig.superhtml.setup(html_config)
+
     -- CSS files: cssls (pure CSS/SCSS/Less)
-    lspconfig.superhtml.setup(load_server_config('superhtml'))
     lspconfig.cssls.setup(load_server_config('cssls'))
-    lspconfig.tailwindcss.setup(load_server_config('tailwindcss'))
+
+    -- TailwindCSS for HTML and other web files
+    local tailwind_config = load_server_config('tailwindcss')
+    tailwind_config.autostart = true
+    lspconfig.tailwindcss.setup(tailwind_config)
 
     -- JavaScript/TypeScript: vtsls only (modern replacement for ts_ls)
     lspconfig.vtsls.setup(load_server_config('vtsls'))
@@ -35,7 +45,6 @@ return {
     -- Other web development servers
     lspconfig.eslint.setup(load_server_config('eslint'))
     lspconfig.astro.setup(load_server_config('astro'))
-
     lspconfig.biome.setup(load_server_config('biome'))
 
     -- General purpose servers
@@ -47,5 +56,16 @@ return {
     lspconfig.denols.setup(load_server_config('denols'))
     lspconfig.clangd.setup(load_server_config('clangd'))
     lspconfig.lua_ls.setup(load_server_config('lua_ls'))
+
+    -- Force HTML filetype detection for consistency
+    vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
+      pattern = { '*.html', '*.htm', '*.xhtml' },
+      callback = function(args)
+        vim.bo[args.buf].filetype = 'html'
+        -- Ensure treesitter parser is available
+        vim.schedule(function() vim.cmd('TSBufEnable highlight') end)
+      end,
+      desc = 'Force HTML filetype detection for consistent LSP/treesitter behavior',
+    })
   end,
 }

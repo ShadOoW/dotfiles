@@ -49,6 +49,7 @@ return {
         'mason',
         'oil',
         'NvimTree',
+        'LazyGit',
       }
 
       for _, buf in ipairs(vim.api.nvim_list_bufs()) do
@@ -196,7 +197,40 @@ return {
         -- 2. That argument is "." (current directory)
         -- 3. Not in nested nvim instance
         -- 4. Not reading from stdin
-        local should_restore = argc == 1 and argv[1] == '.' and not vim.env.NVIM and not vim.g.started_with_stdin
+        -- 5. Not in a Lazy popup window or any special buffer
+        local has_special_buffer = false
+        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+          if vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_is_loaded(buf) then
+            local filetype = vim.api.nvim_get_option_value('filetype', {
+              buf = buf,
+            })
+            local buftype = vim.api.nvim_get_option_value('buftype', {
+              buf = buf,
+            })
+            local bufname = vim.api.nvim_buf_get_name(buf)
+
+            -- Check for special buffer types that should prevent session restore
+            if
+              filetype == 'lazy'
+              or filetype == 'mason'
+              or filetype == 'TelescopePrompt'
+              or buftype == 'nofile'
+              or buftype == 'terminal'
+              or bufname:match('lazy%.nvim')
+              or bufname:match('mason%.nvim')
+            then
+              has_special_buffer = true
+              debug_log('Found special buffer preventing restore: ' .. filetype .. ' / ' .. buftype .. ' / ' .. bufname)
+              break
+            end
+          end
+        end
+
+        local should_restore = argc == 1
+          and argv[1] == '.'
+          and not vim.env.NVIM
+          and not vim.g.started_with_stdin
+          and not has_special_buffer
 
         if should_restore then
           -- Check if a session exists for current directory
@@ -408,6 +442,50 @@ return {
       vim.notify('Persistence debug logging ' .. status, vim.log.levels.INFO)
     end, {
       desc = 'Toggle persistence debug logging',
+    })
+
+    -- Custom quit commands that handle modified buffers gracefully
+    vim.api.nvim_create_user_command('QAll', function()
+      -- Save all modified buffers first
+      vim.cmd('wall')
+      -- Then quit all
+      vim.cmd('qall')
+    end, {
+      desc = 'Save all and quit all',
+    })
+
+    -- Create a better quit command
+    vim.keymap.set('n', '<leader>qq', function()
+      -- Check if there are modified buffers
+      local modified_buffers = {}
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if
+          vim.api.nvim_buf_is_loaded(buf)
+          and vim.api.nvim_get_option_value('modified', {
+            buf = buf,
+          })
+        then
+          table.insert(modified_buffers, vim.api.nvim_buf_get_name(buf))
+        end
+      end
+
+      if #modified_buffers > 0 then
+        local choice = vim.fn.confirm(
+          'There are ' .. #modified_buffers .. ' modified buffers. What do you want to do?',
+          '&Save all and quit\n&Quit without saving\n&Cancel',
+          1
+        )
+
+        if choice == 1 then
+          vim.cmd('QuitAll')
+        elseif choice == 2 then
+          vim.cmd('ForceQuitAll')
+        end
+      else
+        vim.cmd('qall')
+      end
+    end, {
+      desc = 'Smart quit all',
     })
   end,
 }

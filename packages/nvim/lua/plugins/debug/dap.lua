@@ -72,15 +72,57 @@ return {
       },
     }
 
-    -- Java configuration
-    dap.adapters.java = function(callback)
-      -- This will be filled in by mason-nvim-dap
-      callback({
-        type = 'server',
-        host = '127.0.0.1',
-        port = 5005,
-      })
-    end
+    -- Java configuration with enhanced support for Gradle projects
+    dap.configurations.java = {
+      {
+        type = 'java',
+        request = 'launch',
+        name = 'Debug (Launch) - Current Class',
+        mainClass = function() return vim.fn.input('Main class: ', '', 'file') end,
+        projectName = function() return vim.fn.fnamemodify(vim.fn.getcwd(), ':t') end,
+        cwd = '${workspaceFolder}',
+        console = 'integratedTerminal',
+        stopOnEntry = false,
+        args = '',
+        vmArgs = '-ea', -- Enable assertions
+      },
+      {
+        type = 'java',
+        request = 'launch',
+        name = 'Debug (Launch) - Gradle Application',
+        mainClass = '',
+        projectName = function() return vim.fn.fnamemodify(vim.fn.getcwd(), ':t') end,
+        cwd = '${workspaceFolder}',
+        console = 'integratedTerminal',
+        stopOnEntry = false,
+        args = '',
+        vmArgs = '-ea',
+        preLaunchTask = 'gradle:build',
+      },
+      {
+        type = 'java',
+        request = 'launch',
+        name = 'Debug (Launch) - Spring Boot Application',
+        mainClass = '',
+        projectName = function() return vim.fn.fnamemodify(vim.fn.getcwd(), ':t') end,
+        cwd = '${workspaceFolder}',
+        console = 'integratedTerminal',
+        stopOnEntry = false,
+        args = '',
+        vmArgs = '-ea -Dspring.profiles.active=dev',
+        env = {
+          SPRING_PROFILES_ACTIVE = 'dev',
+        },
+      },
+      {
+        type = 'java',
+        request = 'attach',
+        name = 'Debug (Attach) - Remote JVM',
+        hostName = 'localhost',
+        port = function() return tonumber(vim.fn.input('Debug port: ', '5005')) end,
+        timeout = 20000,
+      },
+    }
 
     -- Install Go-specific config from nvim-dap-go
     require('dap-go').setup({

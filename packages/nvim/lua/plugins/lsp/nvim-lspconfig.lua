@@ -13,11 +13,4 @@ return { -- Main LSP Configuration
     'saadparwaiz1/cmp_luasnip',
     'j-hui/fidget.nvim',
   },
-  config = function()
-    -- Initialize LSP setup from lsp/setup.lua
-    require('lsp.setup').setup()
-
-    -- LSP servers will be installed by mason-tool-installer
-    -- and configured by mason-lspconfig in their respective files
-  end,
 }

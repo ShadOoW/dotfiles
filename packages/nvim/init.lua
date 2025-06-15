@@ -67,3 +67,6 @@ require('utils.file')
 require('utils.string')
 require('utils.reload')
 require('utils.tmux').setup()
+
+-- Setup debug commands
+require('config.debug').setup()
