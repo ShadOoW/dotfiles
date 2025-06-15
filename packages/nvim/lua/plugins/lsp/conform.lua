@@ -209,7 +209,7 @@ return {
     vim.keymap.set({ 'n', 'v' }, '<leader>fF', function()
       local formatters = conform.list_formatters()
       if #formatters == 0 then
-        vim.notify('No formatters available for this buffer', vim.log.levels.WARN)
+        require('utils.notify').warn('No formatters available for this buffer')
         return
       end
 
@@ -234,10 +234,10 @@ return {
       if vim.g.disable_autoformat or vim.b.disable_autoformat then
         vim.g.disable_autoformat = false
         vim.b.disable_autoformat = false
-        vim.notify('Format on save enabled', vim.log.levels.INFO)
+        require('utils.notify').success('Format on save enabled')
       else
         vim.g.disable_autoformat = true
-        vim.notify('Format on save disabled', vim.log.levels.INFO)
+        require('utils.notify').info('Format on save disabled')
       end
     end, {
       desc = 'Toggle format on save',

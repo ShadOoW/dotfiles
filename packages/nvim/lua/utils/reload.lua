@@ -43,7 +43,7 @@ function M.reload_config()
   require('utils.string')
 
   -- Print success message
-  vim.notify('Configuration reloaded successfully!', vim.log.levels.INFO)
+  require('utils.notify').success('Configuration reloaded successfully!')
 
   return true
 end

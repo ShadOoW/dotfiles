@@ -190,7 +190,7 @@ return {
       '<leader>Sr',
       function()
         require('persistence').load()
-        vim.notify('Session restored for: ' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':t'))
+        require('utils.notify').success('Session restored for: ' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':t'))
       end,
       desc = 'Restore session for current directory',
     },
@@ -200,7 +200,7 @@ return {
         require('persistence').load({
           last = true,
         })
-        vim.notify('Last session restored')
+        require('utils.notify').success('Last session restored')
       end,
       desc = 'Load last session',
     },
@@ -208,7 +208,7 @@ return {
       '<leader>Ss',
       function()
         require('persistence').save()
-        vim.notify('Session saved for: ' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':t'))
+        require('utils.notify').success('Session saved for: ' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':t'))
       end,
       desc = 'Save current session',
     },
@@ -216,7 +216,7 @@ return {
       '<leader>Sd',
       function()
         require('persistence').stop()
-        vim.notify('Session persistence disabled for this session')
+        require('utils.notify').info('Session persistence disabled for this session')
       end,
       desc = 'Stop session persistence',
     },
@@ -225,7 +225,7 @@ return {
   init = function()
     -- Debug function to help troubleshoot
     local function debug_log(message)
-      if vim.g.persistence_debug then vim.notify('Persistence: ' .. message, vim.log.levels.INFO) end
+      if vim.g.persistence_debug then require('utils.notify').debug('Persistence: ' .. message) end
     end
 
     -- Function to check if we have meaningful buffers
@@ -362,7 +362,7 @@ return {
               local success = pcall(function() require('persistence').load() end)
 
               if success then
-                vim.notify('Session restored for: ' .. vim.fn.fnamemodify(cwd, ':t'), vim.log.levels.INFO)
+                require('utils.notify').success('Session restored for: ' .. vim.fn.fnamemodify(cwd, ':t'))
                 debug_log('Session restored successfully')
               else
                 debug_log('Failed to restore session')
@@ -393,7 +393,7 @@ return {
               end
 
               -- Start with clean empty buffer for 'nvim .' with no session
-              vim.notify('No session found for: ' .. vim.fn.fnamemodify(cwd, ':t'), vim.log.levels.INFO)
+              require('utils.notify').warn('No session found for: ' .. vim.fn.fnamemodify(cwd, ':t'))
             end, 50)
           end
         else
@@ -538,7 +538,7 @@ return {
     vim.api.nvim_create_user_command('PersistenceDebug', function()
       vim.g.persistence_debug = not vim.g.persistence_debug
       local status = vim.g.persistence_debug and 'enabled' or 'disabled'
-      vim.notify('Persistence debug logging ' .. status, vim.log.levels.INFO)
+      require('utils.notify').info('Persistence debug logging ' .. status)
     end, {
       desc = 'Toggle persistence debug logging',
     })

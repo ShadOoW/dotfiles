@@ -98,7 +98,7 @@ return {
     local function save_recent_projects(projects)
       local file = io.open(projects_file, 'w')
       if not file then
-        vim.notify('Failed to save recent projects', vim.log.levels.ERROR)
+        require('utils.notify').error('Failed to save recent projects')
         return
       end
 
@@ -295,7 +295,7 @@ return {
     -- Switch to project
     function M.switch_to_project(path, name)
       if vim.fn.isdirectory(path) == 0 then
-        vim.notify('Project directory does not exist: ' .. path, vim.log.levels.ERROR)
+        require('utils.notify').error('Project directory does not exist: ' .. path)
         return
       end
 
@@ -307,15 +307,7 @@ return {
 
       -- Notify user
       local project_type = M.detect_project_type(path)
-      vim.notify(
-        string.format(
-          '%s Switched to %s project: %s',
-          project_type.icon,
-          project_type.type,
-          name or vim.fn.fnamemodify(path, ':t')
-        ),
-        vim.log.levels.INFO
-      )
+      require('utils.notify').project_switched(name or vim.fn.fnamemodify(path, ':t'), project_type.type)
 
       -- Trigger project change events
       vim.api.nvim_exec_autocmds('User', {
@@ -335,14 +327,14 @@ return {
       end
 
       save_recent_projects(projects)
-      vim.notify('Removed project from recent list', vim.log.levels.INFO)
+      require('utils.notify').success('Removed project from recent list')
     end
 
     -- Interactive project removal
     function M.remove_project_interactive()
       local recent_projects = load_recent_projects()
       if #recent_projects == 0 then
-        vim.notify('No recent projects to remove', vim.log.levels.WARN)
+        require('utils.notify').warn('No recent projects to remove')
         return
       end
 
@@ -412,7 +404,7 @@ return {
 
       if name and name ~= '' then
         add_recent_project(cwd, name)
-        vim.notify('Added current directory as project: ' .. name, vim.log.levels.INFO)
+        require('utils.notify').success('Added current directory as project: ' .. name)
       end
     end
 

@@ -165,8 +165,8 @@ return {
       pattern = 'GutentagsUpdating',
       group = gutentags_group,
       callback = function()
-        vim.notify('Updating tags...', vim.log.levels.INFO, {
-          title = 'Gutentags',
+        require('utils.notify').info('Updating tags...', {
+          title = '🏷️  Gutentags',
           timeout = 1000,
         })
       end,
@@ -175,22 +175,17 @@ return {
     vim.api.nvim_create_autocmd('User', {
       pattern = 'GutentagsUpdated',
       group = gutentags_group,
-      callback = function()
-        vim.notify('Tags updated!', vim.log.levels.INFO, {
-          title = 'Gutentags',
-          timeout = 1000,
-        })
-      end,
+      callback = function() end,
     })
 
     -- Commands for manual tag management
     vim.api.nvim_create_user_command('GutentagsToggle', function()
       if vim.g.gutentags_enabled == 1 then
         vim.g.gutentags_enabled = 0
-        vim.notify('Gutentags disabled', vim.log.levels.INFO)
+        require('utils.notify').info('Gutentags disabled')
       else
         vim.g.gutentags_enabled = 1
-        vim.notify('Gutentags enabled', vim.log.levels.INFO)
+        require('utils.notify').success('Gutentags enabled')
       end
     end, {
       desc = 'Toggle gutentags on/off',
@@ -204,7 +199,7 @@ return {
       local cache_dir = vim.g.gutentags_cache_dir
       vim.fn.delete(cache_dir, 'rf')
       vim.fn.mkdir(cache_dir, 'p')
-      vim.notify('Gutentags cache cleaned', vim.log.levels.INFO)
+      require('utils.notify').success('Gutentags cache cleaned')
     end, {
       desc = 'Clean gutentags cache',
     })
