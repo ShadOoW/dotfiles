@@ -9,7 +9,6 @@ return {
   require('plugins.tools.which-key'),
   require('plugins.tools.snacks'),
   require('plugins.tools.genghis'),
-  require('plugins.tools.arena'),
   require('plugins.tools.yanky'),
   require('plugins.tools.peek'),
   require('plugins.tools.neotest'),

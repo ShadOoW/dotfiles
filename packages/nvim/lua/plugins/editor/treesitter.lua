@@ -145,25 +145,6 @@ return {
           ['[M'] = '@call.outer',
         },
       },
-      swap = {
-        enable = true,
-        swap_next = {
-          ['<leader>a'] = '@parameter.inner',
-          ['<leader>A'] = '@argument.outer',
-          ['<leader>f'] = '@function.outer',
-          ['<leader>e'] = '@element',
-          ['<leader>v'] = '@assignment.outer',
-          ['<leader>s'] = '@statement.outer',
-        },
-        swap_previous = {
-          ['<leader>A'] = '@parameter.inner',
-          ['<leader>a'] = '@argument.outer',
-          ['<leader>F'] = '@function.outer',
-          ['<leader>E'] = '@element',
-          ['<leader>V'] = '@assignment.outer',
-          ['<leader>S'] = '@statement.outer',
-        },
-      },
       lsp_interop = {
         enable = true,
         border = 'single',
@@ -192,12 +173,6 @@ return {
       },
       highlight_current_scope = {
         enable = false,
-      },
-      smart_rename = {
-        enable = true,
-        keymaps = {
-          smart_rename = '<leader>rn',
-        },
       },
       navigation = {
         enable = true,

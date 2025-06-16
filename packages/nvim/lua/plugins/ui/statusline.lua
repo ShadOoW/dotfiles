@@ -33,56 +33,51 @@ return {
       return ''
     end
 
-    local function project_name()
+    local function get_project_name()
       local cwd = vim.fn.getcwd()
       local project_name = vim.fn.fnamemodify(cwd, ':t')
 
-      -- Check if it's a Gradle project
-      if
-        vim.fn.filereadable(cwd .. '/build.gradle') == 1
-        or vim.fn.filereadable(cwd .. '/build.gradle.kts') == 1
-        or vim.fn.filereadable(cwd .. '/settings.gradle') == 1
-        or vim.fn.filereadable(cwd .. '/settings.gradle.kts') == 1
-      then
-        return '📦 ' .. project_name
+      -- Java projects with Gradle
+      if vim.fn.filereadable(cwd .. '/build.gradle') == 1 or vim.fn.filereadable(cwd .. '/settings.gradle') == 1 then
+        return ' ' .. project_name
       end
 
-      -- Check if it's a Maven project
-      if vim.fn.filereadable(cwd .. '/pom.xml') == 1 then return '📦 ' .. project_name end
+      -- Java projects with Maven
+      if vim.fn.filereadable(cwd .. '/pom.xml') == 1 then return ' ' .. project_name end
 
-      -- Check if it's a Node.js project
-      if vim.fn.filereadable(cwd .. '/package.json') == 1 then return '📦 ' .. project_name end
+      -- Node.js projects
+      if vim.fn.filereadable(cwd .. '/package.json') == 1 then return ' ' .. project_name end
 
-      -- Check if it's a Rust project
-      if vim.fn.filereadable(cwd .. '/Cargo.toml') == 1 then return '🦀 ' .. project_name end
+      -- Rust projects
+      if vim.fn.filereadable(cwd .. '/Cargo.toml') == 1 then return ' ' .. project_name end
 
-      -- Check if it's a Python project
+      -- Python projects
       if
         vim.fn.filereadable(cwd .. '/pyproject.toml') == 1
         or vim.fn.filereadable(cwd .. '/setup.py') == 1
         or vim.fn.filereadable(cwd .. '/requirements.txt') == 1
       then
-        return '🐍 ' .. project_name
+        return ' ' .. project_name
       end
 
-      -- Check if it's a Git repository
-      if vim.fn.isdirectory(cwd .. '/.git') == 1 then return '📁 ' .. project_name end
+      -- Git repositories
+      if vim.fn.isdirectory(cwd .. '/.git') == 1 then return ' ' .. project_name end
 
-      return '📁 ' .. project_name
+      return ' ' .. project_name
     end
 
-    local function lsp_status()
+    local function get_lsp_status()
       local clients = vim.lsp.get_clients({
         bufnr = 0,
       })
       if #clients == 0 then return '' end
 
       local client_names = {}
-      for _, client in ipairs(clients) do
+      for _, client in pairs(clients) do
         table.insert(client_names, client.name)
       end
 
-      return '🔧 ' .. table.concat(client_names, ', ')
+      return ' ' .. table.concat(client_names, ', ')
     end
 
     local function dap_status()
@@ -114,13 +109,18 @@ return {
       return ''
     end
 
-    local function gutentags_status()
-      if vim.g.gutentags_enabled == 1 then
-        -- Check if gutentags is currently updating
-        if vim.fn.exists('*gutentags#inprogress') == 1 and vim.fn['gutentags#inprogress']() == 1 then
-          return '🏷️ Updating...'
+    local function get_tag_status()
+      local tag_file = vim.fn.expand('%:p:h') .. '/tags'
+      if vim.fn.filereadable(tag_file) == 1 then
+        local mtime = vim.fn.getftime(tag_file)
+        local current_time = os.time()
+        local age = current_time - mtime
+
+        -- If tags are older than 1 hour, show updating status
+        if age > 3600 then
+          return ' Updating...'
         else
-          return '🏷️ Tags Ready'
+          return ' Tags Ready'
         end
       end
       return ''
@@ -271,7 +271,7 @@ return {
         },
         lualine_c = {
           {
-            project_name,
+            get_project_name,
             color = {
               fg = '#89b4fa',
               gui = 'bold',
@@ -335,9 +335,9 @@ return {
             },
           },
           {
-            gutentags_status,
+            get_tag_status,
             color = function()
-              local status = gutentags_status()
+              local status = get_tag_status()
               if status:match('Updating') then
                 return {
                   fg = '#f9e2af',
@@ -356,7 +356,7 @@ return {
             },
           },
           {
-            lsp_status,
+            get_lsp_status,
             color = {
               fg = '#89b4fa',
             },
@@ -377,7 +377,24 @@ return {
             'encoding',
             fmt = function(str) return str:upper() end,
           },
-          'fileformat',
+          {
+            function()
+              local format = vim.bo.fileformat
+              if format == 'unix' then
+                return ' '
+              elseif format == 'dos' then
+                return ' '
+              elseif format == 'mac' then
+                return ' '
+              else
+                return format
+              end
+            end,
+            color = {
+              fg = '#89b4fa',
+              gui = 'bold',
+            },
+          },
           'filetype',
         },
         lualine_z = { 'progress', 'location' },

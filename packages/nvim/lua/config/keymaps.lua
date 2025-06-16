@@ -17,6 +17,23 @@ keymap.n('<C-S-k>', '<C-w>K', 'Move window to the top')
 
 -- File operations keymaps
 keymap.n('<leader>fq', function() require('mini.bufremove').delete(0, false) end, 'Close file (preserve split)')
+keymap.n('<leader>fQ', function()
+  -- Close all buffers except current one
+  local current_buf = vim.api.nvim_get_current_buf()
+  local buffers = vim.api.nvim_list_bufs()
+  local closed_count = 0
+
+  for _, buf in ipairs(buffers) do
+    if buf ~= current_buf and vim.api.nvim_buf_is_loaded(buf) then
+      local success = pcall(require('mini.bufremove').delete, buf, false)
+      if success then closed_count = closed_count + 1 end
+    end
+  end
+
+  vim.notify('Closed ' .. closed_count .. ' buffers', vim.log.levels.INFO, {
+    title = 'Buffer Management',
+  })
+end, 'Close all buffers except current')
 keymap.n('<leader>fw', '<cmd>write<CR>', 'Write file')
 
 -- Buffer navigation with leader+arrow keys
@@ -44,22 +61,6 @@ keymap.v('K', ':m \'<-2<CR>gv=gv', 'Move selection up')
 -- Search and replace current word
 keymap.n('<leader>sr', ':%s/<C-r><C-w>//g<Left><Left>', 'Word under cursor')
 keymap.n('<leader>sm', '<cmd>NoiceTelescope<cr>', 'Noice messages')
-
--- Open mini.files with '\'
-keymap.n('\\', function()
-  -- Open mini.files and reveal current file location
-  local minifiles = require('mini.files')
-  local current_file = vim.api.nvim_buf_get_name(0)
-  if current_file ~= '' and vim.fn.filereadable(current_file) == 1 then
-    minifiles.open(current_file)
-    minifiles.reveal_cwd()
-  else
-    minifiles.open()
-  end
-end, 'Open MiniFiles file explorer')
-
--- Additional mini.files keybinding for current directory
-keymap.n('<leader>fE', function() require('mini.files').open() end, 'Open MiniFiles in current directory')
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Function Keys - Optimized for Development Workflow
@@ -311,14 +312,6 @@ keymap.n(
 keymap.n('<leader>fW', function() require('hbac').close_unpinned() end, 'Close all unpinned buffers')
 keymap.n('<leader>fP', function() require('hbac').toggle_pin() end, 'Toggle pin buffer')
 
--- Arena buffer selector (from arena.lua)
-keymap.n('<leader><leader>', '<cmd>ArenaToggle<CR>', 'Toggle Arena')
-
--- Yank history (from yanky.lua)
-keymap.n('<c-n>', '<Plug>(YankyCycleForward)', 'Cycle forward in yank history')
-keymap.n('<c-p>', '<Plug>(YankyCycleBackward)', 'Cycle backward in yank history')
-keymap.n('<leader>fy', '<cmd>Telescope yank_history<CR>', 'Yank history')
-
 -- Smart window management (from smart-splits.lua)
 keymap.n('<C-Left>', function() require('smart-splits').resize_left() end, 'Resize window left')
 keymap.n('<C-Right>', function() require('smart-splits').resize_right() end, 'Resize window right')
@@ -539,3 +532,17 @@ keymap.n('<leader>wL', function()
 end, 'Insert console.log for word under cursor')
 
 -- Additional development keymaps...
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Navigation Category - g + Arrow Keys
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Definition:     g<Down>=goto_definition
+-- Jumplist:       g<Left>=jumplist_prev, g<Right>=jumplist_next
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+-- Go to definition
+keymap.n('g<Down>', function() vim.lsp.buf.definition() end, 'Go to definition')
+
+-- Navigate jumplist (cursor/buffer position history)
+keymap.n('g<Left>', '<C-o>', 'Previous cursor position (jumplist)')
+keymap.n('g<Right>', '<C-i>', 'Next cursor position (jumplist)')

@@ -155,29 +155,6 @@ return {
     -- Status line integration
     vim.g.gutentags_add_default_project_roots = 0
 
-    -- Auto-commands for better user feedback
-    local gutentags_group = vim.api.nvim_create_augroup('GutentagsConfig', {
-      clear = true,
-    })
-
-    -- Notify when tag generation starts/finishes
-    vim.api.nvim_create_autocmd('User', {
-      pattern = 'GutentagsUpdating',
-      group = gutentags_group,
-      callback = function()
-        require('utils.notify').info('Updating tags...', {
-          title = '🏷️  Gutentags',
-          timeout = 1000,
-        })
-      end,
-    })
-
-    vim.api.nvim_create_autocmd('User', {
-      pattern = 'GutentagsUpdated',
-      group = gutentags_group,
-      callback = function() end,
-    })
-
     -- Commands for manual tag management
     vim.api.nvim_create_user_command('GutentagsToggle', function()
       if vim.g.gutentags_enabled == 1 then

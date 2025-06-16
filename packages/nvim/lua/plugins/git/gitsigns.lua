@@ -47,18 +47,10 @@ return {
 
       -- Actions
       -- Stage hunk under cursor
-      vim.keymap.set(
-        {
-          'n',
-          'v',
-        },
-        '<leader>hs',
-        gs.stage_hunk,
-        {
-          buffer = bufnr,
-          desc = 'Stage hunk',
-        }
-      )
+      vim.keymap.set({ 'n', 'v' }, '<leader>hs', gs.stage_hunk, {
+        buffer = bufnr,
+        desc = 'Stage hunk',
+      })
 
       -- Undo last staged hunk
       vim.keymap.set('n', '<leader>hu', gs.undo_stage_hunk, {
@@ -67,18 +59,10 @@ return {
       })
 
       -- Reset hunk under cursor
-      vim.keymap.set(
-        {
-          'n',
-          'v',
-        },
-        '<leader>hr',
-        gs.reset_hunk,
-        {
-          buffer = bufnr,
-          desc = 'Reset hunk',
-        }
-      )
+      vim.keymap.set({ 'n', 'v' }, '<leader>hr', gs.reset_hunk, {
+        buffer = bufnr,
+        desc = 'Reset hunk',
+      })
 
       -- Preview hunk inline
       vim.keymap.set('n', '<leader>hp', gs.preview_hunk, {

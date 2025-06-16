@@ -9,33 +9,33 @@ return {
   config = function()
     local dap = require('dap')
 
-    -- Define sign icons for breakpoints and stopped position
+    -- Define sign icons for breakpoints and stopped position with nerd font icons
     vim.fn.sign_define('DapBreakpoint', {
-      text = '●',
+      text = '',
       texthl = 'DapBreakpoint',
       linehl = '',
       numhl = '',
     })
     vim.fn.sign_define('DapBreakpointCondition', {
-      text = '◆',
+      text = '',
       texthl = 'DapBreakpointCondition',
       linehl = '',
       numhl = '',
     })
     vim.fn.sign_define('DapLogPoint', {
-      text = '◆',
+      text = '',
       texthl = 'DapLogPoint',
       linehl = '',
       numhl = '',
     })
     vim.fn.sign_define('DapStopped', {
-      text = '▶',
+      text = '',
       texthl = 'DapStopped',
       linehl = 'DapStopped',
       numhl = 'DapStopped',
     })
     vim.fn.sign_define('DapBreakpointRejected', {
-      text = '●',
+      text = '',
       texthl = 'DapBreakpointRejected',
       linehl = '',
       numhl = '',
@@ -71,6 +71,95 @@ return {
         args = { '--port', '${port}' },
       },
     }
+
+    -- Java adapter configuration with improved error handling
+    dap.adapters.java = function(callback, config)
+      -- First check if Mason registry is available
+      local mason_registry_ok, mason_registry = pcall(require, 'mason-registry')
+      if not mason_registry_ok then
+        vim.notify('Mason registry not available for Java debugger', vim.log.levels.ERROR)
+        return
+      end
+
+      -- Check if java-debug-adapter package exists in registry
+      local package_exists = mason_registry.has_package('java-debug-adapter')
+      if not package_exists then
+        vim.notify(
+          'Java debug adapter package not found in Mason registry. Install with :MasonInstall java-debug-adapter',
+          vim.log.levels.ERROR
+        )
+        return
+      end
+
+      -- Get the package and check if it's installed
+      local java_debug_adapter_ok, java_debug_adapter = pcall(mason_registry.get_package, 'java-debug-adapter')
+      if not java_debug_adapter_ok or not java_debug_adapter then
+        vim.notify(
+          'Failed to get Java debug adapter package. Install with :MasonInstall java-debug-adapter',
+          vim.log.levels.ERROR
+        )
+        return
+      end
+
+      -- Check if the package is actually installed
+      local is_installed_ok, is_installed = pcall(function() return java_debug_adapter:is_installed() end)
+      if not is_installed_ok or not is_installed then
+        vim.notify(
+          'Java debug adapter not installed. Install with :MasonInstall java-debug-adapter',
+          vim.log.levels.ERROR
+        )
+        return
+      end
+
+      -- Get the installation path
+      local install_path_ok, java_debug_path = pcall(function() return java_debug_adapter:get_install_path() end)
+      if not install_path_ok or not java_debug_path then
+        vim.notify('Could not get Java debug adapter install path', vim.log.levels.ERROR)
+        return
+      end
+
+      -- Look for the JAR file with more robust path checking
+      local jar_pattern = java_debug_path .. '/extension/server/com.microsoft.java.debug.plugin-*.jar'
+      local jar_path = vim.fn.glob(jar_pattern)
+
+      if jar_path == '' or jar_path == nil then
+        -- Try alternative path structure
+        local alt_jar_pattern = java_debug_path .. '/server/com.microsoft.java.debug.plugin-*.jar'
+        jar_path = vim.fn.glob(alt_jar_pattern)
+
+        if jar_path == '' or jar_path == nil then
+          vim.notify(
+            'Java debug adapter JAR not found. Tried:\n'
+              .. jar_pattern
+              .. '\n'
+              .. alt_jar_pattern
+              .. '\n'
+              .. 'Reinstall with :MasonUninstall java-debug-adapter then :MasonInstall java-debug-adapter',
+            vim.log.levels.ERROR
+          )
+          return
+        end
+      end
+
+      -- Verify the JAR file actually exists
+      if vim.fn.filereadable(jar_path) ~= 1 then
+        vim.notify(
+          'Java debug adapter JAR file is not readable: '
+            .. jar_path
+            .. '\n'
+            .. 'Reinstall with :MasonUninstall java-debug-adapter then :MasonInstall java-debug-adapter',
+          vim.log.levels.ERROR
+        )
+        return
+      end
+
+      -- Successfully configured - call the callback
+      callback({
+        type = 'executable',
+        command = 'java',
+        args = { '-jar', jar_path },
+      })
+    end
 
     -- Java configuration with enhanced support for Gradle projects
     dap.configurations.java = {

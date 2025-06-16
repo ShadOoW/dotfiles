@@ -125,17 +125,25 @@ vim.api.nvim_create_autocmd('FileType', {
 vim.api.nvim_create_autocmd('FileType', {
   pattern = { 'html', 'css', 'javascript', 'typescript' },
   callback = function()
-    -- Enable more aggressive diagnostics for web files
-    vim.diagnostic.config({
-      virtual_text = {
-        severity = vim.diagnostic.severity.ERROR,
-        source = 'always',
-      },
-      signs = true,
-      underline = true,
-      update_in_insert = false,
-      severity_sort = true,
-    }, vim.api.nvim_get_current_buf())
+    -- Enable more aggressive diagnostics for web files with error handling
+    local buf = vim.api.nvim_get_current_buf()
+
+    -- Only configure diagnostics if buffer is valid
+    if vim.api.nvim_buf_is_valid(buf) then
+      local ok, _ = pcall(vim.diagnostic.config, {
+        virtual_text = {
+          severity = vim.diagnostic.severity.ERROR,
+          source = 'always',
+        },
+        signs = true,
+        underline = true,
+        update_in_insert = false,
+        severity_sort = true,
+      }, buf)
+
+      -- If diagnostic config fails, just silently continue
+      if not ok then vim.notify('Failed to configure diagnostics for buffer ' .. buf, vim.log.levels.DEBUG) end
+    end
   end,
 })
 

@@ -28,13 +28,11 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Setup lazy.nvim with plugins
 require('lazy').setup({
-  spec = {
-    {
-      import = 'plugins',
-    }, -- Import all plugin configurations
-  },
+  spec = { {
+    import = 'plugins',
+  } },
   defaults = {
-    lazy = false, -- Load plugins on startup
+    lazy = false,
   },
   install = {
     colorscheme = { 'tokyonight' },
@@ -67,7 +65,6 @@ require('utils.file')
 require('utils.string')
 require('utils.reload')
 require('utils.tmux').setup()
-require('utils.notify').setup()
 
 -- Setup debug commands
 require('config.debug').setup()

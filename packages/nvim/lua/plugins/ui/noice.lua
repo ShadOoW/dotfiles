@@ -1,189 +1,236 @@
+-- Modern Noice configuration for compact notifications
+-- Compact 1-line notifications with level icons
 return {
   'folke/noice.nvim',
   event = 'VeryLazy',
-  dependencies = { 'MunifTanjim/nui.nvim', 'rcarriga/nvim-notify', 'nvim-treesitter/nvim-treesitter' },
-  opts = {
-    -- Add any missing commands
-    commands = {
-      history = {
-        -- options for the message history that you get with `:Noice`
-        view = 'split',
-        opts = {
-          enter = true,
-          format = 'details',
+  dependencies = { 'MunifTanjim/nui.nvim', 'nvim-treesitter/nvim-treesitter' },
+  config = function()
+    -- Override vim.notify before setting up noice
+    local original_notify = vim.notify
+    vim.notify = function(msg, level, opts)
+      opts = opts or {}
+      if type(msg) == 'table' then msg = table.concat(msg, ' ') end
+      msg = tostring(msg or '')
+
+      local icons = {
+        [vim.log.levels.ERROR] = '',
+        [vim.log.levels.WARN] = '',
+        [vim.log.levels.INFO] = '',
+        [vim.log.levels.DEBUG] = '',
+        [vim.log.levels.TRACE] = '',
+      }
+
+      level = level or vim.log.levels.INFO
+      local icon = icons[level] or ''
+
+      -- Format message as: icon | message
+      local clean_msg = msg:gsub('%s*\n%s*', ' '):gsub('%s+', ' '):gsub('^%s*(.-)%s*$', '%1')
+      local formatted_msg = string.format('%s | %s', icon, clean_msg)
+
+      return original_notify(formatted_msg, level, opts)
+    end
+
+    require('noice').setup({
+      -- Disable commands to prevent unwanted panels
+      commands = {
+        enabled = false,
+      },
+
+      -- LSP integration
+      lsp = {
+        override = {
+          ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
+          ['vim.lsp.util.stylize_markdown'] = true,
+          ['cmp.entry.get_documentation'] = true,
         },
-        filter = {
-          any = {
-            {
-              event = 'notify',
-            },
-            {
-              error = true,
-            },
-            {
-              warning = true,
-            },
-            {
-              event = 'msg_show',
-              kind = { '' },
-            },
-            {
-              event = 'lsp',
-              kind = 'message',
-            },
-          },
-        },
-      },
-    },
-    lsp = {
-      -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
-      override = {
-        ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
-        ['vim.lsp.util.stylize_markdown'] = true,
-        ['cmp.entry.get_documentation'] = true,
-      },
-      -- LSP message handling configuration
-      progress = {
-        enabled = true,
-        format = 'lsp_progress',
-        format_done = 'lsp_progress_done',
-        throttle = 1000 / 30, -- frequency to update lsp progress message
-        view = 'mini',
-      },
-      hover = {
-        enabled = true,
-      },
-      signature = {
-        enabled = true,
-        auto_open = {
+        progress = {
           enabled = true,
+          format = 'lsp_progress',
+          format_done = 'lsp_progress_done',
+          throttle = 1000 / 30,
+          view = 'mini',
         },
-      },
-      message = {
-        enabled = true,
-      },
-      documentation = {
-        enabled = true,
-      },
-    },
-    -- you can enable a preset for easier configuration
-    presets = {
-      bottom_search = true, -- use a classic bottom cmdline for search
-      command_palette = false, -- disable to fix race condition with command line
-      long_message_to_split = true, -- long messages will be sent to a split
-      inc_rename = true, -- enables an input dialog for inc-rename.nvim
-      lsp_doc_border = true, -- add a border to hover docs and signature help
-    },
-    views = {
-      cmdline_popup = {
-        position = {
-          row = '50%',
-          col = '50%',
+        hover = {
+          enabled = true,
+          silent = true,
         },
-        size = {
-          width = 60,
-          height = 'auto',
+        signature = {
+          enabled = true,
+          auto_open = {
+            enabled = true,
+            trigger = true,
+            luasnip = true,
+            throttle = 50,
+          },
         },
-      },
-      popupmenu = {
-        relative = 'editor',
-        position = {
-          row = 8,
-          col = '50%',
+        message = {
+          enabled = true,
+          view = 'notify',
         },
-        size = {
-          width = 60,
-          height = 10,
-        },
-        border = {
-          style = 'rounded',
-          padding = { 0, 1 },
-        },
-        win_options = {
-          winhighlight = {
-            Normal = 'Normal',
-            FloatBorder = 'DiagnosticInfo',
+        documentation = {
+          view = 'hover',
+          opts = {
+            lang = 'markdown',
+            replace = true,
+            render = 'plain',
+            format = { '{message}' },
+            win_options = {
+              concealcursor = 'n',
+              conceallevel = 3,
+            },
           },
         },
       },
-      confirm = {
-        position = {
-          row = '50%',
-          col = '50%',
+
+      -- Modern presets for better UX
+      presets = {
+        bottom_search = false,
+        command_palette = false,
+        long_message_to_split = true,
+        inc_rename = true,
+        lsp_doc_border = true,
+      },
+
+      -- Views configuration
+      views = {
+        -- Compact notification view
+        notify = {
+          backend = 'notify',
+          fallback = 'mini',
+          format = 'notify',
+          replace = false,
+          merge = false,
         },
-        size = {
-          width = 'auto',
-          height = 'auto',
+
+        -- Command line popup
+        cmdline_popup = {
+          position = {
+            row = '50%',
+            col = '50%',
+          },
+          size = {
+            width = 60,
+            height = 'auto',
+          },
+          border = {
+            style = 'single',
+            padding = { 0, 1 },
+          },
+          win_options = {
+            winhighlight = {
+              Normal = 'NoiceCmdlinePopup',
+              FloatBorder = 'NoiceCmdlinePopupBorder',
+              CursorLine = 'PmenuSel',
+              Search = 'None',
+            },
+          },
         },
-        border = {
-          style = 'rounded',
-          padding = { 1, 2 },
+
+        -- Mini view for progress messages
+        mini = {
+          backend = 'mini',
+          relative = 'editor',
+          align = 'message-right',
+          timeout = 3000,
+          reverse = true,
+          focusable = false,
+          position = {
+            row = -2,
+            col = '100%',
+          },
+          size = 'auto',
+          border = {
+            style = 'none',
+          },
+          win_options = {
+            winblend = 0,
+            winhighlight = {
+              Normal = 'NoiceMini',
+              IncSearch = '',
+              CurSearch = '',
+              Search = '',
+            },
+          },
         },
-        win_options = {
-          winhighlight = {
-            Normal = 'Normal',
-            FloatBorder = 'DiagnosticInfo',
+
+        -- Split view for long messages
+        split = {
+          enter = true,
+          relative = 'editor',
+          position = 'bottom',
+          size = '20%',
+          close = {
+            keys = { 'q', '<Esc>' },
+          },
+          win_options = {
+            winhighlight = {
+              Normal = 'Normal',
+              FloatBorder = 'FloatBorder',
+            },
           },
         },
       },
-    },
-    routes = { -- Skip file write notifications
-      {
-        filter = {
-          event = 'msg_show',
-          kind = '',
-          find = 'written',
-        },
-        opts = {
-          skip = true,
-        },
-      }, -- Make confirmation dialogs visible in cmdline (not hidden)
-      {
-        filter = {
-          event = 'msg_show',
-          any = {
-            {
-              find = '%[Y/n%]',
-            },
-            {
-              find = '%[y/N%]',
-            },
-            {
-              find = '%[Y/N/C%]',
-            },
-            {
-              find = '%[y/n/c%]',
-            },
-            {
-              find = 'Save changes',
-            },
-            {
-              find = 'No write since last change',
-            },
-            {
-              find = 'really want to',
-            },
-            {
-              find = 'Are you sure',
-            },
-            {
-              find = 'Confirm',
-            },
-            {
-              kind = 'confirm',
-            },
-            {
-              kind = 'return_prompt',
+
+      -- Smart message routing
+      routes = { -- Filter out noisy LSP messages
+        {
+          filter = {
+            event = 'lsp',
+            kind = 'progress',
+            cond = function(message)
+              local client = vim.tbl_get(message.opts, 'progress', 'client')
+              return client == 'lua_ls'
+            end,
+          },
+          opts = {
+            skip = true,
+          },
+        }, -- Skip file write notifications
+        {
+          filter = {
+            event = 'msg_show',
+            kind = '',
+            find = 'written',
+          },
+          opts = {
+            skip = true,
+          },
+        }, -- Skip search wrap messages
+        {
+          filter = {
+            event = 'msg_show',
+            kind = 'search_count',
+          },
+          opts = {
+            skip = true,
+          },
+        }, -- Route short informational messages to mini view
+        {
+          filter = {
+            event = 'msg_show',
+            any = {
+              {
+                find = '%d+L, %d+B',
+              },
+              {
+                find = '; after #%d+',
+              },
+              {
+                find = '; before #%d+',
+              },
+              {
+                find = '%d fewer lines',
+              },
+              {
+                find = '%d more lines',
+              },
             },
           },
-        },
-        view = 'cmdline', -- Show in cmdline for immediate visibility
-      }, -- Route other long messages to notifications
-      {
-        filter = {
-          event = 'msg_show',
-          min_height = 3,
-          ['not'] = {
+          view = 'mini',
+        }, -- Important confirmations stay in cmdline
+        {
+          filter = {
+            event = 'msg_show',
             any = {
               {
                 find = '%[Y/n%]',
@@ -195,27 +242,168 @@ return {
                 find = '%[Y/N/C%]',
               },
               {
-                find = '%[y/n/c%]',
+                find = 'Save changes',
               },
               {
-                find = 'Press ENTER',
+                find = 'Overwrite existing file',
               },
               {
-                find = 'More %(%d+%%%',
-              },
-              {
-                kind = 'confirm',
-              },
-              {
-                kind = 'return_prompt',
+                find = 'No write since last change',
               },
             },
           },
+          view = 'cmdline',
+        }, -- Route errors and warnings to notifications
+        {
+          filter = {
+            event = 'msg_show',
+            any = {
+              {
+                error = true,
+              },
+              {
+                warning = true,
+              },
+              {
+                min_height = 2,
+              },
+            },
+          },
+          view = 'notify',
+        }, -- Route long messages to split
+        {
+          filter = {
+            event = 'msg_show',
+            min_height = 10,
+            cond = function() return vim.fn.getcmdwintype() == '' end,
+          },
+          view = 'split',
         },
+      },
+
+      -- Built-in notification backend settings
+      notify = {
+        enabled = true,
         view = 'notify',
       },
-    },
-  },
+
+      -- Message settings
+      messages = {
+        enabled = true,
+        view = 'notify',
+        view_error = 'notify',
+        view_warn = 'notify',
+        view_history = 'messages',
+        view_search = 'virtualtext',
+      },
+
+      -- Command line settings with nerd font icons
+      cmdline = {
+        enabled = true,
+        view = 'cmdline_popup',
+        opts = {},
+        format = {
+          cmdline = {
+            pattern = '^:',
+            icon = '󰘳',
+            lang = 'vim',
+          },
+          search_down = {
+            kind = 'search',
+            pattern = '^/',
+            icon = '󱦞',
+            lang = 'regex',
+          },
+          search_up = {
+            kind = 'search',
+            pattern = '^%?',
+            icon = '󱦞',
+            lang = 'regex',
+          },
+          filter = {
+            pattern = '^:%s*!',
+            icon = '',
+            lang = 'bash',
+          },
+          lua = {
+            pattern = { '^:%s*lua%s+', '^:%s*lua%s*=%s*', '^:%s*=%s*' },
+            icon = '󰢱',
+            lang = 'lua',
+          },
+          help = {
+            pattern = '^:%s*he?l?p?%s+',
+            icon = '󰮥',
+          },
+          input = {
+            view = 'cmdline_input',
+            icon = '󰭙',
+          },
+        },
+      },
+
+      -- Popup menu settings
+      popupmenu = {
+        enabled = true,
+        backend = 'nui',
+        kind_icons = {},
+      },
+
+      -- Remove level labels globally
+      format = {
+        level = false, -- Don't show level text
+      },
+
+      -- Health check settings
+      health = {
+        checker = false,
+      },
+    })
+
+    -- Set up Tokyo Night inspired colors for Noice
+    vim.api.nvim_set_hl(0, 'NoiceConfirm', {
+      bg = '#414868',
+      fg = '#c0caf5',
+    })
+    vim.api.nvim_set_hl(0, 'NoiceConfirmBorder', {
+      fg = '#7aa2f7',
+    })
+    vim.api.nvim_set_hl(0, 'NoiceCmdline', {
+      bg = '#24283b',
+      fg = '#c0caf5',
+    })
+    vim.api.nvim_set_hl(0, 'NoiceCmdlineIcon', {
+      fg = '#7aa2f7',
+    })
+    vim.api.nvim_set_hl(0, 'NoiceCmdlinePopup', {
+      bg = '#1a1b26',
+    })
+    vim.api.nvim_set_hl(0, 'NoiceCmdlinePopupBorder', {
+      fg = '#565f89',
+    })
+    vim.api.nvim_set_hl(0, 'NoiceCompletionItemKindDefault', {
+      fg = '#9ece6a',
+    })
+    vim.api.nvim_set_hl(0, 'NoiceMini', {
+      bg = '#1a1b26',
+      fg = '#c0caf5',
+    })
+
+    -- Custom keymaps for better UX
+    vim.keymap.set('n', '<leader>nn', '<cmd>Noice<cr>', {
+      desc = 'Noice Messages',
+    })
+    vim.keymap.set('n', '<leader>nh', '<cmd>Noice history<cr>', {
+      desc = 'Noice History',
+    })
+    vim.keymap.set('n', '<leader>nd', '<cmd>Noice dismiss<cr>', {
+      desc = 'Dismiss Noice Messages',
+    })
+    vim.keymap.set('n', '<leader>ne', '<cmd>Noice errors<cr>', {
+      desc = 'Noice Errors',
+    })
+  end,
+
+  -- Keybindings for enhanced scroll control
   keys = {
     {
       '<S-Enter>',
@@ -224,7 +412,7 @@ return {
         if cmdline and cmdline ~= '' then require('noice').redirect(cmdline) end
       end,
       mode = 'c',
-      desc = 'Redirect command output to split view',
+      desc = 'Redirect command to split',
     },
     {
       '<c-f>',

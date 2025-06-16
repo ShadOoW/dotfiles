@@ -47,21 +47,10 @@ return {
       desc = 'Cycle backward through yank history',
     })
 
-    -- Defer telescope integration to ensure both plugins are fully loaded
+    -- Load telescope extension if available
     vim.defer_fn(function()
-      -- Safely check if telescope is available
       local status_ok, telescope = pcall(require, 'telescope')
-      if not status_ok then return end
-
-      -- Safely try to load the extension
-      local success, _ = pcall(function() telescope.load_extension('yank_history') end)
-
-      if success then
-        -- Only set up the keymap if extension loaded successfully
-        vim.keymap.set('n', '<leader>sy', '<cmd>Telescope yank_history<CR>', {
-          desc = 'Yank history',
-        })
-      end
-    end, 200) -- Longer delay to ensure everything is loaded
+      if status_ok then pcall(function() telescope.load_extension('yank_history') end) end
+    end, 200)
   end,
 }

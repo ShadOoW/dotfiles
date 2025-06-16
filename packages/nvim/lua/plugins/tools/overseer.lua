@@ -75,6 +75,7 @@ return {
           ['<C-k>'] = 'ScrollOutputUp',
           ['<C-j>'] = 'ScrollOutputDown',
           ['q'] = 'Close',
+          ['<Esc>'] = 'Close',
         },
       },
 
@@ -153,10 +154,24 @@ return {
         -- Mirrors the toggleterm "hidden" parameter, and keeps the task from
         -- being rendered in the toggleterm sidebar
         hidden = false,
+        -- Reuse the same terminal for multiple tasks
+        auto_scroll = true,
+        quit_on_exit = 'never',
+        -- Use a specific terminal ID to reuse the same terminal
+        count = 99, -- Use terminal 99 for overseer tasks
         -- Command to run when the terminal opens
         on_create = function()
           vim.opt_local.foldcolumn = '0'
           vim.opt_local.signcolumn = 'no'
+          -- Set up keymaps for the terminal
+          vim.keymap.set('n', 'q', '<cmd>close<cr>', {
+            buffer = true,
+            desc = 'Close terminal',
+          })
+          vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', {
+            buffer = true,
+            desc = 'Exit terminal mode',
+          })
         end,
       },
 
