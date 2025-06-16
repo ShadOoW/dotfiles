@@ -16,23 +16,27 @@ keymap.n('<C-S-j>', '<C-w>J', 'Move window to the bottom')
 keymap.n('<C-S-k>', '<C-w>K', 'Move window to the top')
 
 -- File operations keymaps
-keymap.n('<leader>fq', function() require('mini.bufremove').delete(0, false) end, 'Close file (preserve split)')
+keymap.n('<leader>fq', function()
+    require('mini.bufremove').delete(0, false)
+end, 'Close file (preserve split)')
 keymap.n('<leader>fQ', function()
-  -- Close all buffers except current one
-  local current_buf = vim.api.nvim_get_current_buf()
-  local buffers = vim.api.nvim_list_bufs()
-  local closed_count = 0
+    -- Close all buffers except current one
+    local current_buf = vim.api.nvim_get_current_buf()
+    local buffers = vim.api.nvim_list_bufs()
+    local closed_count = 0
 
-  for _, buf in ipairs(buffers) do
-    if buf ~= current_buf and vim.api.nvim_buf_is_loaded(buf) then
-      local success = pcall(require('mini.bufremove').delete, buf, false)
-      if success then closed_count = closed_count + 1 end
+    for _, buf in ipairs(buffers) do
+        if buf ~= current_buf and vim.api.nvim_buf_is_loaded(buf) then
+            local success = pcall(require('mini.bufremove').delete, buf, false)
+            if success then
+                closed_count = closed_count + 1
+            end
+        end
     end
-  end
 
-  vim.notify('Closed ' .. closed_count .. ' buffers', vim.log.levels.INFO, {
-    title = 'Buffer Management',
-  })
+    vim.notify('Closed ' .. closed_count .. ' buffers', vim.log.levels.INFO, {
+        title = 'Buffer Management'
+    })
 end, 'Close all buffers except current')
 keymap.n('<leader>fw', '<cmd>write<CR>', 'Write file')
 
@@ -42,11 +46,19 @@ keymap.n('<leader><Left>', '<cmd>bprevious<CR>', 'Previous buffer')
 
 -- LSP Goto keymaps
 keymap.n('<leader>ga', vim.lsp.buf.code_action, 'Code Action')
-keymap.n('<leader>gr', function() require('telescope.builtin').lsp_references() end, 'List References')
-keymap.n('<leader>gi', function() require('telescope.builtin').lsp_implementations() end, 'List Implementations')
-keymap.n('<leader>gd', function() require('telescope.builtin').lsp_definitions() end, 'List Definitions')
+keymap.n('<leader>gr', function()
+    require('telescope.builtin').lsp_references()
+end, 'List References')
+keymap.n('<leader>gi', function()
+    require('telescope.builtin').lsp_implementations()
+end, 'List Implementations')
+keymap.n('<leader>gd', function()
+    require('telescope.builtin').lsp_definitions()
+end, 'List Definitions')
 keymap.n('<leader>gD', vim.lsp.buf.declaration, 'Goto Declaration')
-keymap.n('<leader>gt', function() require('telescope.builtin').lsp_type_definitions() end, 'List Type Definitions')
+keymap.n('<leader>gt', function()
+    require('telescope.builtin').lsp_type_definitions()
+end, 'List Type Definitions')
 keymap.n('<leader>gr', '<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol')
 keymap.n('<leader>gh', '<cmd>lua vim.lsp.buf.hover()<cr>', 'Hover documentation')
 
@@ -74,15 +86,15 @@ keymap.n('<F4>', '<cmd>blast<CR>', 'Last buffer')
 -- F5-F8: File Operations & Quick Actions
 keymap.n('<F5>', '<cmd>write<CR>', 'Save file')
 keymap.n('<F6>', function()
-  -- Open mini.files in current file directory
-  local minifiles = require('mini.files')
-  local current_file = vim.api.nvim_buf_get_name(0)
-  if current_file ~= '' and vim.fn.filereadable(current_file) == 1 then
-    minifiles.open(current_file)
-    minifiles.reveal_cwd()
-  else
-    minifiles.open()
-  end
+    -- Open mini.files in current file directory
+    local minifiles = require('mini.files')
+    local current_file = vim.api.nvim_buf_get_name(0)
+    if current_file ~= '' and vim.fn.filereadable(current_file) == 1 then
+        minifiles.open(current_file)
+        minifiles.reveal_cwd()
+    else
+        minifiles.open()
+    end
 end, 'Open file explorer')
 -- F7 removed - use <leader>sf for find files
 keymap.n('<F8>', '<cmd>Telescope live_grep<CR>', 'Live grep')
@@ -92,13 +104,13 @@ keymap.n('<F9>', '<cmd>Telescope buffers<CR>', 'Show buffers')
 keymap.n('<F10>', '<cmd>Trouble diagnostics toggle<CR>', 'Toggle diagnostics')
 keymap.n('<F11>', '<cmd>ToggleTerm<CR>', 'Toggle terminal')
 keymap.n('<F12>', function()
-  -- Smart help: show help for word under cursor or general help
-  local word = vim.fn.expand('<cword>')
-  if word ~= '' then
-    vim.cmd('help ' .. word)
-  else
-    vim.cmd('help')
-  end
+    -- Smart help: show help for word under cursor or general help
+    local word = vim.fn.expand('<cword>')
+    if word ~= '' then
+        vim.cmd('help ' .. word)
+    else
+        vim.cmd('help')
+    end
 end, 'Context help')
 
 -- Shift+Function Keys for Advanced Operations
@@ -133,23 +145,31 @@ keymap.n('<S-F12>', '<cmd>lua vim.lsp.buf.hover()<CR>', 'LSP hover')
 keymap.n('<leader>Aa', '<cmd>TmuxPanes<cr>', 'List nvim panes in tmux session')
 
 keymap.n('<leader>Ar', function()
-  vim.cmd('checktime')
-  vim.notify('Checked all buffers for external changes', vim.log.levels.INFO)
+    vim.cmd('checktime')
+    vim.notify('Checked all buffers for external changes', vim.log.levels.INFO)
 end, 'Reload all buffers from disk')
 
 -- Noice Integration
 
-keymap.n('<leader>Al', function() require('noice').cmd('last') end, 'Noice Last message')
+keymap.n('<leader>Al', function()
+    require('noice').cmd('last')
+end, 'Noice Last message')
 
-keymap.n('<leader>Ah', function() require('noice').cmd('history') end, 'Noice History')
+keymap.n('<leader>Ah', function()
+    require('noice').cmd('history')
+end, 'Noice History')
 
-keymap.n('<leader>AD', function() require('noice').cmd('dismiss') end, 'Noice Dismiss all')
+keymap.n('<leader>AD', function()
+    require('noice').cmd('dismiss')
+end, 'Noice Dismiss all')
 
 -- Session and Project Management
 keymap.n('<leader>Ap', function()
-  -- Switch to project root and setup session
-  local tmux = require('utils.tmux')
-  if tmux.is_tmux() then tmux.setup_project_workflow() end
+    -- Switch to project root and setup session
+    local tmux = require('utils.tmux')
+    if tmux.is_tmux() then
+        tmux.setup_project_workflow()
+    end
 end, 'Setup project workflow')
 
 keymap.n('<leader>Ao', '<cmd>OutputPanel<CR>', 'Toggle output panel')
@@ -172,14 +192,14 @@ keymap.n('<leader>tl', '<cmd>tablast<cr>', 'Last tab')
 
 -- Enhanced tab move with prompt for position
 keymap.n('<leader>tm', function()
-  local pos = vim.fn.input('Move tab to position (0 for first, $ for last): ')
-  if pos ~= '' then
-    if pos == '$' then
-      vim.cmd('tabmove $')
-    else
-      vim.cmd('tabmove ' .. pos)
+    local pos = vim.fn.input('Move tab to position (0 for first, $ for last): ')
+    if pos ~= '' then
+        if pos == '$' then
+            vim.cmd('tabmove $')
+        else
+            vim.cmd('tabmove ' .. pos)
+        end
     end
-  end
 end, 'Move tab to position')
 
 -- Arrow key navigation for tabs
@@ -219,122 +239,144 @@ keymap.n('<leader>xr', '<cmd>Trouble lsp toggle<cr>', 'LSP references')
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Hunk Navigation
-keymap.n(
-  '<leader>hj',
-  function()
-    if vim.wo.diff then return ']c' end
-    vim.schedule(function() require('gitsigns').next_hunk() end)
+keymap.n('<leader>hj', function()
+    if vim.wo.diff then
+        return ']c'
+    end
+    vim.schedule(function()
+        require('gitsigns').next_hunk()
+    end)
     return '<Ignore>'
-  end,
-  '[H]unk Next ([j] down)',
-  {
-    expr = true,
-  }
-)
+end, '[H]unk Next ([j] down)', {
+    expr = true
+})
 
-keymap.n(
-  '<leader>hk',
-  function()
-    if vim.wo.diff then return '[c' end
-    vim.schedule(function() require('gitsigns').prev_hunk() end)
+keymap.n('<leader>hk', function()
+    if vim.wo.diff then
+        return '[c'
+    end
+    vim.schedule(function()
+        require('gitsigns').prev_hunk()
+    end)
     return '<Ignore>'
-  end,
-  '[H]unk Previous ([k] up)',
-  {
-    expr = true,
-  }
-)
+end, '[H]unk Previous ([k] up)', {
+    expr = true
+})
 
-keymap.n('<leader>hp', function() require('gitsigns').preview_hunk() end, '[H]unk [P]review')
+keymap.n('<leader>hp', function()
+    require('gitsigns').preview_hunk()
+end, '[H]unk [P]review')
 
 -- Hunk Staging Operations
 keymap.n('<leader>hs', '<cmd>Gitsigns stage_hunk<CR>', '[H]unk [S]tage')
 keymap.v('<leader>hs', ':Gitsigns stage_hunk<CR>', '[H]unk [S]tage')
 
-keymap.n('<leader>hS', function() require('gitsigns').stage_buffer() end, '[H]unk [S]tage entire buffer')
+keymap.n('<leader>hS', function()
+    require('gitsigns').stage_buffer()
+end, '[H]unk [S]tage entire buffer')
 
 keymap.n('<leader>hr', '<cmd>Gitsigns reset_hunk<CR>', '[H]unk [R]eset')
 keymap.v('<leader>hr', ':Gitsigns reset_hunk<CR>', '[H]unk [R]eset')
 
-keymap.n('<leader>hR', function() require('gitsigns').reset_buffer() end, '[H]unk [R]eset entire buffer')
+keymap.n('<leader>hR', function()
+    require('gitsigns').reset_buffer()
+end, '[H]unk [R]eset entire buffer')
 
-keymap.n('<leader>hu', function() require('gitsigns').undo_stage_hunk() end, '[H]unk [U]ndo stage')
+keymap.n('<leader>hu', function()
+    require('gitsigns').undo_stage_hunk()
+end, '[H]unk [U]ndo stage')
 
 -- Git View and Blame
 keymap.n('<leader>hb', function()
-  require('gitsigns').blame_line({
-    full = true,
-  })
+    require('gitsigns').blame_line({
+        full = true
+    })
 end, '[H]unk [B]lame line')
 
-keymap.n('<leader>htb', function() require('gitsigns').toggle_current_line_blame() end, '[H]unk [T]oggle [B]lame')
+keymap.n('<leader>htb', function()
+    require('gitsigns').toggle_current_line_blame()
+end, '[H]unk [T]oggle [B]lame')
 
-keymap.n('<leader>hd', function() require('gitsigns').diffthis() end, '[H]unk [D]iff this')
+keymap.n('<leader>hd', function()
+    require('gitsigns').diffthis()
+end, '[H]unk [D]iff this')
 
-keymap.n('<leader>hD', function() require('gitsigns').diffthis('~') end, '[H]unk [D]iff this (against index)')
+keymap.n('<leader>hD', function()
+    require('gitsigns').diffthis('~')
+end, '[H]unk [D]iff this (against index)')
 
-keymap.n('<leader>htd', function() require('gitsigns').toggle_deleted() end, '[H]unk [T]oggle [D]eleted')
+keymap.n('<leader>htd', function()
+    require('gitsigns').toggle_deleted()
+end, '[H]unk [T]oggle [D]eleted')
 
 -- Git File Operations (from Telescope)
-keymap.n(
-  '<leader>hf',
-  function()
+keymap.n('<leader>hf', function()
     require('telescope.builtin').git_files(require('telescope.themes').get_dropdown({
-      previewer = false,
+        previewer = false
     }))
-  end,
-  '[H]unk Git [F]iles'
-)
+end, '[H]unk Git [F]iles')
 
-keymap.n(
-  '<leader>hc',
-  function() require('telescope.builtin').git_commits(require('telescope.themes').get_ivy()) end,
-  '[H]unk Git [C]ommits'
-)
+keymap.n('<leader>hc', function()
+    require('telescope.builtin').git_commits(require('telescope.themes').get_ivy())
+end, '[H]unk Git [C]ommits')
 
-keymap.n(
-  '<leader>hB',
-  function()
+keymap.n('<leader>hB', function()
     require('telescope.builtin').git_branches(require('telescope.themes').get_dropdown({
-      previewer = false,
+        previewer = false
     }))
-  end,
-  '[H]unk Git [B]ranches'
-)
+end, '[H]unk Git [B]ranches')
 
-keymap.n(
-  '<leader>hst',
-  function() require('telescope.builtin').git_status(require('telescope.themes').get_ivy()) end,
-  '[H]unk Git [St]atus'
-)
+keymap.n('<leader>hst', function()
+    require('telescope.builtin').git_status(require('telescope.themes').get_ivy())
+end, '[H]unk Git [St]atus')
 
 -- Buffer management (from hbac.lua)
-keymap.n('<leader>fW', function() require('hbac').close_unpinned() end, 'Close all unpinned buffers')
-keymap.n('<leader>fP', function() require('hbac').toggle_pin() end, 'Toggle pin buffer')
+keymap.n('<leader>fW', function()
+    require('hbac').close_unpinned()
+end, 'Close all unpinned buffers')
+keymap.n('<leader>fP', function()
+    require('hbac').toggle_pin()
+end, 'Toggle pin buffer')
 
 -- Smart window management (from smart-splits.lua)
-keymap.n('<C-Left>', function() require('smart-splits').resize_left() end, 'Resize window left')
-keymap.n('<C-Right>', function() require('smart-splits').resize_right() end, 'Resize window right')
-keymap.n('<C-Up>', function() require('smart-splits').resize_up() end, 'Resize window up')
-keymap.n('<C-Down>', function() require('smart-splits').resize_down() end, 'Resize window down')
+keymap.n('<C-Left>', function()
+    require('smart-splits').resize_left()
+end, 'Resize window left')
+keymap.n('<C-Right>', function()
+    require('smart-splits').resize_right()
+end, 'Resize window right')
+keymap.n('<C-Up>', function()
+    require('smart-splits').resize_up()
+end, 'Resize window up')
+keymap.n('<C-Down>', function()
+    require('smart-splits').resize_down()
+end, 'Resize window down')
 keymap.n('<leader>wv', '<cmd>vsplit<CR>', 'Split window vertically')
 keymap.n('<leader>ws', '<cmd>split<CR>', 'Split window horizontally')
 keymap.n('<leader>wq', '<cmd>close<CR>', 'Close window')
 
 -- Buffer swapping
 keymap.n('<leader>w<Left>', function()
-  local function safe_swap_buf_left()
-    if vim.fn.winnr('h') ~= vim.fn.winnr() then require('smart-splits').swap_buf_left() end
-  end
-  safe_swap_buf_left()
+    local function safe_swap_buf_left()
+        if vim.fn.winnr('h') ~= vim.fn.winnr() then
+            require('smart-splits').swap_buf_left()
+        end
+    end
+    safe_swap_buf_left()
 end, 'Swap buffer left')
-keymap.n('<leader>w<Down>', function() require('smart-splits').swap_buf_down() end, 'Swap buffer down')
-keymap.n('<leader>w<Up>', function() require('smart-splits').swap_buf_up() end, 'Swap buffer up')
+keymap.n('<leader>w<Down>', function()
+    require('smart-splits').swap_buf_down()
+end, 'Swap buffer down')
+keymap.n('<leader>w<Up>', function()
+    require('smart-splits').swap_buf_up()
+end, 'Swap buffer up')
 keymap.n('<leader>w<Right>', function()
-  local function safe_swap_buf_right()
-    if vim.fn.winnr('l') ~= vim.fn.winnr() then require('smart-splits').swap_buf_right() end
-  end
-  safe_swap_buf_right()
+    local function safe_swap_buf_right()
+        if vim.fn.winnr('l') ~= vim.fn.winnr() then
+            require('smart-splits').swap_buf_right()
+        end
+    end
+    safe_swap_buf_right()
 end, 'Swap buffer right')
 
 keymap.n('gk', '<cmd>AerialPrev<CR>', 'Previous Symbol')
@@ -353,92 +395,191 @@ keymap.n('gj', '<cmd>AerialNext<CR>', 'Next Symbol')
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Debug session control
-keymap.n('<leader>dc', function() require('dap').continue() end, '[D]ebug [C]ontinue/Start')
+keymap.n('<leader>dc', function()
+    require('dap').continue()
+end, '[D]ebug [C]ontinue/Start')
 
-keymap.n('<leader>dt', function() require('dap').terminate() end, '[D]ebug [T]erminate')
+keymap.n('<leader>dt', function()
+    require('dap').terminate()
+end, '[D]ebug [T]erminate')
 
-keymap.n('<leader>dR', function() require('dap').restart() end, '[D]ebug [R]estart')
+keymap.n('<leader>dR', function()
+    require('dap').restart()
+end, '[D]ebug [R]estart')
 
 -- Debug stepping
-keymap.n('<leader>di', function() require('dap').step_into() end, '[D]ebug Step [I]nto')
+keymap.n('<leader>di', function()
+    require('dap').step_into()
+end, '[D]ebug Step [I]nto')
 
-keymap.n('<leader>do', function() require('dap').step_over() end, '[D]ebug Step [O]ver')
+keymap.n('<leader>do', function()
+    require('dap').step_over()
+end, '[D]ebug Step [O]ver')
 
-keymap.n('<leader>du', function() require('dap').step_out() end, '[D]ebug Step O[u]t')
+keymap.n('<leader>du', function()
+    require('dap').step_out()
+end, '[D]ebug Step O[u]t')
 
-keymap.n('<leader>db', function() require('dap').step_back() end, '[D]ebug Step [B]ack')
+keymap.n('<leader>db', function()
+    require('dap').step_back()
+end, '[D]ebug Step [B]ack')
 
 -- Breakpoint management
-keymap.n('<leader>dB', function() require('dap').toggle_breakpoint() end, '[D]ebug Toggle [B]reakpoint')
+keymap.n('<leader>dB', function()
+    require('dap').toggle_breakpoint()
+end, '[D]ebug Toggle [B]reakpoint')
 
-keymap.n(
-  '<leader>dC',
-  function() require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: ')) end,
-  '[D]ebug [C]onditional Breakpoint'
-)
+keymap.n('<leader>dC', function()
+    local condition = vim.fn.input('Breakpoint condition: ')
+    if condition and condition ~= '' then
+        require('dap').set_breakpoint(condition)
+    end
+end, '[D]ebug [C]onditional Breakpoint')
 
-keymap.n(
-  '<leader>dL',
-  function() require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: ')) end,
-  '[D]ebug [L]og Point'
-)
+keymap.n('<leader>dL', function()
+    require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: '))
+end, '[D]ebug [L]og Point')
 
-keymap.n('<leader>dx', function() require('dap').clear_breakpoints() end, '[D]ebug Clear Breakpoints (E[x]tinguish)')
+keymap.n('<leader>dx', function()
+    require('dap').clear_breakpoints()
+end, '[D]ebug Clear Breakpoints (E[x]tinguish)')
 
--- Debug UI and windows
-keymap.n('<leader>dw', function() require('dapui').toggle() end, '[D]ebug Toggle UI [W]indow')
+-- Debug UI and windows (Modern IDE-like)
+keymap.n('<leader>dw', function()
+    require('dapui').toggle()
+end, '[D]ebug Toggle UI [W]indow')
 
-keymap.n('<leader>dh', function() require('dap.ui.widgets').hover() end, '[D]ebug [H]over Variables')
+-- Modern debugging toolbar shortcuts (like VS Code F5-F12)
+keymap.n('<F5>', function()
+    require('dap').continue()
+end, 'Debug: Start/Continue')
 
-keymap.n('<leader>dp', function() require('dap.ui.widgets').preview() end, '[D]ebug [P]review')
+keymap.n('<F6>', function()
+    require('dap').pause()
+end, 'Debug: Pause')
+
+keymap.n('<F7>', function()
+    require('dap').step_into()
+end, 'Debug: Step Into')
+
+keymap.n('<F8>', function()
+    require('dap').step_over()
+end, 'Debug: Step Over')
+
+keymap.n('<S-F8>', function()
+    require('dap').step_out()
+end, 'Debug: Step Out')
+
+keymap.n('<C-F5>', function()
+    require('dap').restart()
+end, 'Debug: Restart')
+
+keymap.n('<S-F5>', function()
+    require('dap').terminate()
+end, 'Debug: Stop')
+
+-- Debug UI element toggles (like IntelliJ)
+keymap.n('<leader>dv', function()
+    require('dapui').float_element('scopes', {
+        enter = true
+    })
+end, '[D]ebug [V]ariables (floating)')
+
+keymap.n('<leader>ds', function()
+    require('dapui').float_element('stacks', {
+        enter = true
+    })
+end, '[D]ebug [S]tack trace (floating)')
+
+keymap.n('<leader>dW', function()
+    require('dapui').float_element('watches', {
+        enter = true
+    })
+end, '[D]ebug [W]atches (floating)')
+
+keymap.n('<leader>dR', function()
+    require('dapui').float_element('repl', {
+        enter = true
+    })
+end, '[D]ebug [R]EPL (floating)')
+
+keymap.n('<leader>dO', function()
+    require('dapui').float_element('console', {
+        enter = true
+    })
+end, '[D]ebug [O]utput/Console (floating)')
+
+keymap.n('<leader>dh', function()
+    require('dap.ui.widgets').hover()
+end, '[D]ebug [H]over Variables')
+
+keymap.n('<leader>dp', function()
+    require('dap.ui.widgets').preview()
+end, '[D]ebug [P]review')
 
 keymap.n('<leader>df', function()
-  local widgets = require('dap.ui.widgets')
-  widgets.centered_float(widgets.frames)
+    local widgets = require('dap.ui.widgets')
+    widgets.centered_float(widgets.frames)
 end, '[D]ebug [F]rames')
 
 keymap.n('<leader>ds', function()
-  local widgets = require('dap.ui.widgets')
-  widgets.centered_float(widgets.scopes)
+    local widgets = require('dap.ui.widgets')
+    widgets.centered_float(widgets.scopes)
 end, '[D]ebug [S]copes')
 
 -- Debug REPL and console
-keymap.n('<leader>dr', function() require('dap').repl.open() end, '[D]ebug Open [R]EPL')
+keymap.n('<leader>dr', function()
+    require('dap').repl.open()
+end, '[D]ebug Open [R]EPL')
 
-keymap.n('<leader>dl', function() require('dap').run_last() end, '[D]ebug Run [L]ast')
+keymap.n('<leader>dl', function()
+    require('dap').run_last()
+end, '[D]ebug Run [L]ast')
 
 -- Debug evaluation
-keymap.n('<leader>de', function() require('dapui').eval() end, '[D]ebug [E]val Expression')
+keymap.n('<leader>de', function()
+    require('dapui').eval()
+end, '[D]ebug [E]val Expression')
 
-keymap.v('<leader>de', function() require('dapui').eval() end, '[D]ebug [E]val Selection')
+keymap.v('<leader>de', function()
+    require('dapui').eval()
+end, '[D]ebug [E]val Selection')
 
 -- Debug configurations
-keymap.n('<leader>dg', function() require('dap').run_to_cursor() end, '[D]ebug Run to Cursor ([G]o to cursor)')
+keymap.n('<leader>dg', function()
+    require('dap').run_to_cursor()
+end, '[D]ebug Run to Cursor ([G]o to cursor)')
 
-keymap.n('<leader>dj', function() require('dap').down() end, '[D]ebug Stack Down ([j] down)')
+keymap.n('<leader>dj', function()
+    require('dap').down()
+end, '[D]ebug Stack Down ([j] down)')
 
-keymap.n('<leader>dk', function() require('dap').up() end, '[D]ebug Stack Up ([k] up)')
+keymap.n('<leader>dk', function()
+    require('dap').up()
+end, '[D]ebug Stack Up ([k] up)')
 
 -- Additional debug utilities
-keymap.n('<leader>dX', function() require('dap').set_exception_breakpoints() end, '[D]ebug E[X]ception Breakpoints')
+keymap.n('<leader>dX', function()
+    require('dap').set_exception_breakpoints()
+end, '[D]ebug E[X]ception Breakpoints')
 
 keymap.n('<leader>dq', function()
-  require('dap').close()
-  require('dapui').close()
+    require('dap').close()
+    require('dapui').close()
 end, '[D]ebug [Q]uit/Close All')
 
 keymap.n('<leader>d?', function()
-  -- Show debug status and available commands
-  local dap = require('dap')
-  local session = dap.session()
-  if session then
-    vim.notify('Debug session active: ' .. (session.config.name or 'Unknown'), vim.log.levels.INFO)
-  else
-    vim.notify('No active debug session', vim.log.levels.INFO)
-  end
+    -- Show debug status and available commands
+    local dap = require('dap')
+    local session = dap.session()
+    if session then
+        vim.notify('Debug session active: ' .. (session.config.name or 'Unknown'), vim.log.levels.INFO)
+    else
+        vim.notify('No active debug session', vim.log.levels.INFO)
+    end
 
-  -- Show quick help
-  local help_text = [[
+    -- Show quick help
+    local help_text = [[
 <leader>d Debug Commands:
   dc - Continue/Start    dt - Terminate     dR - Restart
   di - Step Into        do - Step Over     du - Step Out       db - Step Back
@@ -447,88 +588,92 @@ keymap.n('<leader>d?', function()
   dr - REPL            dl - Run Last      de - Eval          dg - Run to Cursor
   dj - Stack Down      dk - Stack Up      dX - Exception BP  dq - Quit All
 ]]
-  vim.notify(help_text, vim.log.levels.INFO)
+    vim.notify(help_text, vim.log.levels.INFO)
 end, '[D]ebug Help (?)')
 
 -- Modern Web Development Keymaps
 
 -- Web Development Utility Functions
 keymap.n('<leader>wf', function()
-  -- Format current buffer with web-specific formatter
-  local ft = vim.bo.filetype
-  if vim.tbl_contains({ 'html', 'css', 'javascript', 'typescript' }, ft) then
-    vim.cmd('lua require("conform").format({ async = true })')
-  else
-    vim.notify('Not a web file type', vim.log.levels.WARN)
-  end
+    -- Format current buffer with web-specific formatter
+    local ft = vim.bo.filetype
+    if vim.tbl_contains({'html', 'css', 'javascript', 'typescript'}, ft) then
+        vim.cmd('lua require("conform").format({ async = true })')
+    else
+        vim.notify('Not a web file type', vim.log.levels.WARN)
+    end
 end, 'Format web file')
 
 -- Toggle embedded language highlighting
 keymap.n('<leader>we', function()
-  if vim.bo.filetype == 'html' then
-    -- Toggle highlighting for embedded JS/CSS
-    vim.cmd('syntax sync fromstart')
-    vim.notify('Refreshed embedded language highlighting', vim.log.levels.INFO)
-  end
+    if vim.bo.filetype == 'html' then
+        -- Toggle highlighting for embedded JS/CSS
+        vim.cmd('syntax sync fromstart')
+        vim.notify('Refreshed embedded language highlighting', vim.log.levels.INFO)
+    end
 end, 'Refresh embedded language highlighting')
 
 -- Quick tag wrapping
 keymap.v('<leader>wt', function()
-  local tag = vim.fn.input('Tag name: ')
-  if tag ~= '' then vim.cmd(string.format('\'<,\'>s/\\%V\\(.*\\)\\%V/<' .. tag .. '>\\1<\\/' .. tag .. '>/')) end
+    local tag = vim.fn.input('Tag name: ')
+    if tag ~= '' then
+        vim.cmd(string.format('\'<,\'>s/\\%V\\(.*\\)\\%V/<' .. tag .. '>\\1<\\/' .. tag .. '>/'))
+    end
 end, 'Wrap selection with HTML tag')
 
 -- Live server toggle (if live-server is installed)
 keymap.n('<leader>wl', function()
-  local cwd = vim.fn.getcwd()
-  vim.fn.jobstart({ 'live-server', cwd }, {
-    detach = true,
-    on_exit = function() vim.notify('Live server stopped', vim.log.levels.INFO) end,
-  })
-  vim.notify('Live server started for: ' .. cwd, vim.log.levels.INFO)
+    local cwd = vim.fn.getcwd()
+    vim.fn.jobstart({'live-server', cwd}, {
+        detach = true,
+        on_exit = function()
+            vim.notify('Live server stopped', vim.log.levels.INFO)
+        end
+    })
+    vim.notify('Live server started for: ' .. cwd, vim.log.levels.INFO)
 end, 'Start live server')
 
 -- Open in browser
 keymap.n('<leader>wo', function()
-  local filepath = vim.fn.expand('%:p')
-  if vim.bo.filetype == 'html' then
-    if vim.fn.has('mac') == 1 then
-      vim.fn.jobstart({ 'open', filepath }, {
-        detach = true,
-      })
-    elseif vim.fn.has('unix') == 1 then
-      vim.fn.jobstart({ 'xdg-open', filepath }, {
-        detach = true,
-      })
+    local filepath = vim.fn.expand('%:p')
+    if vim.bo.filetype == 'html' then
+        if vim.fn.has('mac') == 1 then
+            vim.fn.jobstart({'open', filepath}, {
+                detach = true
+            })
+        elseif vim.fn.has('unix') == 1 then
+            vim.fn.jobstart({'xdg-open', filepath}, {
+                detach = true
+            })
+        end
+        vim.notify('Opened in browser: ' .. vim.fn.expand('%:t'), vim.log.levels.INFO)
+    else
+        vim.notify('Not an HTML file', vim.log.levels.WARN)
     end
-    vim.notify('Opened in browser: ' .. vim.fn.expand('%:t'), vim.log.levels.INFO)
-  else
-    vim.notify('Not an HTML file', vim.log.levels.WARN)
-  end
 end, 'Open HTML file in browser')
 
 -- Tailwind utilities
 keymap.n('<leader>wT', function()
-  -- Sort Tailwind classes in current line
-  local line = vim.api.nvim_get_current_line()
-  local cursor_pos = vim.api.nvim_win_get_cursor(0)
+    -- Sort Tailwind classes in current line
+    local line = vim.api.nvim_get_current_line()
+    local cursor_pos = vim.api.nvim_win_get_cursor(0)
 
-  -- Simple Tailwind class sorting (basic implementation)
-  local sorted_line = line:gsub('class="([^"]*)"', function(classes)
-    local class_list = vim.split(classes, '%s+')
-    table.sort(class_list)
-    return 'class="' .. table.concat(class_list, ' ') .. '"'
-  end)
+    -- Simple Tailwind class sorting (basic implementation)
+    local sorted_line = line:gsub('class="([^"]*)"', function(classes)
+        local class_list = vim.split(classes, '%s+')
+        table.sort(class_list)
+        return 'class="' .. table.concat(class_list, ' ') .. '"'
+    end)
 
-  vim.api.nvim_set_current_line(sorted_line)
-  vim.api.nvim_win_set_cursor(0, cursor_pos)
+    vim.api.nvim_set_current_line(sorted_line)
+    vim.api.nvim_win_set_cursor(0, cursor_pos)
 end, 'Sort Tailwind classes')
 
 -- Quick console.log for debugging
 keymap.n('<leader>wL', function()
-  local word = vim.fn.expand('<cword>')
-  local log_line = string.format('console.log(\'%s:\', %s);', word, word)
-  vim.api.nvim_put({ log_line }, 'l', true, true)
+    local word = vim.fn.expand('<cword>')
+    local log_line = string.format('console.log(\'%s:\', %s);', word, word)
+    vim.api.nvim_put({log_line}, 'l', true, true)
 end, 'Insert console.log for word under cursor')
 
 -- Additional development keymaps...
@@ -541,7 +686,9 @@ end, 'Insert console.log for word under cursor')
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Go to definition
-keymap.n('g<Down>', function() vim.lsp.buf.definition() end, 'Go to definition')
+keymap.n('g<Down>', function()
+    vim.lsp.buf.definition()
+end, 'Go to definition')
 
 -- Navigate jumplist (cursor/buffer position history)
 keymap.n('g<Left>', '<C-o>', 'Previous cursor position (jumplist)')
