@@ -348,9 +348,26 @@ return {
         kind_icons = {},
       },
 
-      -- Remove level labels globally
+      -- Format configuration
       format = {
-        level = false, -- Don't show level text
+        level = {
+          hl_group = 'NoiceFormatLevel',
+        },
+        date = {
+          hl_group = 'NoiceFormatDate',
+        },
+        title = {
+          hl_group = 'NoiceFormatTitle',
+        },
+        event = {
+          hl_group = 'NoiceFormatEvent',
+        },
+        kind = {
+          hl_group = 'NoiceFormatKind',
+        },
+        data = {
+          hl_group = 'NoiceFormatData',
+        },
       },
 
       -- Health check settings
@@ -385,6 +402,27 @@ return {
     })
     vim.api.nvim_set_hl(0, 'NoiceMini', {
       bg = '#1a1b26',
+      fg = '#c0caf5',
+    })
+
+    -- Add missing format highlight groups
+    vim.api.nvim_set_hl(0, 'NoiceFormatLevel', {
+      fg = '#7aa2f7',
+    })
+    vim.api.nvim_set_hl(0, 'NoiceFormatDate', {
+      fg = '#565f89',
+    })
+    vim.api.nvim_set_hl(0, 'NoiceFormatTitle', {
+      fg = '#c0caf5',
+      bold = true,
+    })
+    vim.api.nvim_set_hl(0, 'NoiceFormatEvent', {
+      fg = '#9ece6a',
+    })
+    vim.api.nvim_set_hl(0, 'NoiceFormatKind', {
+      fg = '#f7768e',
+    })
+    vim.api.nvim_set_hl(0, 'NoiceFormatData', {
       fg = '#c0caf5',
     })
 

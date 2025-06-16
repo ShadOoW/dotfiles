@@ -192,19 +192,97 @@ return {
         return result
       end
 
-      -- Get bundles for debugging and testing
+      -- Add custom error handler for buffer issues
+      custom_handlers['textDocument/definition'] = function(err, result, ctx, config)
+        if err then
+          vim.notify('LSP Definition Error: ' .. tostring(err), vim.log.levels.WARN)
+          return
+        end
+
+        -- Use pcall to safely handle buffer operations
+        local success, error_msg = pcall(vim.lsp.handlers['textDocument/definition'], err, result, ctx, config)
+        if not success then vim.notify('Buffer operation failed: ' .. tostring(error_msg), vim.log.levels.WARN) end
+      end
+
+      -- Get bundles for debugging and testing using Mason registry (same as DAP config)
       local bundles = {}
-      local mason_path = vim.fn.stdpath('data') .. '/mason/packages/'
 
-      -- Add Java Debug bundles
-      local java_debug_path = mason_path .. 'java-debug-adapter/extension/server/'
-      local java_debug_bundle = vim.fn.glob(java_debug_path .. 'com.microsoft.java.debug.plugin-*.jar')
-      if java_debug_bundle ~= '' then vim.list_extend(bundles, { java_debug_bundle }) end
+      -- Use Mason registry for consistent detection with API fallback
+      local mason_registry_ok, mason_registry = pcall(require, 'mason-registry')
+      if mason_registry_ok then
+        -- Java Debug Adapter
+        local java_debug_ok, java_debug_adapter = pcall(mason_registry.get_package, 'java-debug-adapter')
+        if java_debug_ok and java_debug_adapter:is_installed() then
+          -- Get install path with fallback for different Mason API versions
+          local java_debug_path
+          if java_debug_adapter.get_install_path then
+            local path_ok, path = pcall(function() return java_debug_adapter:get_install_path() end)
+            if path_ok and path then java_debug_path = path end
+          end
 
-      -- Add Java test bundles
-      local java_test_path = mason_path .. 'java-test/extension/server/*.jar'
-      local java_test_bundles = vim.fn.glob(java_test_path, true, true)
-      if not vim.tbl_isempty(java_test_bundles) then vim.list_extend(bundles, java_test_bundles) end
+          -- Fallback to manual path construction
+          if not java_debug_path then
+            java_debug_path = vim.fn.stdpath('data') .. '/mason/packages/java-debug-adapter'
+          end
+
+          local jar_pattern = java_debug_path .. '/extension/server/com.microsoft.java.debug.plugin-*.jar'
+          local java_debug_bundle = vim.fn.glob(jar_pattern)
+
+          if java_debug_bundle ~= '' then
+            vim.list_extend(bundles, { java_debug_bundle })
+            print('JDTLS: Found Java debug adapter: ' .. java_debug_bundle)
+          else
+            print('JDTLS: Java debug adapter JAR not found at: ' .. jar_pattern)
+          end
+        else
+          print('JDTLS: Java debug adapter not installed. Install with: :MasonInstall java-debug-adapter')
+        end
+
+        -- Java Test
+        local java_test_ok, java_test = pcall(mason_registry.get_package, 'java-test')
+        if java_test_ok and java_test:is_installed() then
+          -- Get install path with fallback for different Mason API versions
+          local java_test_path
+          if java_test.get_install_path then
+            local path_ok, path = pcall(function() return java_test:get_install_path() end)
+            if path_ok and path then java_test_path = path end
+          end
+
+          -- Fallback to manual path construction
+          if not java_test_path then java_test_path = vim.fn.stdpath('data') .. '/mason/packages/java-test' end
+
+          local test_jar_pattern = java_test_path .. '/extension/server/*.jar'
+          local java_test_bundles = vim.fn.glob(test_jar_pattern, true, true)
+
+          if not vim.tbl_isempty(java_test_bundles) then
+            vim.list_extend(bundles, java_test_bundles)
+            print('JDTLS: Found Java test bundles: ' .. #java_test_bundles .. ' files')
+          else
+            print('JDTLS: Java test bundles not found at: ' .. test_jar_pattern)
+          end
+        else
+          print('JDTLS: Java test not installed. Install with: :MasonInstall java-test')
+        end
+      else
+        print('JDTLS: Mason registry not available, falling back to manual detection')
+
+        -- Fallback to manual detection
+        local mason_path = vim.fn.stdpath('data') .. '/mason/packages/'
+
+        local java_debug_path = mason_path .. 'java-debug-adapter/extension/server/'
+        local java_debug_bundle = vim.fn.glob(java_debug_path .. 'com.microsoft.java.debug.plugin-*.jar')
+        if java_debug_bundle ~= '' then
+          vim.list_extend(bundles, { java_debug_bundle })
+          print('JDTLS: Found Java debug adapter (fallback): ' .. java_debug_bundle)
+        end
+
+        local java_test_path = mason_path .. 'java-test/extension/server/*.jar'
+        local java_test_bundles = vim.fn.glob(java_test_path, true, true)
+        if not vim.tbl_isempty(java_test_bundles) then
+          vim.list_extend(bundles, java_test_bundles)
+          print('JDTLS: Found Java test bundles (fallback): ' .. #java_test_bundles .. ' files')
+        end
+      end
 
       -- Main config
       local cmd = {
@@ -216,11 +294,86 @@ return {
         '-Dlog.level=ERROR', -- Reduce log level from ALL to ERROR
         '-Xms512m', -- Reduce initial heap size
         '-Xmx1g', -- Reduce max heap size from 2g to 1g
+        -- Comprehensive JVM module and access control arguments
         '--add-modules=ALL-SYSTEM',
+        '--enable-native-access=ALL-UNNAMED', -- Fix restricted method warnings
+        -- Core Java base module opens
+        '--add-opens',
+        'java.base/java.lang=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/java.lang.reflect=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/java.lang.invoke=ALL-UNNAMED',
         '--add-opens',
         'java.base/java.util=ALL-UNNAMED',
         '--add-opens',
-        'java.base/java.lang=ALL-UNNAMED',
+        'java.base/java.util.concurrent=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/java.util.concurrent.atomic=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/java.util.concurrent.locks=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/java.io=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/java.net=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/java.nio=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/java.nio.file=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/java.nio.charset=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/java.text=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/java.time=ALL-UNNAMED', -- Sun internal packages (fix Unsafe warnings)
+        '--add-opens',
+        'java.base/sun.misc=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/sun.reflect=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/sun.nio.ch=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/sun.nio.fs=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/sun.security.util=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/sun.security.ssl=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/sun.security.x509=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/sun.net.util=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/sun.net.www=ALL-UNNAMED', -- Desktop module opens
+        '--add-opens',
+        'java.desktop/java.awt=ALL-UNNAMED',
+        '--add-opens',
+        'java.desktop/java.awt.event=ALL-UNNAMED',
+        '--add-opens',
+        'java.desktop/java.awt.image=ALL-UNNAMED',
+        '--add-opens',
+        'java.desktop/javax.swing=ALL-UNNAMED',
+        '--add-opens',
+        'java.desktop/javax.swing.plaf=ALL-UNNAMED',
+        '--add-opens',
+        'java.desktop/sun.awt=ALL-UNNAMED',
+        '--add-opens',
+        'java.desktop/sun.swing=ALL-UNNAMED', -- Management and logging modules
+        '--add-opens',
+        'java.management/sun.management=ALL-UNNAMED',
+        '--add-opens',
+        'java.logging/java.util.logging=ALL-UNNAMED',
+
+        -- Additional system properties to suppress warnings
+        '-Djdk.incubator.vector.VECTOR_ACCESS_OOB_CHECK=0', -- Suppress incubator module warnings
+        '-Djava.util.logging.config.file=', -- Disable default logging config
+        '-Dlogback.configurationFile=', -- Disable logback auto-configuration
+        '-Dorg.slf4j.simpleLogger.defaultLogLevel=ERROR', -- Set SLF4J to ERROR level
+        '-Djdk.module.illegalAccess=permit', -- Allow illegal access (deprecated but helps)
+        '-XX:+IgnoreUnrecognizedVMOptions', -- Ignore unrecognized VM options
+        '-XX:-PrintGCDetails', -- Disable GC logging
+        '-XX:-PrintGC', -- Disable GC logging
+        '-Dsun.java2d.noddraw=true', -- Disable DirectDraw
+        '-Dsun.awt.noerasebackground=true', -- Disable background erase
       }
 
       -- Add lombok agent if file exists
@@ -229,10 +382,16 @@ return {
       -- Add the remaining required arguments
       vim.list_extend(cmd, { '-jar', paths.launcher, '-configuration', paths.config, '-data', workspace_dir })
 
+      -- Redirect stderr to suppress warnings (optional - comment out if you want to see all warnings)
+      -- table.insert(cmd, "2>/dev/null")
+
       local config = {
         cmd = cmd,
         root_dir = root_dir,
         capabilities = capabilities,
+        init_options = {
+          bundles = bundles,
+        },
         settings = {
           java = {
             -- IntelliJ IDEA-like completion settings
@@ -371,9 +530,6 @@ return {
             },
             references = {
               includeDecompiledSources = true,
-            },
-            signatureHelp = {
-              enabled = true,
             },
             contentProvider = {
               preferred = 'fernflower',

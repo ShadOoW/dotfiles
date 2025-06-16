@@ -215,6 +215,41 @@ vim.opt.backup = true
 vim.opt.writebackup = true
 vim.opt.backupcopy = 'auto'
 
+-- Make swap file warnings more discrete
+vim.opt.shortmess:append('A') -- Don't show ATTENTION message for existing swap files
+vim.opt.updatecount = 200 -- Write swap file after 200 characters
+vim.opt.updatetime = 4000 -- Write swap file after 4 seconds of inactivity
+
+-- Handle swap files gracefully with discrete notifications
+vim.api.nvim_create_autocmd('SwapExists', {
+  group = vim.api.nvim_create_augroup('DiscreteSwapHandling', {
+    clear = true,
+  }),
+  callback = function(args)
+    local swap_file = vim.v.swapname
+    local file_name = args.file
+
+    -- Show a discrete notification instead of the full dialog
+    vim.notify(
+      string.format(
+        'Swap file exists for %s. Press "e" to edit anyway, "r" to recover, "q" to quit.',
+        vim.fn.fnamemodify(file_name, ':t')
+      ),
+      vim.log.levels.WARN,
+      {
+        title = 'Swap File Found',
+        timeout = 5000,
+        render = 'compact',
+      }
+    )
+
+    -- Set swap choice to 'e' (edit anyway) by default for non-interactive use
+    -- User can still choose 'r' to recover or 'q' to quit when prompted
+    vim.v.swapchoice = 'e'
+  end,
+  desc = 'Handle swap files with discrete notifications',
+})
+
 -- Create directories if they don't exist
 local data_dir = vim.fn.stdpath('data')
 local swap_dir = data_dir .. '/swap'
