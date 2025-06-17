@@ -11,7 +11,6 @@ return {
   require('plugins.tools.genghis'),
   require('plugins.tools.yanky'),
   require('plugins.tools.peek'),
-  require('plugins.tools.neotest'),
   require('plugins.tools.wiki'),
   require('plugins.tools.overseer'),
   require('plugins.tools.toggleterm'),

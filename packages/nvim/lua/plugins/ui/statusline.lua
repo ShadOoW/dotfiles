@@ -73,26 +73,6 @@ return {
       return ' ' .. table.concat(client_names, ', ')
     end
 
-    local function test_status()
-      local neotest_available, neotest = pcall(require, 'neotest')
-      if not neotest_available then return '' end
-
-      -- Get test results summary
-      local summary = neotest.state.status_counts()
-      if not summary then return '' end
-
-      if summary.total and summary.total > 0 then
-        if summary.failed and summary.failed > 0 then
-          return '🧪 ' .. summary.failed .. '/' .. summary.total .. ' Failed'
-        elseif summary.passed and summary.passed > 0 then
-          return '🧪 ' .. summary.passed .. '/' .. summary.total .. ' Passed'
-        else
-          return '🧪 ' .. summary.total .. ' Tests'
-        end
-      end
-      return ''
-    end
-
     local function get_tag_status()
       local tag_file = vim.fn.expand('%:p:h') .. '/tags'
       if vim.fn.filereadable(tag_file) == 1 then
@@ -281,24 +261,6 @@ return {
               elseif status:match('Failed') then
                 return {
                   fg = '#f38ba8',
-                }
-              end
-              return {
-                fg = '#cdd6f4',
-              }
-            end,
-          },
-          {
-            test_status,
-            color = function()
-              local status = test_status()
-              if status:match('Failed') then
-                return {
-                  fg = '#f38ba8',
-                }
-              elseif status:match('Passed') then
-                return {
-                  fg = '#a6e3a1',
                 }
               end
               return {
