@@ -627,3 +627,8 @@ vim.api.nvim_create_autocmd('BufWritePre', {
     if #lines > 0 and lines[#lines] ~= '' then vim.api.nvim_buf_set_lines(buf, -1, -1, false, { '' }) end
   end,
 })
+
+vim.api.nvim_create_autocmd({ 'User' }, {
+  pattern = 'SessionLoadPost',
+  callback = function() require('vuffers').on_session_loaded() end,
+})

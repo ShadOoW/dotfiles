@@ -51,7 +51,7 @@ get_aur_helper() {
 # Install a single package with pacman
 install_package_pacman() {
     local pkg="$1"
-    
+
     if is_installed "$pkg"; then
         log "info" "Package ${C_ACCENT}${pkg}${RESET} is already installed"
         return 0
@@ -100,7 +100,7 @@ install_packages_pacman() {
 install_package_aur() {
     local pkg="$1"
     local aur_helper
-    
+
     aur_helper=$(get_aur_helper)
     if [ "$aur_helper" = "none" ]; then
         log "error" "No AUR helper found (yay or paru required)"
@@ -126,7 +126,7 @@ install_package_aur() {
 install_packages_aur() {
     local packages=("$@")
     local aur_helper
-    
+
     aur_helper=$(get_aur_helper)
     if [ "$aur_helper" = "none" ]; then
         log "error" "No AUR helper found (yay or paru required)"
@@ -160,7 +160,7 @@ uninstall_package() {
 # Enable and start a systemd service
 enable_service() {
     local service="$1"
-    
+
     log "info" "Enabling service: ${C_ACCENT}${service}${RESET}"
     if sudo systemctl enable --now "$service" &>/dev/null; then
         log "success" "Service ${C_ACCENT}${service}${RESET} enabled and started"
@@ -170,3 +170,4 @@ enable_service() {
         return 1
     fi
 }
+

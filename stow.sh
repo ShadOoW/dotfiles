@@ -169,13 +169,13 @@ backup_item() {
 # Function to unstow all packages
 unstow_all_packages() {
     log "info" "Unstowing all packages before stowing again"
-    
+
     # Get list of packages (directories in STOW_DIR)
     local packages=()
     while IFS= read -r -d '' pkg; do
         packages+=($(basename "$pkg"))
     done < <(find "$STOW_DIR" -mindepth 1 -maxdepth 1 -type d -print0)
-    
+
     # Process each package
     for package in "${packages[@]}"; do
         # Determine target directory based on package name
@@ -216,11 +216,11 @@ unstow_all_packages() {
                 if [[ "$(basename "$file")" == "setup.sh" ]]; then
                     continue
                 fi
-                
+
                 # Get the relative path from the package directory
                 local rel_path="${file#$package_dir/}"
                 local target_file="$target_dir/$rel_path"
-                
+
                 # Check if the target is a symlink pointing to our stow dir
                 if [[ -L "$target_file" ]]; then
                     local link_target=$(readlink "$target_file")
@@ -316,7 +316,7 @@ process_package() {
             if [[ "$(basename "$file")" == "setup.sh" ]]; then
                 continue
             fi
-            
+
             # Get the relative path from the package directory
             local rel_path="${file#$package_dir/}"
             local target_file="$target_dir/$rel_path"
@@ -360,33 +360,33 @@ process_package() {
 replace_username() {
     local new_username="$1"
     local old_username="shad"
-    
+
     log "info" "Searching for hardcoded username '$old_username' in $STOW_DIR"
     log "info" "Will replace with: $new_username"
-    
+
     # Find all text files and replace the username
     log "info" "Searching for files containing '$old_username'..."
-    
+
     # Count of files modified
     local modified_files=0
-    
+
     # Find files containing the old username
     local matched_files=$(grep -l -r "$old_username" "$STOW_DIR" 2>/dev/null || true)
-    
+
     if [ -z "$matched_files" ]; then
         log "info" "No files containing '$old_username' were found"
         return
     fi
-    
+
     echo "$matched_files" | while read -r file; do
         # Skip binary files and non-regular files
         if [ ! -f "$file" ] || [ -z "$(file --mime "$file" | grep -E 'text|empty')" ]; then
             continue
         fi
-        
+
         # Create backup file
         cp "$file" "${file}.bak"
-        
+
         # Replace username
         if sed -i "s|$old_username|$new_username|g" "$file"; then
             # Count occurrences of old username in the file
@@ -403,13 +403,13 @@ replace_username() {
             # Restore backup on failure
             mv "${file}.bak" "$file"
         fi
-        
+
         # Remove backup file if it still exists
         if [ -f "${file}.bak" ]; then
             rm "${file}.bak"
         fi
     done
-    
+
     log "success" "Username replacement completed. Modified $modified_files files."
 }
 
@@ -419,9 +419,9 @@ run_setup_scripts() {
         log "info" "No setup scripts to run"
         return
     fi
-    
+
     log "info" "Running setup scripts..."
-    
+
     for script in "${SETUP_SCRIPTS[@]}"; do
         log "info" "Executing setup script: $script"
         if ! "$script"; then
@@ -465,3 +465,4 @@ main() {
 
 # Run the main function
 main
+

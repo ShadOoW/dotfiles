@@ -1,6 +1,20 @@
 -- Keymaps configuration
 local keymap = require('utils.keymap')
 
+-- Disable useless buffer that opens often when trying to do :q
+vim.keymap.set('n', 'q:', '<Nop>', {
+  noremap = true,
+  silent = true,
+})
+vim.keymap.set('n', 'q/', '<Nop>', {
+  noremap = true,
+  silent = true,
+})
+vim.keymap.set('n', 'q?', '<Nop>', {
+  noremap = true,
+  silent = true,
+})
+
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 keymap.n('<Esc>', '<cmd>nohlsearch<CR>', 'Clear search highlights')
@@ -42,11 +56,11 @@ keymap.n('<leader><Left>', '<cmd>bprevious<CR>', 'Previous buffer')
 
 -- LSP Goto keymaps
 keymap.n('<leader>ga', vim.lsp.buf.code_action, 'Code Action')
-keymap.n('<leader>gr', function() require('telescope.builtin').lsp_references() end, 'List References')
-keymap.n('<leader>gi', function() require('telescope.builtin').lsp_implementations() end, 'List Implementations')
-keymap.n('<leader>gd', function() require('telescope.builtin').lsp_definitions() end, 'List Definitions')
+keymap.n('<leader>gr', function() require('fzf-lua').lsp_references() end, 'List References')
+keymap.n('<leader>gi', function() require('fzf-lua').lsp_implementations() end, 'List Implementations')
+keymap.n('<leader>gd', function() require('fzf-lua').lsp_definitions() end, 'List Definitions')
 keymap.n('<leader>gD', vim.lsp.buf.declaration, 'Goto Declaration')
-keymap.n('<leader>gt', function() require('telescope.builtin').lsp_type_definitions() end, 'List Type Definitions')
+keymap.n('<leader>gt', function() require('fzf-lua').lsp_typedefs() end, 'List Type Definitions')
 keymap.n('<leader>gr', '<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol')
 keymap.n('<leader>gh', '<cmd>lua vim.lsp.buf.hover()<cr>', 'Hover documentation')
 
@@ -57,10 +71,6 @@ keymap.v('>', '>gv', 'Indent line')
 -- Move lines up and down
 keymap.v('J', ':m \'>+1<CR>gv=gv', 'Move selection down')
 keymap.v('K', ':m \'<-2<CR>gv=gv', 'Move selection up')
-
--- Search and replace current word
-keymap.n('<leader>sr', ':%s/<C-r><C-w>//g<Left><Left>', 'Word under cursor')
-keymap.n('<leader>sm', '<cmd>NoiceTelescope<cr>', 'Noice messages')
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Function Keys - Optimized for Development Workflow
@@ -84,8 +94,6 @@ keymap.n('<F6>', function()
     minifiles.open()
   end
 end, 'Open file explorer')
--- F7 removed - use <leader>sf for find files
-keymap.n('<F8>', '<cmd>Telescope live_grep<CR>', 'Live grep')
 
 -- F9-F12: Development Tools & Advanced Features
 keymap.n('<F10>', '<cmd>Trouble diagnostics toggle<CR>', 'Toggle diagnostics')
@@ -108,10 +116,10 @@ keymap.n('<S-F4>', '<cmd>tabclose<CR>', 'Close tab')
 
 keymap.n('<S-F5>', '<cmd>wall<CR>', 'Save all files')
 keymap.n('<S-F6>', '<cmd>source %<CR>', 'Source current file')
-keymap.n('<S-F7>', '<cmd>Telescope git_files<CR>', 'Git files (also <leader>hf)')
-keymap.n('<S-F8>', '<cmd>Telescope grep_string<CR>', 'Grep word under cursor')
+keymap.n('<S-F7>', function() require('fzf-lua').git_files() end, 'Git files (also <leader>hf)')
+keymap.n('<S-F8>', function() require('fzf-lua').grep_cword() end, 'Grep word under cursor')
 
-keymap.n('<S-F9>', '<cmd>Telescope quickfix<CR>', 'Quickfix list')
+keymap.n('<S-F9>', function() require('fzf-lua').quickfix() end, 'Quickfix list')
 keymap.n('<S-F10>', '<cmd>lua vim.diagnostic.open_float()<CR>', 'Show diagnostics')
 keymap.n('<S-F11>', '<cmd>split | terminal<CR>', 'Split terminal')
 keymap.n('<S-F12>', '<cmd>lua vim.lsp.buf.hover()<CR>', 'LSP hover')
@@ -274,38 +282,14 @@ keymap.n('<leader>hD', function() require('gitsigns').diffthis('~') end, '[H]unk
 
 keymap.n('<leader>htd', function() require('gitsigns').toggle_deleted() end, '[H]unk [T]oggle [D]eleted')
 
--- Git File Operations (from Telescope)
-keymap.n(
-  '<leader>hf',
-  function()
-    require('telescope.builtin').git_files(require('telescope.themes').get_dropdown({
-      previewer = false,
-    }))
-  end,
-  '[H]unk Git [F]iles'
-)
+-- Git File Operations (migrated to fzf-lua)
+keymap.n('<leader>hf', function() require('fzf-lua').git_files() end, 'Git Files')
 
-keymap.n(
-  '<leader>hc',
-  function() require('telescope.builtin').git_commits(require('telescope.themes').get_ivy()) end,
-  '[H]unk Git [C]ommits'
-)
+keymap.n('<leader>hc', function() require('fzf-lua').git_commits() end, 'Git Commits')
 
-keymap.n(
-  '<leader>hB',
-  function()
-    require('telescope.builtin').git_branches(require('telescope.themes').get_dropdown({
-      previewer = false,
-    }))
-  end,
-  '[H]unk Git [B]ranches'
-)
+keymap.n('<leader>hB', function() require('fzf-lua').git_branches() end, 'Git Branches')
 
-keymap.n(
-  '<leader>hst',
-  function() require('telescope.builtin').git_status(require('telescope.themes').get_ivy()) end,
-  '[H]unk Git [St]atus'
-)
+keymap.n('<leader>hst', function() require('fzf-lua').git_status() end, 'Git Status')
 
 -- Buffer management (from hbac.lua)
 keymap.n('<leader>fW', function() require('hbac').close_unpinned() end, 'Close all unpinned buffers')

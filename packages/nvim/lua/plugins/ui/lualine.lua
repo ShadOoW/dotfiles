@@ -1,127 +1,204 @@
+-- Enhanced statusline configuration
+-- Provides modern, contextual status information with clean design
 return {
   'nvim-lualine/lualine.nvim',
-  dependencies = { 'nvim-tree/nvim-web-devicons' },
+  dependencies = { 'nvim-tree/nvim-web-devicons', 'rcarriga/nvim-notify' },
+  event = 'VeryLazy',
   config = function()
-    -- Get colors from Tokyo Night theme to match tmux
-    local colors = {
-      bg = '#1a1b26',
-      fg = '#c0caf5',
-      yellow = '#e0af68',
-      cyan = '#7dcfff',
-      darkblue = '#7aa2f7',
-      green = '#9ece6a',
-      orange = '#ff9e64',
-      violet = '#bb9af7',
-      magenta = '#bb9af7',
-      blue = '#7aa2f7',
-      red = '#f7768e',
-      bg_highlight = '#292e42',
-      terminal_black = '#414868',
+    local lualine = require('lualine')
+
+    local function build_status()
+      local overseer_available, overseer = pcall(require, 'overseer')
+      if not overseer_available then return '' end
+
+      local tasks = overseer.list_tasks({
+        recent_first = true,
+      })
+      for _, task in ipairs(tasks) do
+        if task.status == overseer.STATUS.RUNNING then
+          return '🔨 Building...'
+        elseif task.status == overseer.STATUS.SUCCESS then
+          return '✅ Build OK'
+        elseif task.status == overseer.STATUS.FAILURE then
+          return '❌ Build Failed'
+        end
+      end
+      return ''
+    end
+
+    local function get_project_name()
+      local cwd = vim.fn.getcwd()
+      local project_name = vim.fn.fnamemodify(cwd, ':t')
+
+      -- Java projects with Gradle
+      if vim.fn.filereadable(cwd .. '/build.gradle') == 1 or vim.fn.filereadable(cwd .. '/settings.gradle') == 1 then
+        return ' ' .. project_name
+      end
+
+      -- Java projects with Maven
+      if vim.fn.filereadable(cwd .. '/pom.xml') == 1 then return ' ' .. project_name end
+
+      -- Node.js projects
+      if vim.fn.filereadable(cwd .. '/package.json') == 1 then return ' ' .. project_name end
+
+      -- Rust projects
+      if vim.fn.filereadable(cwd .. '/Cargo.toml') == 1 then return ' ' .. project_name end
+
+      -- Python projects
+      if
+        vim.fn.filereadable(cwd .. '/pyproject.toml') == 1
+        or vim.fn.filereadable(cwd .. '/setup.py') == 1
+        or vim.fn.filereadable(cwd .. '/requirements.txt') == 1
+      then
+        return ' ' .. project_name
+      end
+
+      -- Git repositories
+      if vim.fn.isdirectory(cwd .. '/.git') == 1 then return ' ' .. project_name end
+
+      return ' ' .. project_name
+    end
+
+    local function get_lsp_status()
+      local clients = vim.lsp.get_clients({
+        bufnr = 0,
+      })
+      if #clients == 0 then return '' end
+
+      local client_names = {}
+      for _, client in pairs(clients) do
+        table.insert(client_names, client.name)
+      end
+
+      return ' ' .. table.concat(client_names, ', ')
+    end
+
+    local function get_tag_status()
+      local tag_file = vim.fn.expand('%:p:h') .. '/tags'
+      if vim.fn.filereadable(tag_file) == 1 then
+        local mtime = vim.fn.getftime(tag_file)
+        local current_time = os.time()
+        local age = current_time - mtime
+
+        -- If tags are older than 1 hour, show updating status
+        if age > 3600 then
+          return ' Updating...'
+        else
+          return ' Tags Ready'
+        end
+      end
+      return ''
+    end
+
+    local function java_version()
+      if vim.bo.filetype == 'java' then return ' Java' end
+      return ''
+    end
+
+    -- Custom theme with modern colors
+    local custom_theme = {
+      normal = {
+        a = {
+          fg = '#1e1e2e',
+          bg = '#89b4fa',
+          gui = 'bold',
+        },
+        b = {
+          fg = '#cdd6f4',
+          bg = '#313244',
+        },
+        c = {
+          fg = '#bac2de',
+          bg = '#1e1e2e',
+        },
+      },
+      insert = {
+        a = {
+          fg = '#1e1e2e',
+          bg = '#a6e3a1',
+          gui = 'bold',
+        },
+        b = {
+          fg = '#cdd6f4',
+          bg = '#313244',
+        },
+        c = {
+          fg = '#bac2de',
+          bg = '#1e1e2e',
+        },
+      },
+      visual = {
+        a = {
+          fg = '#1e1e2e',
+          bg = '#f9e2af',
+          gui = 'bold',
+        },
+        b = {
+          fg = '#cdd6f4',
+          bg = '#313244',
+        },
+        c = {
+          fg = '#bac2de',
+          bg = '#1e1e2e',
+        },
+      },
+      replace = {
+        a = {
+          fg = '#1e1e2e',
+          bg = '#f38ba8',
+          gui = 'bold',
+        },
+        b = {
+          fg = '#cdd6f4',
+          bg = '#313244',
+        },
+        c = {
+          fg = '#bac2de',
+          bg = '#1e1e2e',
+        },
+      },
+      command = {
+        a = {
+          fg = '#1e1e2e',
+          bg = '#cba6f7',
+          gui = 'bold',
+        },
+        b = {
+          fg = '#cdd6f4',
+          bg = '#313244',
+        },
+        c = {
+          fg = '#bac2de',
+          bg = '#1e1e2e',
+        },
+      },
+      inactive = {
+        a = {
+          fg = '#6c7086',
+          bg = '#313244',
+        },
+        b = {
+          fg = '#6c7086',
+          bg = '#313244',
+        },
+        c = {
+          fg = '#6c7086',
+          bg = '#1e1e2e',
+        },
+      },
     }
 
-    local conditions = {
-      buffer_not_empty = function() return vim.fn.empty(vim.fn.expand('%:t')) ~= 1 end,
-      hide_in_width = function() return vim.fn.winwidth(0) > 80 end,
-      check_git_workspace = function()
-        local filepath = vim.fn.expand('%:p:h')
-        local gitdir = vim.fn.finddir('.git', filepath .. ';')
-        return gitdir and #gitdir > 0 and #gitdir < #filepath
-      end,
-    }
-
-    local config = {
+    lualine.setup({
       options = {
-        component_separators = '',
+        theme = custom_theme,
+        component_separators = {
+          left = '',
+          right = '',
+        },
         section_separators = {
           left = '',
           right = '',
         },
-        theme = {
-          normal = {
-            a = {
-              fg = colors.bg,
-              bg = colors.blue,
-              gui = 'bold',
-            },
-            b = {
-              fg = colors.fg,
-              bg = colors.bg_highlight,
-            },
-            c = {
-              fg = colors.fg,
-              bg = colors.bg,
-            },
-            z = {
-              fg = colors.fg,
-              bg = colors.bg_highlight,
-            },
-          },
-          insert = {
-            a = {
-              fg = colors.bg,
-              bg = colors.green,
-              gui = 'bold',
-            },
-            b = {
-              fg = colors.fg,
-              bg = colors.bg_highlight,
-            },
-            c = {
-              fg = colors.fg,
-              bg = colors.bg,
-            },
-          },
-          visual = {
-            a = {
-              fg = colors.bg,
-              bg = colors.magenta,
-              gui = 'bold',
-            },
-            b = {
-              fg = colors.fg,
-              bg = colors.bg_highlight,
-            },
-            c = {
-              fg = colors.fg,
-              bg = colors.bg,
-            },
-          },
-          command = {
-            a = {
-              fg = colors.bg,
-              bg = colors.orange,
-              gui = 'bold',
-            },
-            b = {
-              fg = colors.fg,
-              bg = colors.bg_highlight,
-            },
-            c = {
-              fg = colors.fg,
-              bg = colors.bg,
-            },
-          },
-          inactive = {
-            a = {
-              fg = colors.fg,
-              bg = colors.terminal_black,
-            },
-            b = {
-              fg = colors.fg,
-              bg = colors.bg,
-            },
-            c = {
-              fg = colors.fg,
-              bg = colors.bg,
-            },
-          },
-        },
-        disabled_filetypes = {
-          statusline = {},
-          winbar = {},
-        },
-        ignore_focus = {},
-        always_divide_middle = true,
         globalstatus = true,
         refresh = {
           statusline = 1000,
@@ -133,105 +210,13 @@ return {
         lualine_a = {
           {
             'mode',
-            separator = {
-              left = '',
-            },
-            right_padding = 2,
+            fmt = function(str) return str:sub(1, 1) end,
           },
         },
         lualine_b = {
           {
-            'filename',
-            file_status = true,
-            newfile_status = true,
-            path = 1,
-            symbols = {
-              modified = '', -- Hide default indicator, we'll use custom one
-              readonly = '', -- Hide default indicator, we'll use custom one
-              unnamed = '[No Name]',
-              newfile = '', -- Hide default indicator, we'll use custom one
-            },
-          },
-          {
-            -- Modified file indicator with nerd font icon
-            function()
-              if vim.bo.modified then
-                return '●' -- Green circle for modified
-              elseif vim.bo.readonly then
-                return '●' -- Red circle for readonly
-              elseif vim.fn.expand('%:t') == '' and vim.bo.buftype == '' then
-                return '●' -- Blue circle for new file
-              end
-              return ''
-            end,
-            color = function()
-              if vim.bo.modified then
-                return {
-                  fg = colors.green, -- Green for modified
-                  bg = colors.bg_highlight,
-                  gui = 'bold',
-                }
-              elseif vim.bo.readonly then
-                return {
-                  fg = colors.red, -- Red for readonly
-                  bg = colors.bg_highlight,
-                  gui = 'bold',
-                }
-              elseif vim.fn.expand('%:t') == '' and vim.bo.buftype == '' then
-                return {
-                  fg = colors.blue, -- Blue for new file
-                  bg = colors.bg_highlight,
-                  gui = 'bold',
-                }
-              end
-              return {
-                fg = colors.fg,
-                bg = colors.bg,
-              }
-            end,
-            separator = '',
-          },
-          {
-            -- HBAC Pin status indicator
-            function()
-              local cur_buf = vim.api.nvim_get_current_buf()
-              local ok, hbac_state = pcall(require, 'hbac.state')
-              if ok and hbac_state.is_pinned(cur_buf) then return '󰐃' end
-              return ''
-            end,
-            color = function()
-              local cur_buf = vim.api.nvim_get_current_buf()
-              local ok, hbac_state = pcall(require, 'hbac.state')
-              if ok and hbac_state.is_pinned(cur_buf) then
-                return {
-                  fg = colors.green, -- Green for pinned (more positive feel)
-                  bg = colors.bg_highlight,
-                  gui = 'bold,italic',
-                }
-              end
-              return {
-                fg = colors.fg,
-                bg = colors.bg,
-              }
-            end,
-            separator = {
-              left = '',
-              right = '',
-            },
-            cond = function()
-              local ok, _ = pcall(require, 'hbac.state')
-              return ok
-            end,
-          },
-        },
-        lualine_c = {
-          {
             'branch',
             icon = '',
-            color = {
-              fg = colors.violet,
-              gui = 'bold',
-            },
           },
           {
             'diff',
@@ -240,21 +225,76 @@ return {
               modified = ' ',
               removed = ' ',
             },
-            diff_color = {
-              added = {
-                fg = colors.green,
-              },
-              modified = {
-                fg = colors.orange,
-              },
-              removed = {
-                fg = colors.red,
-              },
+          },
+        },
+        lualine_c = {
+          {
+            get_project_name,
+            color = {
+              fg = '#89b4fa',
+              gui = 'bold',
             },
-            cond = conditions.hide_in_width,
+          },
+          {
+            'filename',
+            path = 1,
+            symbols = {
+              modified = ' ●',
+              readonly = ' ',
+              unnamed = '[No Name]',
+            },
           },
         },
         lualine_x = {
+          {
+            build_status,
+            color = function()
+              local status = build_status()
+              if status:match('Building') then
+                return {
+                  fg = '#f9e2af',
+                }
+              elseif status:match('OK') then
+                return {
+                  fg = '#a6e3a1',
+                }
+              elseif status:match('Failed') then
+                return {
+                  fg = '#f38ba8',
+                }
+              end
+              return {
+                fg = '#cdd6f4',
+              }
+            end,
+          },
+          {
+            get_tag_status,
+            color = function()
+              local status = get_tag_status()
+              if status:match('Updating') then
+                return {
+                  fg = '#f9e2af',
+                }
+              else
+                return {
+                  fg = '#a6e3a1',
+                }
+              end
+            end,
+          },
+          {
+            java_version,
+            color = {
+              fg = '#fab387',
+            },
+          },
+          {
+            get_lsp_status,
+            color = {
+              fg = '#89b4fa',
+            },
+          },
           {
             'diagnostics',
             sources = { 'nvim_diagnostic' },
@@ -262,88 +302,36 @@ return {
               error = ' ',
               warn = ' ',
               info = ' ',
-            },
-            diagnostics_color = {
-              color_error = {
-                fg = colors.red,
-              },
-              color_warn = {
-                fg = colors.yellow,
-              },
-              color_info = {
-                fg = colors.cyan,
-              },
-            },
-          },
-          {
-            function()
-              local buf_ft = vim.api.nvim_buf_get_option(0, 'filetype')
-              local clients = vim.lsp.get_clients({
-                bufnr = 0,
-              })
-
-              if next(clients) == nil then return 'No LSP' end
-
-              -- Get all active LSP client names for current buffer
-              local client_names = {}
-              for _, client in pairs(clients) do
-                if client.attached_buffers[vim.api.nvim_get_current_buf()] then
-                  table.insert(client_names, client.name)
-                end
-              end
-
-              if #client_names == 0 then
-                return 'No LSP'
-              elseif #client_names == 1 then
-                return client_names[1]
-              else
-                -- Show multiple LSPs, truncate if too many
-                local display_names = client_names
-                if #client_names > 3 then
-                  display_names = { client_names[1], client_names[2], client_names[3] }
-                  return table.concat(display_names, ',') .. '+' .. (#client_names - 3)
-                else
-                  return table.concat(client_names, ',')
-                end
-              end
-            end,
-            icon = ' LSP:',
-            color = {
-              fg = colors.violet,
-              gui = 'bold',
+              hint = ' ',
             },
           },
         },
         lualine_y = {
           {
-            'filetype',
-            colored = true,
-            icon_only = false,
-            icon = {
-              align = 'right',
-            },
+            'encoding',
+            fmt = function(str) return str:upper() end,
+          },
+          {
+            function()
+              local format = vim.bo.fileformat
+              if format == 'unix' then
+                return ' '
+              elseif format == 'dos' then
+                return ' '
+              elseif format == 'mac' then
+                return ' '
+              else
+                return format
+              end
+            end,
             color = {
-              fg = colors.green,
+              fg = '#89b4fa',
               gui = 'bold',
             },
           },
-          {
-            'progress',
-            color = {
-              fg = colors.fg,
-              gui = 'bold',
-            },
-          },
+          'filetype',
         },
-        lualine_z = {
-          {
-            'location',
-            separator = {
-              right = '',
-            },
-            left_padding = 2,
-          },
-        },
+        lualine_z = { 'progress', 'location' },
       },
       inactive_sections = {
         lualine_a = {},
@@ -356,9 +344,30 @@ return {
       tabline = {},
       winbar = {},
       inactive_winbar = {},
-      extensions = {},
-    }
+      extensions = { 'nvim-tree', 'toggleterm', 'quickfix', 'fugitive' },
+    })
 
-    require('lualine').setup(config)
+    -- Auto-refresh statusline when overseer tasks change
+    local overseer_group = vim.api.nvim_create_augroup('StatuslineOverseer', {
+      clear = true,
+    })
+    vim.api.nvim_create_autocmd('User', {
+      pattern = { 'OverseerTaskUpdate', 'OverseerTaskComplete' },
+      group = overseer_group,
+      callback = function() vim.cmd('redrawstatus') end,
+    })
+
+    -- Auto-refresh when LSP attaches/detaches
+    local lsp_group = vim.api.nvim_create_augroup('StatuslineLSP', {
+      clear = true,
+    })
+    vim.api.nvim_create_autocmd('LspAttach', {
+      group = lsp_group,
+      callback = function() vim.cmd('redrawstatus') end,
+    })
+    vim.api.nvim_create_autocmd('LspDetach', {
+      group = lsp_group,
+      callback = function() vim.cmd('redrawstatus') end,
+    })
   end,
 }

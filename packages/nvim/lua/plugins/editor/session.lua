@@ -170,6 +170,39 @@ return {
           vim.cmd('Neotree filesystem reveal')
         end
 
+        -- Restore sidebar state AFTER session is fully loaded
+        -- Use a different approach to avoid conflicts with session restoration
+        vim.defer_fn(function()
+          if vim.g.sidebar_was_open then
+            -- Wait for session to be fully restored first
+            vim.schedule(function()
+              vim.defer_fn(function()
+                -- Check if sidebar is already open
+                local sidebar_open = false
+                for _, win in ipairs(vim.api.nvim_list_wins()) do
+                  local buf = vim.api.nvim_win_get_buf(win)
+                  if vim.api.nvim_buf_is_valid(buf) then
+                    local ok, ft = pcall(vim.api.nvim_get_option_value, 'filetype', {
+                      buf = buf,
+                    })
+                    if ok and ft == 'Sidebar' then
+                      sidebar_open = true
+                      break
+                    end
+                  end
+                end
+
+                -- Only open if not already open
+                if not sidebar_open then
+                  pcall(require('sidebar-nvim').open)
+                  -- Force update after opening
+                  vim.defer_fn(function() pcall(require('sidebar-nvim').update) end, 100)
+                end
+              end, 300) -- Longer delay to ensure session is fully loaded
+            end)
+          end
+        end, 500) -- Even longer initial delay
+
         -- Refresh any LSP diagnostics
         vim.diagnostic.reset()
         vim.schedule(function()

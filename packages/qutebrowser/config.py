@@ -46,7 +46,7 @@ c.qt.args = ['--disable-crash-reporter', '--disable-logging', '--silent']
 try:
     c.content.blocking.enabled = True
     c.content.blocking.method = 'both'
-    
+
     # AdBlock lists (only set if adblock is available)
     c.content.blocking.adblock.lists = [
         'https://easylist.to/easylist/easylist.txt',
@@ -340,5 +340,5 @@ c.completion.cmd_history_max_items = 100
 config_dir = os.path.expanduser('~/.config/qutebrowser')
 local_config = os.path.join(config_dir, 'local_config.py')
 if os.path.exists(local_config):
-    config.source(local_config) 
- 
+    config.source(local_config)
+

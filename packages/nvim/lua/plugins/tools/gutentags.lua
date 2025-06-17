@@ -192,18 +192,18 @@ return {
       desc = 'List tag matches',
     })
 
-    -- Enhanced tag jumping with telescope integration
+    -- Enhanced tag jumping with fzf-lua integration
     vim.keymap.set('n', '<leader>tj', function()
       local word = vim.fn.expand('<cword>')
       if word ~= '' then
-        require('telescope.builtin').tags({
-          default_text = word,
+        require('fzf-lua').tags({
+          query = word,
         })
       else
-        require('telescope.builtin').tags()
+        require('fzf-lua').tags()
       end
     end, {
-      desc = 'Jump to tag (Telescope)',
+      desc = 'Jump to tag (fzf-lua)',
     })
   end,
 }

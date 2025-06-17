@@ -2,7 +2,7 @@
 return {
   'gbprod/yanky.nvim',
   event = 'VeryLazy',
-  dependencies = { 'nvim-telescope/telescope.nvim' },
+  dependencies = { 'ibhagwan/fzf-lua' },
   config = function()
     -- Basic yanky setup without telescope-specific options
     require('yanky').setup({
@@ -47,10 +47,47 @@ return {
       desc = 'Cycle backward through yank history',
     })
 
-    -- Load telescope extension if available
-    vim.defer_fn(function()
-      local status_ok, telescope = pcall(require, 'telescope')
-      if status_ok then pcall(function() telescope.load_extension('yank_history') end) end
-    end, 200)
+    -- Add fzf-lua yank history picker
+    vim.keymap.set('n', '<leader>zy', function()
+      local yanky = require('yanky')
+      local history = yanky.history()
+
+      if vim.tbl_isempty(history) then
+        vim.notify('Yank history is empty', vim.log.levels.INFO)
+        return
+      end
+
+      local entries = {}
+      for i, entry in ipairs(history) do
+        local content = entry.regcontents[1] or ''
+        -- Limit line length and show line count if multiline
+        local display = content:gsub('\n', '\\n'):sub(1, 80)
+        if #entry.regcontents > 1 then display = display .. string.format(' (%d lines)', #entry.regcontents) end
+        table.insert(entries, string.format('%d: %s', i, display))
+      end
+
+      require('fzf-lua').fzf_exec(entries, {
+        prompt = '󰄾 Yank History❯ ',
+        winopts = {
+          title = ' 󰄾 Yank History ',
+          title_pos = 'center',
+        },
+        actions = {
+          ['default'] = function(selected)
+            if selected and #selected > 0 then
+              local entry = selected[1]
+              local index = tonumber(entry:match('^(%d+):'))
+              if index and history[index] then
+                yanky.put('p', {
+                  regcontents = history[index].regcontents,
+                })
+              end
+            end
+          end,
+        },
+      })
+    end, {
+      desc = 'Yank History (fzf-lua)',
+    })
   end,
 }

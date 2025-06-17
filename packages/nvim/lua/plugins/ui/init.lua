@@ -2,6 +2,7 @@
 return {
   require('plugins.ui.tokyonight'),
   require('plugins.ui.onedark'),
+  require('plugins.ui.notify'),
   require('plugins.ui.lualine'),
   require('plugins.ui.mini-modules'),
   require('plugins.ui.enhanced-tabline'),
@@ -15,7 +16,8 @@ return {
   require('plugins.ui.cursorline'),
   require('plugins.ui.beacon'),
   require('plugins.ui.modes'),
-  require('plugins.ui.hlchunk'),
-  require('plugins.ui.statusline'),
-  require('plugins.ui.dropbar'),
+  require('plugins.ui.indent-blankline'),
+  require('plugins.ui.matchparen'),
+  require('plugins.ui.nvim-navic'),
+  require('plugins.ui.sidebar'),
 }

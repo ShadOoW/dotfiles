@@ -1,20 +1,21 @@
--- Project switcher with recent projects tracking
+-- Project Switcher - Modern project management with fzf-lua
+-- Fast project switching with automatic detection and beautiful UI
 return {
   'ahmedkhalf/project.nvim',
-  dependencies = { 'nvim-telescope/telescope.nvim', 'rcarriga/nvim-notify' },
+  dependencies = { 'ibhagwan/fzf-lua', 'rcarriga/nvim-notify' },
   event = 'VeryLazy',
   config = function()
     local project = require('project_nvim')
 
+    -- Configure project detection
     project.setup({
       -- Manual mode doesn't automatically change your root directory, so you have
       -- the option to manually do so using `:ProjectRoot` command.
       manual_mode = false,
 
-      -- Methods of detecting the root directory. **"lsp"** uses the native neovim
-      -- lsp, while **"pattern"** uses vim-rooter like glob pattern matching. Here
-      -- order matters: if one is not detected, the other is used as fallback. You
-      -- can also delete or rearangne the detection methods.
+      -- Methods of detecting the root directory. The order matters: if one is not
+      -- detected, the other is used as fallback. You can also delete or rearangne the
+      -- detection methods.
       detection_methods = { 'lsp', 'pattern' },
 
       -- All the patterns used to detect root dir, when **"pattern"** is in
@@ -49,14 +50,13 @@ return {
       },
 
       -- Table of lsp clients to ignore by name
-      -- eg: { "efm", ... }
       ignore_lsp = {},
 
       -- Don't calculate root dir on specific directories
       -- Ex: { "~/.cargo/*", ... }
       exclude_dirs = { '~/.cargo/*', '~/.local/*', '~/.cache/*', '/tmp/*', '/var/*', '/usr/*', '/opt/*' },
 
-      -- Show hidden files in telescope
+      -- Show hidden files in fzf-lua file pickers
       show_hidden = false,
 
       -- When set to false, you will get a message when project.nvim changes your
@@ -70,14 +70,13 @@ return {
       scope_chdir = 'global',
 
       -- Path where project.nvim will store the project history for use in
-      -- telescope
+      -- fzf-lua
       datapath = vim.fn.stdpath('data'),
     })
 
-    -- Enhanced project switcher functionality
+    -- Enhanced project switcher module
     local M = {}
 
-    -- Custom project data storage
     local projects_file = vim.fn.stdpath('data') .. '/recent_projects.json'
 
     -- Load recent projects from file
@@ -97,13 +96,10 @@ return {
     -- Save recent projects to file
     local function save_recent_projects(projects)
       local file = io.open(projects_file, 'w')
-      if not file then
-        require('utils.notify').error('Failed to save recent projects')
-        return
+      if file then
+        file:write(vim.json.encode(projects))
+        file:close()
       end
-
-      file:write(vim.json.encode(projects))
-      file:close()
     end
 
     -- Add project to recent list
@@ -118,7 +114,7 @@ return {
         end
       end
 
-      -- Add to beginning
+      -- Add to front of list
       table.insert(projects, 1, {
         path = path,
         name = name or vim.fn.fnamemodify(path, ':t'),
@@ -126,12 +122,8 @@ return {
         type = M.detect_project_type(path),
       })
 
-      -- Keep only last 20 projects
-      if #projects > 20 then
-        for i = 21, #projects do
-          projects[i] = nil
-        end
-      end
+      -- Limit to 20 recent projects
+      if #projects > 20 then table.remove(projects) end
 
       save_recent_projects(projects)
     end
@@ -142,72 +134,72 @@ return {
         {
           pattern = 'build.gradle',
           type = 'gradle',
-          icon = '📦',
+          icon = '󱁩',
         },
         {
           pattern = 'build.gradle.kts',
           type = 'gradle',
-          icon = '📦',
+          icon = '󱁩',
         },
         {
           pattern = 'settings.gradle',
           type = 'gradle',
-          icon = '📦',
+          icon = '󱁩',
         },
         {
           pattern = 'settings.gradle.kts',
           type = 'gradle',
-          icon = '📦',
+          icon = '󱁩',
         },
         {
           pattern = 'pom.xml',
           type = 'maven',
-          icon = '📦',
+          icon = '󰯂',
         },
         {
           pattern = 'package.json',
           type = 'node',
-          icon = '📦',
+          icon = '󰎙',
         },
         {
           pattern = 'Cargo.toml',
           type = 'rust',
-          icon = '🦀',
+          icon = '󱘗',
         },
         {
           pattern = 'pyproject.toml',
           type = 'python',
-          icon = '🐍',
+          icon = '󰌠',
         },
         {
           pattern = 'setup.py',
           type = 'python',
-          icon = '🐍',
+          icon = '󰌠',
         },
         {
           pattern = 'requirements.txt',
           type = 'python',
-          icon = '🐍',
+          icon = '󰌠',
         },
         {
           pattern = 'go.mod',
           type = 'go',
-          icon = '🐹',
+          icon = '󰟓',
         },
         {
           pattern = 'CMakeLists.txt',
           type = 'cmake',
-          icon = '🔧',
+          icon = '󰙲',
         },
         {
           pattern = 'meson.build',
           type = 'meson',
-          icon = '🔧',
+          icon = '󰙲',
         },
         {
           pattern = '.git',
           type = 'git',
-          icon = '📁',
+          icon = '󰊢',
         },
       }
 
@@ -225,77 +217,98 @@ return {
 
       return {
         type = 'unknown',
-        icon = '📁',
+        icon = '󰝰',
       }
     end
 
-    -- Enhanced telescope project picker
-    function M.telescope_projects()
-      local telescope = require('telescope')
-      local pickers = require('telescope.pickers')
-      local finders = require('telescope.finders')
-      local conf = require('telescope.config').values
-      local actions = require('telescope.actions')
-      local action_state = require('telescope.actions.state')
-      local themes = require('telescope.themes')
-
+    -- Main project picker using fzf-lua
+    function M.project_picker()
       local recent_projects = load_recent_projects()
-
-      -- Format projects for display
-      local formatted_projects = {}
-      for _, proj in ipairs(recent_projects) do
-        local display = string.format('%s %s (%s)', proj.type.icon, proj.name, vim.fn.fnamemodify(proj.path, ':~'))
-        table.insert(formatted_projects, {
-          display = display,
-          path = proj.path,
-          name = proj.name,
-          type = proj.type,
-          last_accessed = proj.last_accessed,
-        })
+      if vim.tbl_isempty(recent_projects) then
+        vim.notify('No recent projects found', vim.log.levels.INFO)
+        return
       end
 
-      pickers
-        .new(themes.get_ivy({
-          prompt_title = '🚀 Recent Projects',
-          finder = finders.new_table({
-            results = formatted_projects,
-            entry_maker = function(entry)
-              return {
-                value = entry,
-                display = entry.display,
-                ordinal = entry.name .. ' ' .. entry.path,
-              }
-            end,
-          }),
-          sorter = conf.generic_sorter({}),
-          attach_mappings = function(prompt_bufnr, map)
-            actions.select_default:replace(function()
-              local selection = action_state.get_selected_entry()
-              actions.close(prompt_bufnr)
+      -- Sort projects by last accessed time (most recent first)
+      table.sort(recent_projects, function(a, b) return a.last_accessed > b.last_accessed end)
 
-              if selection then M.switch_to_project(selection.value.path, selection.value.name) end
-            end)
+      local entries = {}
+      for _, proj in ipairs(recent_projects) do
+        local relative_path = vim.fn.fnamemodify(proj.path, ':~')
+        local entry = string.format('%s %s (%s)', proj.type.icon, proj.name, relative_path)
+        table.insert(entries, entry)
+      end
 
-            -- Add mapping to remove project from recent list
-            map('n', '<C-d>', function()
-              local selection = action_state.get_selected_entry()
-              if selection then
-                M.remove_recent_project(selection.value.path)
-                -- Refresh the picker
-                M.telescope_projects()
+      require('fzf-lua').fzf_exec(entries, {
+        prompt = '󰘬 Recent Projects❯ ',
+        winopts = {
+          title = ' 󰘬 Project Switcher ',
+          title_pos = 'center',
+        },
+        actions = {
+          ['default'] = function(selected)
+            if selected and #selected > 0 then
+              local entry = selected[1]
+              -- Find the matching project
+              for _, proj in ipairs(recent_projects) do
+                local relative_path = vim.fn.fnamemodify(proj.path, ':~')
+                local display = string.format('%s %s (%s)', proj.type.icon, proj.name, relative_path)
+                if display == entry then
+                  M.switch_to_project(proj.path, proj.name)
+                  break
+                end
               end
-            end)
-
-            return true
+            end
           end,
-        }))
-        :find()
+          ['ctrl-d'] = function(selected)
+            if selected and #selected > 0 then
+              local entry = selected[1]
+              -- Find the matching project and remove it
+              for _, proj in ipairs(recent_projects) do
+                local relative_path = vim.fn.fnamemodify(proj.path, ':~')
+                local display = string.format('%s %s (%s)', proj.type.icon, proj.name, relative_path)
+                if display == entry then
+                  M.remove_recent_project(proj.path)
+                  -- Reopen the picker
+                  vim.schedule(M.project_picker)
+                  break
+                end
+              end
+            end
+          end,
+          ['ctrl-e'] = function(selected)
+            if selected and #selected > 0 then
+              local entry = selected[1]
+              -- Find the matching project and open in file manager
+              for _, proj in ipairs(recent_projects) do
+                local relative_path = vim.fn.fnamemodify(proj.path, ':~')
+                local display = string.format('%s %s (%s)', proj.type.icon, proj.name, relative_path)
+                if display == entry then
+                  if vim.fn.has('mac') == 1 then
+                    vim.fn.jobstart({ 'open', proj.path }, {
+                      detach = true,
+                    })
+                  elseif vim.fn.has('unix') == 1 then
+                    vim.fn.jobstart({ 'xdg-open', proj.path }, {
+                      detach = true,
+                    })
+                  end
+                  break
+                end
+              end
+            end
+          end,
+        },
+        fzf_opts = {
+          ['--header'] = 'Enter=switch, Ctrl-d=remove, Ctrl-e=open in file manager',
+        },
+      })
     end
 
     -- Switch to project
     function M.switch_to_project(path, name)
       if vim.fn.isdirectory(path) == 0 then
-        require('utils.notify').error('Project directory does not exist: ' .. path)
+        vim.notify('Project directory does not exist: ' .. path, vim.log.levels.ERROR)
         return
       end
 
@@ -307,7 +320,15 @@ return {
 
       -- Notify user
       local project_type = M.detect_project_type(path)
-      require('utils.notify').project_switched(name or vim.fn.fnamemodify(path, ':t'), project_type.type)
+      vim.notify(
+        string.format(
+          'Switched to %s %s project: %s',
+          project_type.icon,
+          project_type.type,
+          name or vim.fn.fnamemodify(path, ':t')
+        ),
+        vim.log.levels.INFO
+      )
 
       -- Trigger project change events
       vim.api.nvim_exec_autocmds('User', {
@@ -327,74 +348,49 @@ return {
       end
 
       save_recent_projects(projects)
-      require('utils.notify').success('Removed project from recent list')
+      vim.notify('Removed project from recent list', vim.log.levels.INFO)
     end
 
-    -- Interactive project removal
+    -- Interactive project removal using fzf-lua
     function M.remove_project_interactive()
       local recent_projects = load_recent_projects()
       if #recent_projects == 0 then
-        require('utils.notify').warn('No recent projects to remove')
+        vim.notify('No recent projects to remove', vim.log.levels.WARN)
         return
       end
 
-      local pickers = require('telescope.pickers')
-      local finders = require('telescope.finders')
-      local conf = require('telescope.config').values
-      local actions = require('telescope.actions')
-      local action_state = require('telescope.actions.state')
-      local themes = require('telescope.themes')
-
-      local formatted_projects = {}
+      local entries = {}
       for _, proj in ipairs(recent_projects) do
-        local display = string.format('%s %s (%s)', proj.type.icon, proj.name, vim.fn.fnamemodify(proj.path, ':~'))
-        table.insert(formatted_projects, {
-          display = display,
-          path = proj.path,
-          name = proj.name,
-          type = proj.type,
-          last_accessed = proj.last_accessed,
-        })
+        local relative_path = vim.fn.fnamemodify(proj.path, ':~')
+        local entry = string.format('%s %s (%s)', proj.type.icon, proj.name, relative_path)
+        table.insert(entries, entry)
       end
 
-      pickers
-        .new(
-          themes.get_ivy({
-            prompt_title = '🗑️  Remove Project',
-            layout_config = {
-              height = 0.4,
-            },
-          }),
-          {
-            finder = finders.new_table({
-              results = formatted_projects,
-              entry_maker = function(entry)
-                return {
-                  value = entry,
-                  display = entry.display,
-                  ordinal = entry.name .. ' ' .. entry.path,
-                }
-              end,
-            }),
-            sorter = conf.generic_sorter({}),
-            attach_mappings = function(prompt_bufnr, map)
-              actions.select_default:replace(function()
-                local selection = action_state.get_selected_entry()
-                actions.close(prompt_bufnr)
-
-                if selection then
-                  -- Confirm removal
+      require('fzf-lua').fzf_exec(entries, {
+        prompt = '󰆴 Remove Project❯ ',
+        winopts = {
+          title = ' 󰆴 Remove Project from Recent List ',
+          title_pos = 'center',
+        },
+        actions = {
+          ['default'] = function(selected)
+            if selected and #selected > 0 then
+              local entry = selected[1]
+              -- Find the matching project
+              for _, proj in ipairs(recent_projects) do
+                local relative_path = vim.fn.fnamemodify(proj.path, ':~')
+                local display = string.format('%s %s (%s)', proj.type.icon, proj.name, relative_path)
+                if display == entry then
                   local confirm =
-                    vim.fn.confirm('Remove project "' .. selection.value.name .. '" from recent list?', '&Yes\n&No', 2)
-                  if confirm == 1 then M.remove_recent_project(selection.value.path) end
+                    vim.fn.confirm('Remove project "' .. proj.name .. '" from recent list?', '&Yes\n&No', 2)
+                  if confirm == 1 then M.remove_recent_project(proj.path) end
+                  break
                 end
-              end)
-
-              return true
-            end,
-          }
-        )
-        :find()
+              end
+            end
+          end,
+        },
+      })
     end
 
     -- Add current directory as project
@@ -404,7 +400,7 @@ return {
 
       if name and name ~= '' then
         add_recent_project(cwd, name)
-        require('utils.notify').success('Added current directory as project: ' .. name)
+        vim.notify('Added current directory as project: ' .. name, vim.log.levels.INFO)
       end
     end
 
@@ -428,7 +424,7 @@ return {
     })
 
     -- Commands
-    vim.api.nvim_create_user_command('ProjectSwitch', M.telescope_projects, {
+    vim.api.nvim_create_user_command('ProjectSwitch', M.project_picker, {
       desc = 'Switch to a recent project',
     })
 
@@ -448,7 +444,7 @@ return {
     })
 
     -- Keymaps
-    vim.keymap.set('n', '<leader>pp', M.telescope_projects, {
+    vim.keymap.set('n', '<leader>pp', M.project_picker, {
       desc = 'Switch Project',
     })
 
@@ -463,9 +459,6 @@ return {
     vim.keymap.set('n', '<leader>pR', M.remove_project_interactive, {
       desc = 'Remove Project (Interactive)',
     })
-
-    -- Integration with telescope
-    pcall(require('telescope').load_extension, 'projects')
 
     -- Export module for other plugins to use
     _G.ProjectSwitcher = M
