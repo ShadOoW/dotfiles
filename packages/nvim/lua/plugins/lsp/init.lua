@@ -6,5 +6,4 @@ return {
   require('plugins.lsp.mason'),
   require('plugins.lsp.mason-tool-installer'),
   require('plugins.lsp.servers'),
-  require('plugins.lsp.jdtls'),
 }

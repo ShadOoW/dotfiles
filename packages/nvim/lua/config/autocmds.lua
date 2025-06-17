@@ -279,18 +279,6 @@ vim.api.nvim_create_autocmd('User', {
   desc = 'Set up mini.files buffer keybindings',
 })
 
--- CMP Java snippets loading
-local cmp_group = vim.api.nvim_create_augroup('cmp-java-snippets', {
-  clear = true,
-})
-
-vim.api.nvim_create_autocmd('FileType', {
-  group = cmp_group,
-  pattern = 'java',
-  callback = function() require('config.snippets').setup() end,
-  desc = 'Load Java snippets for CMP',
-})
-
 -- Wiki mdbook automation
 local wiki_automation_group = vim.api.nvim_create_augroup('wiki-mdbook-automation', {
   clear = true,

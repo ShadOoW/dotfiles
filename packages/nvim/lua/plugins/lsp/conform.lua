@@ -41,9 +41,6 @@ return {
       -- Lua (stylua specialized)
       lua = { 'stylua' },
 
-      -- Java (specialized formatter)
-      java = { 'google-java-format' },
-
       -- Python (specialized formatters)
       python = { 'isort', 'black' },
 
@@ -111,13 +108,6 @@ return {
           '--quote-style',
           'ForceQuote',
         },
-      },
-
-      -- Java formatting
-      ['google-java-format'] = {
-        command = 'google-java-format',
-        args = { '--aosp', '-' },
-        stdin = true,
       },
 
       -- Shell formatting

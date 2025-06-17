@@ -119,3 +119,4 @@ export PATH="$HOME/.local/bin:$PATH"
 export PRETTIERD_DEFAULT_CONFIG="$HOME/.config/prettierd/.prettierrc"
 
 source /home/shad/.config/broot/launcher/bash/br
+export JAVA_HOME=/usr/lib/jvm/java-24-openjdk

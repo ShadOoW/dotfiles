@@ -1,4 +1,5 @@
--- Custom statusline with build status and project information
+-- Enhanced statusline configuration
+-- Provides modern, contextual status information with clean design
 return {
   'nvim-lualine/lualine.nvim',
   dependencies = { 'nvim-tree/nvim-web-devicons', 'rcarriga/nvim-notify' },
@@ -6,28 +7,20 @@ return {
   config = function()
     local lualine = require('lualine')
 
-    -- Custom components
     local function build_status()
-      -- Check if there's an active build process
       local overseer_available, overseer = pcall(require, 'overseer')
-      if overseer_available then
-        local tasks = overseer.list_tasks({
-          recent_first = true,
-        })
-        for _, task in ipairs(tasks) do
-          if task.status == overseer.STATUS.RUNNING then
-            if task.name:match('gradle') or task.name:match('build') or task.name:match('compile') then
-              return '🔨 Building...'
-            end
-          elseif task.status == overseer.STATUS.SUCCESS then
-            if task.name:match('gradle') or task.name:match('build') or task.name:match('compile') then
-              return '✅ Build OK'
-            end
-          elseif task.status == overseer.STATUS.FAILURE then
-            if task.name:match('gradle') or task.name:match('build') or task.name:match('compile') then
-              return '❌ Build Failed'
-            end
-          end
+      if not overseer_available then return '' end
+
+      local tasks = overseer.list_tasks({
+        recent_first = true,
+      })
+      for _, task in ipairs(tasks) do
+        if task.status == overseer.STATUS.RUNNING then
+          return '🔨 Building...'
+        elseif task.status == overseer.STATUS.SUCCESS then
+          return '✅ Build OK'
+        elseif task.status == overseer.STATUS.FAILURE then
+          return '❌ Build Failed'
         end
       end
       return ''
@@ -80,15 +73,6 @@ return {
       return ' ' .. table.concat(client_names, ', ')
     end
 
-    local function dap_status()
-      local dap_available, dap = pcall(require, 'dap')
-      if not dap_available then return '' end
-
-      local session = dap.session()
-      if session then return '🐛 Debug Active' end
-      return ''
-    end
-
     local function test_status()
       local neotest_available, neotest = pcall(require, 'neotest')
       if not neotest_available then return '' end
@@ -127,13 +111,7 @@ return {
     end
 
     local function java_version()
-      if vim.bo.filetype == 'java' then
-        -- Try to get Java version from JDTLS
-        local clients = vim.lsp.get_clients({
-          name = 'jdtls',
-        })
-        if #clients > 0 then return '☕ Java' end
-      end
+      if vim.bo.filetype == 'java' then return ' Java' end
       return ''
     end
 
@@ -329,12 +307,6 @@ return {
             end,
           },
           {
-            dap_status,
-            color = {
-              fg = '#f9e2af',
-            },
-          },
-          {
             get_tag_status,
             color = function()
               local status = get_tag_status()
@@ -420,16 +392,6 @@ return {
     vim.api.nvim_create_autocmd('User', {
       pattern = { 'OverseerTaskUpdate', 'OverseerTaskComplete' },
       group = overseer_group,
-      callback = function() vim.cmd('redrawstatus') end,
-    })
-
-    -- Auto-refresh when DAP status changes
-    local dap_group = vim.api.nvim_create_augroup('StatuslineDAP', {
-      clear = true,
-    })
-    vim.api.nvim_create_autocmd('User', {
-      pattern = { 'DapSessionStarted', 'DapSessionStopped' },
-      group = dap_group,
       callback = function() vim.cmd('redrawstatus') end,
     })
 

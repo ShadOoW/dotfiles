@@ -5,9 +5,7 @@ return {
   dependencies = {
     'nvim-lua/plenary.nvim',
     'nvim-treesitter/nvim-treesitter',
-    'nvim-neotest/nvim-nio',
-    'rcasia/neotest-java', -- Java test adapter
-    -- Add other adapters as needed:
+    'nvim-neotest/nvim-nio', -- Add other adapters as needed:
     -- 'nvim-neotest/neotest-python',
     -- 'nvim-neotest/neotest-plenary',
     -- 'nvim-neotest/neotest-vim-test',
@@ -57,11 +55,8 @@ return {
   config = function()
     require('neotest').setup({
       adapters = {
-        require('neotest-java')({
-          ignore_wrapper = false, -- Use gradlew when available
-          junit_jar = nil, -- Path to junit jar (auto-detected if nil)
-        }), -- Add other adapters as needed:
-        -- require('neotest-python')({ dap = { justMyCode = false } }),
+        -- Add other adapters as needed:
+        -- require('neotest-python'),
         -- require('neotest-plenary'),
         -- require('neotest-vim-test')({ ignore_file_types = { 'python', 'vim', 'lua' } }),
       },

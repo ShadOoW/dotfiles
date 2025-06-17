@@ -1,7 +1,7 @@
--- Mason for LSP, DAP, and Linter installation
+-- Mason for LSP and Linter installation
 return {
   'williamboman/mason.nvim',
-  dependencies = { 'williamboman/mason-lspconfig.nvim', 'neovim/nvim-lspconfig', 'jay-babu/mason-nvim-dap.nvim' },
+  dependencies = { 'williamboman/mason-lspconfig.nvim', 'neovim/nvim-lspconfig' },
   config = function()
     require('mason').setup({
       ui = {
@@ -23,9 +23,6 @@ return {
         'jsonls', -- JSON
         'yamlls', -- YAML
         'denols', -- Deno
-        -- Java Development
-        'jdtls', -- Java
-        'gradle_ls', -- Gradle
         -- C/C++ Development
         'clangd', -- C/C++/Objective-C
         -- General
@@ -35,34 +32,6 @@ return {
         'dockerls', -- Docker
       },
       automatic_installation = true,
-    })
-
-    -- Configure Mason DAP
-    require('mason-nvim-dap').setup({
-      ensure_installed = { 'codelldb', 'java-debug-adapter', 'java-test' },
-      automatic_installation = true,
-      handlers = {
-        ['codelldb'] = function(config)
-          config.configurations = {
-            {
-              type = 'lldb',
-              name = 'Debug (Launch)',
-              request = 'launch',
-              program = function() return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file') end,
-              cwd = '${workspaceFolder}',
-              stopOnEntry = false,
-              args = {},
-            },
-            {
-              type = 'lldb',
-              name = 'Debug (Attach)',
-              request = 'attach',
-              pid = function() return tonumber(vim.fn.input('Pid: ')) end,
-            },
-          }
-          require('mason-nvim-dap').default_setup(config)
-        end,
-      },
     })
   end,
 }

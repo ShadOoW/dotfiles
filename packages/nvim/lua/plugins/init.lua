@@ -10,5 +10,4 @@ return { -- Each require returns a table of plugin specs
   require('plugins.tools'),
   require('plugins.git'),
   require('plugins.editor'),
-  require('plugins.debug'),
 }

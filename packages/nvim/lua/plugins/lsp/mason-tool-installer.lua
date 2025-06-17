@@ -29,12 +29,7 @@ return {
         'lua-language-server', -- Lua
         'bash-language-server', -- Bash
         'dockerfile-language-server', -- Docker
-        'docker-compose-language-service', -- Docker Compose
-        -- Build Tools & Package Managers
-        'gradle-language-server', -- Gradle
-        'maven-language-server', -- Maven
-        -- Java Development
-        'jdtls', -- Java
+        'docker-compose-language-service', -- Docker
         -- Linters
         -- Web Development
         'eslint_d', -- Fast ESLint
@@ -64,23 +59,12 @@ return {
         'shfmt', -- Shell script formatter
         'black', -- Python formatter
         'isort', -- Python import sorter
-        'google-java-format', -- Java formatter
         -- CSS/SCSS
         'stylelint-lsp', -- CSS/SCSS formatter
         -- SQL
         'sql-formatter', -- SQL formatter
         -- YAML
         'yamlfix', -- YAML formatter
-        -- Debug Adapters
-        -- Web Development
-        'node-debug2-adapter', -- Node.js debugger
-        'js-debug-adapter', -- Modern JS/TS debugger
-        'chrome-debug-adapter', -- Chrome/Edge debugger
-        'firefox-debug-adapter', -- Firefox debugger
-        -- General
-        'bash-debug-adapter', -- Bash debugger
-        'java-debug-adapter', -- Java debugger
-        'java-test', -- Java test runner
         -- Additional Modern Tools
         'tree-sitter-cli', -- Tree-sitter CLI
         'grammarly-languageserver', -- Grammarly integration
