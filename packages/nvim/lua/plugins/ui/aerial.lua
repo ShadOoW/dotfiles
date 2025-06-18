@@ -217,8 +217,17 @@ return {
     })
 
     -- Buffer-aware toggle function
-    vim.keymap.set('n', '<leader>pa', function() require('aerial').toggle() end, {
+    vim.keymap.set('n', '<leader>xa', function() require('aerial').toggle() end, {
       desc = 'Toggle Aerial Panel',
+    })
+
+    -- Global navigation keymaps
+    vim.keymap.set('n', 'gk', '<cmd>AerialPrev<CR>', {
+      desc = 'Previous Symbol',
+    })
+
+    vim.keymap.set('n', 'gj', '<cmd>AerialNext<CR>', {
+      desc = 'Next Symbol',
     })
   end,
 }

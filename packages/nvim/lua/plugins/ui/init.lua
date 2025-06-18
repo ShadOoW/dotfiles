@@ -5,7 +5,7 @@ return {
   require('plugins.ui.notify'),
   require('plugins.ui.lualine'),
   require('plugins.ui.mini-modules'),
-  require('plugins.ui.enhanced-tabline'),
+  require('plugins.ui.tabby'),
   require('plugins.ui.aerial'),
   require('plugins.ui.noice'),
   require('plugins.ui.trouble'),
@@ -20,4 +20,5 @@ return {
   require('plugins.ui.matchparen'),
   require('plugins.ui.nvim-navic'),
   require('plugins.ui.sidebar'),
+  require('plugins.ui.cinnamon'),
 }

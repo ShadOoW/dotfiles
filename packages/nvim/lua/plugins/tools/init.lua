@@ -12,7 +12,7 @@ return {
   require('plugins.tools.wiki'),
   require('plugins.tools.overseer'),
   require('plugins.tools.toggleterm'),
-  require('plugins.tools.project-switcher'),
   require('plugins.tools.grug-far'),
   require('plugins.tools.lazydocker'),
+  require('plugins.tools.lazygit'),
 }

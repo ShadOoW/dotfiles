@@ -51,7 +51,7 @@ return {
           group = 'Tags & Symbols',
         },
         {
-          '<leader>p',
+          '<leader>x',
           group = 'Panels',
         },
         {

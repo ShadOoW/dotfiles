@@ -13,7 +13,7 @@ return {
     -- Custom key mappings with descriptions
     local keymap = vim.keymap.set
     local opts = {
-      noremap = true,
+      remap = false,
       silent = true,
     }
 

@@ -29,9 +29,14 @@ return {
         TRACE = '󰌶',
       },
 
-      -- Window configuration
+      -- Window configuration with max width constraint
       max_height = function() return math.floor(vim.o.lines * 0.75) end,
-      max_width = function() return math.floor(vim.o.columns * 0.75) end,
+      max_width = function()
+        -- Set max width to 60 characters or 40% of screen width, whichever is smaller
+        local max_width_chars = 40
+        local max_width_percent = math.floor(vim.o.columns * 0.3)
+        return math.min(max_width_chars, max_width_percent)
+      end,
       on_open = function(win)
         vim.api.nvim_win_set_config(win, {
           zindex = 100,

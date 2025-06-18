@@ -10,6 +10,57 @@ return {
     vim.o.foldlevelstart = 99 -- Start with all folds open
     vim.o.foldenable = true -- Enable folding
 
+    -- Configure Tokyo Night colors for fold signs (dimmed)
+    local function setup_fold_highlights()
+      -- Define dimmed Tokyo Night colors for fold signs
+      local colors = {
+        fg_gutter = '#3b4261', -- Dimmed foreground for gutter
+        bg_gutter = 'NONE', -- Transparent background
+        fold_bg = '#1f2335', -- Dark background for folds
+        fold_fg = '#565f89', -- Dimmed blue-gray for fold text
+        fold_marker = '#414868', -- Subtle marker color
+      }
+
+      -- Set fold column highlights (dimmed)
+      vim.api.nvim_set_hl(0, 'FoldColumn', {
+        fg = colors.fold_marker,
+        bg = colors.bg_gutter,
+      })
+
+      -- Set folded text highlights (dimmed)
+      vim.api.nvim_set_hl(0, 'Folded', {
+        fg = colors.fold_fg,
+        bg = colors.fold_bg,
+        italic = true,
+      })
+
+      -- UFO specific highlights (dimmed)
+      vim.api.nvim_set_hl(0, 'UfoFoldedFg', {
+        fg = colors.fold_fg,
+      })
+
+      vim.api.nvim_set_hl(0, 'UfoFoldedBg', {
+        bg = colors.fold_bg,
+      })
+
+      -- Fold preview highlights
+      vim.api.nvim_set_hl(0, 'UfoPreviewSbar', {
+        bg = colors.fold_marker,
+      })
+
+      vim.api.nvim_set_hl(0, 'UfoPreviewThumb', {
+        bg = colors.fold_fg,
+      })
+    end
+
+    -- Apply highlights immediately and on colorscheme change
+    setup_fold_highlights()
+    vim.api.nvim_create_autocmd('ColorScheme', {
+      pattern = '*',
+      callback = setup_fold_highlights,
+      desc = 'Update UFO fold highlights on colorscheme change',
+    })
+
     -- Use treesitter as fold provider with LSP fallback
     require('ufo').setup({
       provider_selector = function(bufnr, filetype, buftype) return { 'treesitter', 'indent' } end,
@@ -38,11 +89,16 @@ return {
           curWidth = curWidth + chunkWidth
         end
 
-        table.insert(newVirtText, { suffix, 'MoreMsg' })
+        -- Use dimmed highlight for fold suffix
+        table.insert(newVirtText, { suffix, 'UfoFoldedFg' })
         return newVirtText
       end,
       open_fold_hl_timeout = 150,
-      close_fold_kinds = { 'imports', 'comment' },
+      close_fold_kinds_for_ft = {
+        default = { 'imports', 'comment' },
+        json = { 'array' },
+        c = { 'comment', 'region' },
+      },
       preview = {
         win_config = {
           border = { '', '─', '', '', '', '─', '', '' },

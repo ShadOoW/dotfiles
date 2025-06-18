@@ -159,10 +159,10 @@ return {
     vim.api.nvim_create_user_command('GutentagsToggle', function()
       if vim.g.gutentags_enabled == 1 then
         vim.g.gutentags_enabled = 0
-        require('utils.notify').info('Gutentags disabled')
+        require('utils.notify').info('Gutentags', 'Tags disabled')
       else
         vim.g.gutentags_enabled = 1
-        require('utils.notify').success('Gutentags enabled')
+        require('utils.notify').success('Gutentags', 'Tags enabled')
       end
     end, {
       desc = 'Toggle gutentags on/off',
@@ -176,7 +176,7 @@ return {
       local cache_dir = vim.g.gutentags_cache_dir
       vim.fn.delete(cache_dir, 'rf')
       vim.fn.mkdir(cache_dir, 'p')
-      require('utils.notify').success('Gutentags cache cleaned')
+      require('utils.notify').success('Gutentags', 'Tags Cache cleaned')
     end, {
       desc = 'Clean gutentags cache',
     })
@@ -192,18 +192,22 @@ return {
       desc = 'List tag matches',
     })
 
-    -- Enhanced tag jumping with fzf-lua integration
+    -- Enhanced tag jumping with snacks picker integration
     vim.keymap.set('n', '<leader>tj', function()
       local word = vim.fn.expand('<cword>')
       if word ~= '' then
-        require('fzf-lua').tags({
-          query = word,
+        -- Use word under cursor for pre-filtering
+        require('snacks').picker.pick({
+          title = '󰓻 CTags - ' .. word,
+          cmd = { 'grep', '-n', word, vim.fn.tagfiles()[1] or 'tags' },
+          preview = true,
         })
       else
-        require('fzf-lua').tags()
+        -- Show all tags using the snacks ctags picker from snacks.lua
+        vim.cmd('normal! <leader>sc')
       end
     end, {
-      desc = 'Jump to tag (fzf-lua)',
+      desc = 'Jump to tag',
     })
   end,
 }

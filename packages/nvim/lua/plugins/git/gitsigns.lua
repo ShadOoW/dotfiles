@@ -49,25 +49,37 @@ return {
       -- Stage hunk under cursor
       vim.keymap.set({ 'n', 'v' }, '<leader>hs', gs.stage_hunk, {
         buffer = bufnr,
-        desc = 'Stage hunk',
+        desc = 'Stage Hunk Under Cursor',
+      })
+
+      -- Stage entire buffer
+      vim.keymap.set('n', '<leader>hS', function() gs.stage_buffer() end, {
+        buffer = bufnr,
+        desc = 'Stage Entire Buffer',
       })
 
       -- Undo last staged hunk
       vim.keymap.set('n', '<leader>hu', gs.undo_stage_hunk, {
         buffer = bufnr,
-        desc = 'Undo stage hunk',
+        desc = 'Undo Stage Hunk',
       })
 
       -- Reset hunk under cursor
       vim.keymap.set({ 'n', 'v' }, '<leader>hr', gs.reset_hunk, {
         buffer = bufnr,
-        desc = 'Reset hunk',
+        desc = 'Reset Hunk Under Cursor',
+      })
+
+      -- Reset entire buffer
+      vim.keymap.set('n', '<leader>hR', function() gs.reset_buffer() end, {
+        buffer = bufnr,
+        desc = 'Reset Entire Buffer',
       })
 
       -- Preview hunk inline
       vim.keymap.set('n', '<leader>hp', gs.preview_hunk, {
         buffer = bufnr,
-        desc = 'Preview hunk',
+        desc = 'Preview Hunk Under Cursor',
       })
 
       -- Blame line
@@ -81,21 +93,53 @@ return {
         end,
         {
           buffer = bufnr,
-          desc = 'Blame line',
+          desc = 'Blame Line',
         }
       )
 
       -- Toggle line blame
       vim.keymap.set('n', '<leader>htb', gs.toggle_current_line_blame, {
         buffer = bufnr,
-        desc = 'Toggle line blame',
+        desc = 'Toggle Line Blame',
       })
 
       -- Toggle deleted lines
       vim.keymap.set('n', '<leader>htd', gs.toggle_deleted, {
         buffer = bufnr,
-        desc = 'Toggle deleted lines',
+        desc = 'Toggle Deleted Lines',
+      })
+
+      -- Diff operations
+      vim.keymap.set('n', '<leader>hd', function() gs.diffthis() end, {
+        buffer = bufnr,
+        desc = 'Diff Hunk Under Cursor',
+      })
+
+      vim.keymap.set('n', '<leader>hD', function() gs.diffthis('~') end, {
+        buffer = bufnr,
+        desc = 'Diff Hunk Under Cursor (against index)',
       })
     end,
   },
+  config = function()
+    -- Setup gitsigns first
+    require('gitsigns').setup()
+
+    -- Add global git file operations keymaps (these don't need buffer context)
+    vim.keymap.set('n', '<leader>hf', function() require('snacks').picker.git_files() end, {
+      desc = 'Git Files',
+    })
+
+    vim.keymap.set('n', '<leader>hc', function() require('snacks').picker.git_log() end, {
+      desc = 'Git Commits',
+    })
+
+    vim.keymap.set('n', '<leader>hB', function() require('snacks').picker.git_branches() end, {
+      desc = 'Git Branches',
+    })
+
+    vim.keymap.set('n', '<leader>hst', function() require('snacks').picker.git_status() end, {
+      desc = 'Git Status',
+    })
+  end,
 }

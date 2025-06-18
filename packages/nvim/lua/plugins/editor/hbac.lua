@@ -93,48 +93,9 @@ return {
     vim.keymap.set('n', '<leader>fW', function() hbac.close_unpinned() end, {
       desc = 'Close all unpinned buffers',
     })
-    vim.keymap.set('n', '<leader>fp', function() hbac.toggle_pin() end, {
+
+    vim.keymap.set('n', '<leader>fP', function() hbac.toggle_pin() end, {
       desc = 'Toggle pin buffer',
-    })
-    vim.keymap.set('n', '<leader>fP', function()
-      -- Show buffer status info
-      local buffers = vim.api.nvim_list_bufs()
-      local pinned_count = 0
-      local unpinned_count = 0
-      local never_modified_count = 0
-      local state = require('hbac.state')
-
-      print('HBAC Buffer Status:')
-      for _, bufnr in ipairs(buffers) do
-        if vim.api.nvim_buf_is_loaded(bufnr) and vim.api.nvim_buf_get_option(bufnr, 'buflisted') then
-          local name = vim.api.nvim_buf_get_name(bufnr) or '[No Name]'
-          local is_pinned = state.is_pinned(bufnr)
-          local is_never_modified = never_modified_buffers[bufnr] == true
-
-          local pin_status = is_pinned and '📍 PINNED' or '   unpinned'
-          local mod_status = is_never_modified and '(never modified)' or '(was modified)'
-
-          print(string.format('%s %s: %s', pin_status, mod_status, vim.fn.fnamemodify(name, ':t')))
-
-          if is_pinned then
-            pinned_count = pinned_count + 1
-          else
-            unpinned_count = unpinned_count + 1
-          end
-
-          if is_never_modified then never_modified_count = never_modified_count + 1 end
-        end
-      end
-      print(
-        string.format(
-          'Total: %d pinned, %d unpinned, %d never modified',
-          pinned_count,
-          unpinned_count,
-          never_modified_count
-        )
-      )
-    end, {
-      desc = 'Show HBAC buffer status',
     })
   end,
 }

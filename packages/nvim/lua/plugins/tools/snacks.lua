@@ -51,7 +51,7 @@ return {
     -- Snacks Picker Configuration
     picker = {
       enabled = true,
-      ui_select = false, -- Don't override vim.ui.select (let fzf-lua handle it)
+      ui_select = true,
 
       -- Enhanced backdrop for better transparency integration
       layout = {
@@ -282,9 +282,107 @@ return {
       }
     )
 
-    -- System and Meta
-    vim.keymap.set('n', '<leader>:', function() snacks.picker.commands(picker_config('Commands', '󰘳')) end, {
-      desc = 'Commands',
+    -- Alternative command picker that doesn't override ':'
+    vim.keymap.set('n', '<leader>:', function()
+      snacks.picker.commands(picker_config('Commands', '󰘳', {
+        -- Browse commands without executing (for exploration)
+        actions = {
+          default = function(item)
+            -- Just show the command in command line for editing
+            local cmd = item.cmd or item.text or item
+            if type(cmd) == 'string' then vim.fn.feedkeys(':' .. cmd) end
+          end,
+          execute = function(item)
+            -- Execute directly
+            local cmd = item.cmd or item.text or item
+            if type(cmd) == 'string' then
+              vim.cmd(cmd)
+              vim.notify('Executed: ' .. cmd, vim.log.levels.INFO)
+            end
+          end,
+        },
+        keys = {
+          ['<CR>'] = 'default', -- Put in command line
+          ['<C-CR>'] = 'execute', -- Execute directly
+          ['<C-c>'] = 'close', -- Close picker
+          ['<Esc>'] = 'close', -- Close picker
+          ['q'] = 'close', -- Close picker
+          ['<C-q>'] = 'close', -- Close picker
+        },
+      }))
+    end, {
+      desc = 'Commands (Browse Mode)',
+    })
+
+    -- Quick command search (alternative to ':')
+    vim.keymap.set('n', '<leader>sx', function()
+      -- Show help notification
+      vim.notify('Commands Picker: Enter=Execute, Tab=Preview, q/Esc=Quit, Ctrl+C=Cancel', vim.log.levels.INFO, {
+        title = 'Commands Help',
+        timeout = 3000,
+      })
+
+      snacks.picker.commands(picker_config('Search Commands', '󰘳', {
+        actions = {
+          default = function(item)
+            local cmd = item.cmd or item.text or item
+            if type(cmd) == 'string' then
+              vim.cmd(cmd)
+              vim.notify('✓ Executed: ' .. cmd, vim.log.levels.INFO)
+            end
+          end,
+          preview = function(item)
+            local cmd = item.cmd or item.text or item
+            if type(cmd) == 'string' then vim.notify('Preview: ' .. cmd, vim.log.levels.INFO) end
+          end,
+        },
+        keys = {
+          -- Execute commands
+          ['<CR>'] = 'default',
+          ['<C-CR>'] = 'default',
+
+          -- Exit picker
+          ['<Esc>'] = 'close',
+          ['<C-c>'] = 'close',
+          ['q'] = 'close',
+          ['<C-q>'] = 'close',
+
+          -- Navigation
+          ['<C-j>'] = 'next',
+          ['<C-k>'] = 'prev',
+          ['<Down>'] = 'next',
+          ['<Up>'] = 'prev',
+
+          -- Preview
+          ['<Tab>'] = 'preview',
+          ['<C-p>'] = 'preview',
+        },
+        preview = {
+          enabled = true,
+        },
+      }))
+    end, {
+      desc = 'Search Commands (Quick Access)',
+    })
+
+    -- Super quick command access with Ctrl+; (alternative to :)
+    vim.keymap.set('n', '<C-;>', function()
+      snacks.picker.commands(picker_config('Quick Commands', '󰘳', {
+        actions = {
+          default = function(item)
+            local cmd = item.cmd or item.text or item
+            if type(cmd) == 'string' then vim.cmd(cmd) end
+          end,
+        },
+        keys = {
+          ['<CR>'] = 'default',
+          ['<Esc>'] = 'close',
+          ['<C-c>'] = 'close',
+          ['q'] = 'close',
+        },
+      }))
+    end, {
+      desc = 'Quick Commands (Ctrl+;)',
     })
 
     -- CTags picker - completely rewritten for proper preview support
@@ -629,11 +727,14 @@ return {
             title = '󰎟 Noice History',
             items = items,
             format = function(item)
+              if not item then return '' end
               local level_icon = item.level == vim.log.levels.ERROR and '󰅚'
                 or item.level == vim.log.levels.WARN and '󰀪'
                 or item.level == vim.log.levels.INFO and '󰋽'
                 or '󰌶'
-              return string.format('%s %s', level_icon, item.text)
+              local text = item.text or ''
+              if type(text) ~= 'string' then text = tostring(text) end
+              return string.format('%s %s', level_icon, text)
             end,
           })
         else
@@ -650,8 +751,16 @@ return {
       if ok then
         local items = {}
         for i, entry in ipairs(yanky.all()) do
+          -- Ensure we have valid text content
+          local text_content = entry.regcontents
+          if type(text_content) == 'table' then
+            text_content = table.concat(text_content, '\n')
+          elseif type(text_content) ~= 'string' then
+            text_content = tostring(text_content or '')
+          end
+
           table.insert(items, {
-            text = entry.regcontents,
+            text = text_content,
             regtype = entry.regtype,
             idx = i,
           })
@@ -660,11 +769,17 @@ return {
         snacks.picker.pick('yank_history', {
           title = '󰆐 Yank History',
           items = items,
-          format = function(item) return string.format('%s', item.text:gsub('\n', '\\n')) end,
+          format = function(item)
+            local text = item and item.text or ''
+            if type(text) ~= 'string' then text = tostring(text) end
+            return string.format('%s', text:gsub('\n', '\\n'))
+          end,
           actions = {
             default = function(item)
-              vim.fn.setreg('"', item.text, item.regtype)
-              vim.cmd('normal! ""p')
+              if item and item.text then
+                vim.fn.setreg('"', item.text, item.regtype)
+                vim.cmd('normal! ""p')
+              end
             end,
           },
         })

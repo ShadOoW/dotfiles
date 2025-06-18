@@ -43,7 +43,7 @@ function M.reload_config()
   require('utils.string')
 
   -- Print success message
-  require('utils.notify').success('Configuration reloaded successfully!')
+  require('utils.notify').success('Neovim', 'Configuration reloaded successfully!')
 
   return true
 end

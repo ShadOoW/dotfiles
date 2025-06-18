@@ -5,7 +5,7 @@ local M = {}
 -- General purpose keymap wrapper
 local function map(mode, lhs, rhs, desc)
   vim.keymap.set(mode, lhs, rhs, {
-    noremap = true,
+    remap = false,
     silent = true,
     desc = desc, -- shows up in `which-key` and for documentation
   })

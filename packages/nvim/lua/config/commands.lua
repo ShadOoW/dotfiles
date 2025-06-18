@@ -142,7 +142,7 @@ vim.api.nvim_create_user_command('ConfigReload', function() require('utils.reloa
 -- ===== LSP Management Commands =====
 
 vim.api.nvim_create_user_command('LspRestart', function(opts)
-  local clients = vim.lsp.get_active_clients()
+  local clients = vim.lsp.get_clients()
   if #clients == 0 then
     vim.notify('No LSP clients running', vim.log.levels.WARN)
     return
@@ -169,7 +169,7 @@ vim.api.nvim_create_user_command('LspStop', function(opts)
   local server_name = opts.args
   if server_name and server_name ~= '' then
     -- Stop specific server
-    local clients = vim.lsp.get_active_clients()
+    local clients = vim.lsp.get_clients()
     for _, client in ipairs(clients) do
       if client.name == server_name then
         vim.lsp.stop_client(client.id, true)
@@ -180,7 +180,7 @@ vim.api.nvim_create_user_command('LspStop', function(opts)
     vim.notify('LSP client not found: ' .. server_name, vim.log.levels.WARN)
   else
     -- Stop all servers
-    local clients = vim.lsp.get_active_clients()
+    local clients = vim.lsp.get_clients()
     if #clients == 0 then
       vim.notify('No LSP clients running', vim.log.levels.WARN)
       return
@@ -197,14 +197,14 @@ end, {
 })
 
 vim.api.nvim_create_user_command('LspInfo', function()
-  local clients = vim.lsp.get_active_clients()
+  local clients = vim.lsp.get_clients()
   if #clients == 0 then
     vim.notify('No LSP clients running', vim.log.levels.INFO)
     return
   end
 
   local buf = vim.api.nvim_get_current_buf()
-  local buf_clients = vim.lsp.get_active_clients({
+  local buf_clients = vim.lsp.get_clients({
     bufnr = buf,
   })
 

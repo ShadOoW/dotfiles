@@ -7,22 +7,42 @@ return {
     {
       '<leader>xx',
       '<cmd>Trouble diagnostics toggle<cr>',
-      desc = 'Diagnostics (Trouble)',
+      desc = 'Toggle trouble diagnostics',
     },
     {
-      '<leader>xX',
+      '<leader>xw',
+      '<cmd>Trouble diagnostics toggle<cr>',
+      desc = 'Workspace diagnostics',
+    },
+    {
+      '<leader>xd',
       '<cmd>Trouble diagnostics toggle filter.buf=0<cr>',
-      desc = 'Buffer Diagnostics (Trouble)',
+      desc = 'Document diagnostics',
+    },
+    {
+      '<leader>xl',
+      '<cmd>Trouble loclist toggle<cr>',
+      desc = 'Location list',
+    },
+    {
+      '<leader>xq',
+      '<cmd>Trouble qflist toggle<cr>',
+      desc = 'Quickfix list',
+    },
+    {
+      '<leader>xr',
+      '<cmd>Trouble lsp toggle<cr>',
+      desc = 'LSP references',
+    },
+    {
+      '<F10>',
+      '<cmd>Trouble diagnostics toggle<CR>',
+      desc = 'Toggle diagnostics',
     },
     {
       '<leader>xs',
       '<cmd>Trouble symbols toggle focus=false<cr>',
       desc = 'Symbols (Trouble)',
-    },
-    {
-      '<leader>xl',
-      '<cmd>Trouble lsp toggle focus=false win.position=right<cr>',
-      desc = 'LSP Definitions / references / ... (Trouble)',
     },
     {
       '<leader>xL',
