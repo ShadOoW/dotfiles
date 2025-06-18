@@ -164,9 +164,6 @@ return {
       -- Update symbol list on buffer changes
       update_events = 'TextChanged,InsertLeave,BufEnter,BufWritePost',
 
-      -- Show symbols even if there are errors
-      show_guides = true,
-
       -- Treesitter specific options
       treesitter = {
         update_delay = 300,
@@ -205,8 +202,12 @@ return {
     vim.api.nvim_create_autocmd('BufEnter', {
       group = aerial_group,
       callback = function(args)
-        local buftype = vim.api.nvim_buf_get_option(args.buf, 'buftype')
-        local filetype = vim.api.nvim_buf_get_option(args.buf, 'filetype')
+        local buftype = vim.api.nvim_get_option_value('buftype', {
+          buf = args.buf,
+        })
+        local filetype = vim.api.nvim_get_option_value('filetype', {
+          buf = args.buf,
+        })
 
         -- Close aerial for special buffer types
         if buftype ~= '' or filetype == 'help' or filetype == 'man' then

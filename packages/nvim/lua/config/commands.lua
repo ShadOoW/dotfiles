@@ -68,9 +68,15 @@ vim.api.nvim_create_user_command('TmuxPanes', function()
 
   -- Create a new scratch buffer
   local buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
-  vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
-  vim.api.nvim_buf_set_option(buf, 'swapfile', false)
+  vim.api.nvim_set_option_value('buftype', 'nofile', {
+    buf = buf,
+  })
+  vim.api.nvim_set_option_value('bufhidden', 'wipe', {
+    buf = buf,
+  })
+  vim.api.nvim_set_option_value('swapfile', false, {
+    buf = buf,
+  })
   vim.api.nvim_buf_set_name(buf, 'Tmux Nvim Panes')
 
   -- Prepare content
@@ -92,8 +98,12 @@ vim.api.nvim_create_user_command('TmuxPanes', function()
 
   -- Set buffer content
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-  vim.api.nvim_buf_set_option(buf, 'modifiable', false)
-  vim.api.nvim_buf_set_option(buf, 'readonly', true)
+  vim.api.nvim_set_option_value('modifiable', false, {
+    buf = buf,
+  })
+  vim.api.nvim_set_option_value('readonly', true, {
+    buf = buf,
+  })
 
   -- Open in a split window
   vim.cmd('split')
@@ -128,7 +138,9 @@ vim.api.nvim_create_user_command('TmuxPanes', function()
   end
 
   -- Set syntax highlighting
-  vim.api.nvim_buf_set_option(buf, 'filetype', 'tmuxpanes')
+  vim.api.nvim_set_option_value('filetype', 'tmuxpanes', {
+    buf = buf,
+  })
 end, {
   desc = 'List nvim panes in current tmux session',
 })
@@ -141,7 +153,7 @@ vim.api.nvim_create_user_command('ConfigReload', function() require('utils.reloa
 
 -- ===== LSP Management Commands =====
 
-vim.api.nvim_create_user_command('LspRestart', function(opts)
+vim.api.nvim_create_user_command('LspRestart', function()
   local clients = vim.lsp.get_clients()
   if #clients == 0 then
     vim.notify('No LSP clients running', vim.log.levels.WARN)
@@ -222,9 +234,9 @@ vim.api.nvim_create_user_command('LspInfo', function()
       local caps = client.server_capabilities
       if client.name == 'cssls' and vim.bo[buf].filetype == 'html' then
         print('    CSS in HTML capabilities:')
-        print('      - Completion: ' .. tostring(caps.completionProvider ~= nil))
-        print('      - Hover: ' .. tostring(caps.hoverProvider))
-        print('      - Definition: ' .. tostring(caps.definitionProvider))
+        print('      - Completion: ' .. tostring(caps.completionProvider and caps.completionProvider ~= nil))
+        print('      - Hover: ' .. tostring(caps.hoverProvider and caps.hoverProvider or false))
+        print('      - Definition: ' .. tostring(caps.definitionProvider and caps.definitionProvider or false))
       end
     end
     print('')
@@ -259,7 +271,7 @@ vim.api.nvim_create_user_command('BufDebug', function()
   print('Total buffers: ' .. #buffers)
   print('')
 
-  for i, buf in ipairs(buffers) do
+  for _, buf in ipairs(buffers) do
     if vim.api.nvim_buf_is_valid(buf) then
       local bufname = vim.api.nvim_buf_get_name(buf)
       local buftype = vim.api.nvim_get_option_value('buftype', {

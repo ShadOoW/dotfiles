@@ -28,7 +28,9 @@ return {
     local function safe_swap_buf_left()
       local current_win = vim.api.nvim_get_current_win()
       local current_buf = vim.api.nvim_get_current_buf()
-      local current_buftype = vim.api.nvim_buf_get_option(current_buf, 'filetype')
+      local current_buftype = vim.api.nvim_get_option_value('filetype', {
+        buf = current_buf,
+      })
 
       -- Don't swap if current buffer is neo-tree
       if current_buftype == 'neo-tree' then return end
@@ -39,7 +41,9 @@ return {
 
       if left_win ~= current_win then
         local left_buf = vim.api.nvim_get_current_buf()
-        local left_buftype = vim.api.nvim_buf_get_option(left_buf, 'filetype')
+        local left_buftype = vim.api.nvim_get_option_value('filetype', {
+          buf = left_buf,
+        })
 
         -- Go back to original window
         vim.api.nvim_set_current_win(current_win)
@@ -55,7 +59,9 @@ return {
     local function safe_swap_buf_right()
       local current_win = vim.api.nvim_get_current_win()
       local current_buf = vim.api.nvim_get_current_buf()
-      local current_buftype = vim.api.nvim_buf_get_option(current_buf, 'filetype')
+      local current_buftype = vim.api.nvim_get_option_value('filetype', {
+        buf = current_buf,
+      })
 
       -- Don't swap if current buffer is neo-tree
       if current_buftype == 'neo-tree' then return end
@@ -66,7 +72,9 @@ return {
 
       if right_win ~= current_win then
         local right_buf = vim.api.nvim_get_current_buf()
-        local right_buftype = vim.api.nvim_buf_get_option(right_buf, 'filetype')
+        local right_buftype = vim.api.nvim_get_option_value('filetype', {
+          buf = right_buf,
+        })
 
         -- Go back to original window
         vim.api.nvim_set_current_win(current_win)

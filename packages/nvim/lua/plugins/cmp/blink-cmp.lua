@@ -234,7 +234,7 @@ return {
               text = function(ctx) return ctx.kind_icon .. ctx.icon_gap end,
               highlight = function(ctx)
                 return require('blink.cmp.completion.windows.render.tailwind').get_highlight(ctx)
-                  or 'BlinkCmpKind' .. ctx.kind
+                  or ('BlinkCmpKind' .. ctx.kind)
               end,
             },
 
@@ -246,7 +246,7 @@ return {
               text = function(ctx) return ctx.kind end,
               highlight = function(ctx)
                 return require('blink.cmp.completion.windows.render.tailwind').get_highlight(ctx)
-                  or 'BlinkCmpKind' .. ctx.kind
+                  or ('BlinkCmpKind' .. ctx.kind)
               end,
             },
 
