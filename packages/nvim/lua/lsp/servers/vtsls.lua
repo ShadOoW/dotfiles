@@ -7,6 +7,16 @@ return {
         completion = {
           enableServerSideFuzzyMatch = true,
         },
+        -- Enable workspace-wide analysis
+        workspace = {
+          didChangeWatchedFiles = {
+            dynamicRegistration = true,
+          },
+        },
+      },
+      -- Enable workspace symbol search across all files
+      workspaceSymbols = {
+        scope = 'workspace',
       },
     },
     typescript = {

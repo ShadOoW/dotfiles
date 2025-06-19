@@ -168,7 +168,11 @@ return {
       desc = 'Toggle gutentags on/off',
     })
 
-    vim.api.nvim_create_user_command('GutentagsUpdate', function() vim.cmd('GutentagsUpdate!') end, {
+    vim.api.nvim_create_user_command('CtagsUpdate', function()
+      -- Use the plugin's actual update function instead of command with !
+      vim.fn['gutentags#generate_tags']()
+      require('utils.notify').success('Gutentags', 'Tags updated')
+    end, {
       desc = 'Force update tags',
     })
 

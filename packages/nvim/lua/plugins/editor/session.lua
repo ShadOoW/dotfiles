@@ -2,631 +2,189 @@
 -- Uses persistence.nvim for robust, directory-based session persistence
 -- Automatically saves/restores sessions per project directory with no manual intervention
 return {
-  'folke/persistence.nvim',
-  event = 'VimEnter',
-  priority = 100,
-  opts = {
-    -- Session storage directory (XDG compliant with better project isolation)
-    dir = vim.fn.expand(vim.fn.stdpath('data') .. '/sessions/'),
+    'folke/persistence.nvim',
+    event = 'BufReadPre',
+    opts = {
+        -- Session options to save/restore (matches vim sessionoptions exactly)
+        options = {'blank', 'buffers', 'curdir', 'folds', 'help', 'tabpages', 'winsize', 'winpos', 'terminal',
+                   'localoptions'},
 
-    -- Session options to save/restore (matches vim sessionoptions exactly)
-    options = {
-      'blank',
-      'buffers',
-      'curdir',
-      'folds',
-      'help',
-      'tabpages',
-      'winsize',
-      'winpos',
-      'terminal',
-      'localoptions',
-    },
-
-    -- Enhanced cleanup before saving session
-    pre_save = function()
-      -- Store current working directory for logging
-      local cwd = vim.fn.getcwd()
-
-      -- Close all floating windows to avoid restore issues
-      for _, win in ipairs(vim.api.nvim_list_wins()) do
-        local config = vim.api.nvim_win_get_config(win)
-        if config.relative ~= '' then pcall(vim.api.nvim_win_close, win, false) end
-      end
-
-      -- Close problematic buffer types that shouldn't be persisted
-      local problematic_buftypes = { 'help', 'quickfix', 'terminal', 'prompt', 'nofile', 'acwrite' }
-
-      local problematic_filetypes = {
-        'gitcommit',
-        'gitrebase',
-        'trouble',
-        'Trouble',
-        'neo-tree',
-        'startify',
-        'TelescopePrompt',
-        'lazy',
-        'mason',
-        'oil',
-        'NvimTree',
-        'LazyGit',
-        'noice',
-        'notify',
-        'messages',
-        'checkhealth',
-        'lspinfo',
-        'null-ls-info',
-        'qf',
-        'help',
-      }
-
-      -- Additional patterns for buffer names that should be excluded
-      local problematic_patterns = {
-        'noice://',
-        'notify://',
-        'messages',
-        'Noice',
-        'NoiceHistory',
-        'NoiceLsp',
-        'NoicePopup',
-        'NoiceConfirm',
-        'NoiceInput',
-        'NoiceSelect',
-        'NoiceFormat',
-        'NoiceVirtualText',
-        'NoiceCmdline',
-        'NoiceSearch',
-        'NoiceMessage',
-        'NoiceNotify',
-        'NoiceErrors',
-        'NoiceWarnings',
-        'NoiceInfo',
-        'NoiceDebug',
-        'NoiceTrace',
-        '^%s*$', -- empty or whitespace-only names
-        'term://',
-        'fugitive://',
-        'gitsigns://',
-      }
-
-      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-        if vim.api.nvim_buf_is_valid(buf) then
-          local buftype = vim.api.nvim_get_option_value('buftype', {
-            buf = buf,
-          })
-          local filetype = vim.api.nvim_get_option_value('filetype', {
-            buf = buf,
-          })
-          local bufname = vim.api.nvim_buf_get_name(buf)
-          local modified = vim.api.nvim_get_option_value('modified', {
-            buf = buf,
-          })
-
-          -- Check if buffer should be closed
-          local should_close = vim.tbl_contains(problematic_buftypes, buftype)
-            or vim.tbl_contains(problematic_filetypes, filetype)
-            or (bufname == '' and buftype == '')
-
-          -- Check against problematic patterns
-          if not should_close then
-            for _, pattern in ipairs(problematic_patterns) do
-              if bufname:match(pattern) then
-                should_close = true
-                break
-              end
+        -- Simple cleanup before saving session
+        pre_save = function()
+            -- Close floating windows
+            for _, win in ipairs(vim.api.nvim_list_wins()) do
+                local config = vim.api.nvim_win_get_config(win)
+                if config.relative ~= '' then
+                    pcall(vim.api.nvim_win_close, win, false)
+                end
             end
-          end
 
-          if should_close then
-            -- Force close without saving to avoid :qall issues
-            pcall(vim.api.nvim_buf_delete, buf, {
-              force = true,
-            })
-          elseif modified and buftype == '' and bufname ~= '' then
-            -- Save modified normal file buffers to avoid :qall issues
-            pcall(vim.api.nvim_buf_call, buf, function() vim.cmd('silent! write') end)
-          end
-        end
-      end
+            -- Close problematic buffer types that shouldn't be persisted
+            local problematic_filetypes = {'gitcommit', 'gitrebase', 'trouble', 'neo-tree', 'startify',
+                                           'TelescopePrompt', 'lazy', 'mason', 'oil', 'NvimTree', 'LazyGit', 'noice',
+                                           'notify', 'messages', 'checkhealth', 'lspinfo', 'qf', 'help', 'sidebar',
+                                           'output', 'outputpanel', 'aerial', 'dapui_console', 'dapui_watches',
+                                           'dapui_stacks', 'dapui_breakpoints', 'dapui_scopes', 'dap-repl',
+                                           'panel-manager', 'exclusive-panel'}
 
-      -- Additional cleanup: close any remaining noice-related windows
-      for _, win in ipairs(vim.api.nvim_list_wins()) do
-        if vim.api.nvim_win_is_valid(win) then
-          local buf = vim.api.nvim_win_get_buf(win)
-          if vim.api.nvim_buf_is_valid(buf) then
-            local filetype = vim.api.nvim_get_option_value('filetype', {
-              buf = buf,
-            })
-            local bufname = vim.api.nvim_buf_get_name(buf)
+            local problematic_buftypes = {'help', 'quickfix', 'terminal', 'prompt', 'nofile', 'acwrite'}
 
-            if filetype == 'noice' or bufname:match('noice') or bufname:match('Noice') then
-              pcall(vim.api.nvim_win_close, win, true)
-            end
-          end
-        end
-      end
-
-      -- Save views for all remaining buffers to preserve folds and cursor positions
-      pcall(function() vim.cmd('silent! wall') end) -- Save all buffers
-      pcall(function() vim.cmd('silent! mkview!') end) -- Save current view
-    end,
-
-    -- Enhanced callback after loading session
-    post_open = function()
-      local cwd = vim.fn.getcwd()
-
-      -- Restore cursor positions and folds for all buffers
-      vim.schedule(function()
-        -- Restore cursor position
-        vim.cmd('silent! normal! g`"')
-
-        -- Load views to restore folds and cursor positions
-        vim.cmd('silent! loadview')
-
-        -- Refresh file tree if it exists and we're in a valid project
-        if vim.fn.exists(':NvimTreeOpen') == 2 then
-          vim.cmd('NvimTreeRefresh')
-        elseif vim.fn.exists(':Neotree') == 2 then
-          vim.cmd('Neotree filesystem reveal')
-        end
-
-        -- Restore sidebar state AFTER session is fully loaded
-        -- Use a different approach to avoid conflicts with session restoration
-        vim.defer_fn(function()
-          if vim.g.sidebar_was_open then
-            -- Wait for session to be fully restored first
-            vim.schedule(function()
-              vim.defer_fn(function()
-                -- Check if sidebar is already open
-                local sidebar_open = false
-                for _, win in ipairs(vim.api.nvim_list_wins()) do
-                  local buf = vim.api.nvim_win_get_buf(win)
-                  if vim.api.nvim_buf_is_valid(buf) then
-                    local ok, ft = pcall(vim.api.nvim_get_option_value, 'filetype', {
-                      buf = buf,
+            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                if vim.api.nvim_buf_is_valid(buf) then
+                    local buftype = vim.api.nvim_get_option_value('buftype', {
+                        buf = buf
                     })
-                    if ok and ft == 'Sidebar' then
-                      sidebar_open = true
-                      break
+                    local filetype = vim.api.nvim_get_option_value('filetype', {
+                        buf = buf
+                    })
+                    local bufname = vim.api.nvim_buf_get_name(buf)
+
+                    -- Close non-file buffers
+                    local should_close = vim.tbl_contains(problematic_buftypes, buftype) or
+                                             vim.tbl_contains(problematic_filetypes, filetype) or
+                                             (bufname == '' and buftype == '')
+
+                    if should_close then
+                        pcall(vim.api.nvim_buf_delete, buf, {
+                            force = true
+                        })
                     end
-                  end
                 end
+            end
 
-                -- Only open if not already open
-                if not sidebar_open then
-                  pcall(require('sidebar-nvim').open)
-                  -- Force update after opening
-                  vim.defer_fn(function() pcall(require('sidebar-nvim').update) end, 100)
-                end
-              end, 300) -- Longer delay to ensure session is fully loaded
+            -- Save remaining buffers
+            pcall(function()
+                vim.cmd('silent! wall')
             end)
-          end
-        end, 500) -- Even longer initial delay
+        end,
 
-        -- Refresh any LSP diagnostics
-        vim.diagnostic.reset()
-        vim.schedule(function()
-          for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-            if vim.api.nvim_buf_is_loaded(buf) then
-              vim.cmd('silent! e')
-              break
-            end
-          end
-        end)
-      end)
-    end,
-  },
-
-  -- Optional key mappings for manual session management (can be removed if not needed)
-  keys = {
-    {
-      '<leader>Sr',
-      function()
-        require('persistence').load()
-        require('utils.notify').success(
-          'Persistence',
-          'Session restored for: ' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':t')
-        )
-      end,
-      desc = 'Restore session for current directory',
-    },
-    {
-      '<leader>Sl',
-      function()
-        require('persistence').load({
-          last = true,
-        })
-        require('utils.notify').success('Persistence', 'Last session restored')
-      end,
-      desc = 'Load last session',
-    },
-    {
-      '<leader>Ss',
-      function()
-        require('persistence').save()
-        require('utils.notify').success(
-          'Persistence',
-          'Session saved for: ' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':t')
-        )
-      end,
-      desc = 'Save current session',
-    },
-    {
-      '<leader>Sd',
-      function()
-        require('persistence').stop()
-        require('utils.notify').info('Persistence', 'Session persistence disabled for this session')
-      end,
-      desc = 'Stop session persistence',
-    },
-  },
-
-  init = function()
-    -- Debug function to help troubleshoot
-    local function debug_log(message)
-      if vim.g.persistence_debug then require('utils.notify').debug('Persistence: ' .. message) end
-    end
-
-    -- Function to check if we have meaningful buffers
-    local function has_meaningful_buffers()
-      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-        if vim.api.nvim_buf_is_loaded(buf) and vim.api.nvim_buf_is_valid(buf) then
-          local buftype = vim.api.nvim_get_option_value('buftype', {
-            buf = buf,
-          })
-          local bufname = vim.api.nvim_buf_get_name(buf)
-
-          -- Count as meaningful if it's a normal file buffer with a real path
-          if buftype == '' and bufname ~= '' and not bufname:match('^/tmp/') and vim.fn.filereadable(bufname) == 1 then
-            return true
-          end
-        end
-      end
-      return false
-    end
-
-    -- Handle :qall issues by auto-saving modified buffers
-    vim.api.nvim_create_autocmd('VimLeavePre', {
-      group = vim.api.nvim_create_augroup('PersistenceQuitHandler', {
-        clear = true,
-      }),
-      callback = function()
-        -- Auto-save all modified normal file buffers before quitting
-        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-          if vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_is_loaded(buf) then
-            local buftype = vim.api.nvim_get_option_value('buftype', {
-              buf = buf,
-            })
-            local modified = vim.api.nvim_get_option_value('modified', {
-              buf = buf,
-            })
-            local bufname = vim.api.nvim_buf_get_name(buf)
-
-            -- Save modified normal file buffers
-            if modified and buftype == '' and bufname ~= '' and vim.fn.filereadable(bufname) == 1 then
-              pcall(vim.api.nvim_buf_call, buf, function() vim.cmd('silent! write') end)
-            end
-          end
-        end
-      end,
-    })
-
-    -- Enhanced auto-restore session when starting nvim
-    vim.api.nvim_create_autocmd('VimEnter', {
-      group = vim.api.nvim_create_augroup('PersistenceAutoRestore', {
-        clear = true,
-      }),
-      callback = function()
-        debug_log('VimEnter triggered')
-
-        -- Get command line arguments
-        local argc = vim.fn.argc()
-        local argv = vim.fn.argv()
-        local cwd = vim.fn.getcwd()
-
-        debug_log('argc: ' .. argc .. ', cwd: ' .. cwd)
-        debug_log('argv: ' .. vim.inspect(argv))
-        debug_log('started_by_dashboard: ' .. tostring(vim.g.started_by_dashboard))
-        debug_log('NVIM env: ' .. tostring(vim.env.NVIM))
-        debug_log('started_with_stdin: ' .. tostring(vim.g.started_with_stdin))
-
-        -- Only restore if:
-        -- 1. Exactly 1 argument was passed
-        -- 2. That argument is "." (current directory)
-        -- 3. Not in nested nvim instance
-        -- 4. Not reading from stdin
-        -- 5. Not in a Lazy popup window or any special buffer
-        local has_special_buffer = false
-        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-          if vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_is_loaded(buf) then
-            local filetype = vim.api.nvim_get_option_value('filetype', {
-              buf = buf,
-            })
-            local buftype = vim.api.nvim_get_option_value('buftype', {
-              buf = buf,
-            })
-            local bufname = vim.api.nvim_buf_get_name(buf)
-
-            -- Check for special buffer types that should prevent session restore
-            if
-              filetype == 'lazy'
-              or filetype == 'mason'
-              or filetype == 'TelescopePrompt'
-              or buftype == 'nofile'
-              or buftype == 'terminal'
-              or bufname:match('lazy%.nvim')
-              or bufname:match('mason%.nvim')
-            then
-              has_special_buffer = true
-              debug_log('Found special buffer preventing restore: ' .. filetype .. ' / ' .. buftype .. ' / ' .. bufname)
-              break
-            end
-          end
-        end
-
-        local should_restore = argc == 1
-          and argv[1] == '.'
-          and not vim.env.NVIM
-          and not vim.g.started_with_stdin
-          and not has_special_buffer
-
-        if should_restore then
-          -- Check if a session exists for current directory
-          local session_file = require('persistence').current()
-          debug_log('Session file: ' .. tostring(session_file))
-
-          if session_file and vim.fn.filereadable(session_file) == 1 then
-            -- Delete any unnamed/empty buffers before restoring session
-            local buffers = vim.api.nvim_list_bufs()
-            for _, buf in ipairs(buffers) do
-              if vim.api.nvim_buf_is_loaded(buf) then
-                local bufname = vim.api.nvim_buf_get_name(buf)
-                local buftype = vim.api.nvim_get_option_value('buftype', {
-                  buf = buf,
-                })
-                local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-
-                -- Delete if it's an unnamed, empty buffer
-                if bufname == '' and buftype == '' and #lines == 1 and lines[1] == '' then
-                  debug_log('Deleting unnamed buffer: ' .. buf)
-                  pcall(vim.api.nvim_buf_delete, buf, {
-                    force = true,
-                  })
-                end
-              end
-            end
-
-            -- Delay the restore to ensure Neovim is fully loaded
-            vim.defer_fn(function()
-              local success = pcall(function() require('persistence').load() end)
-
-              if success then
-                require('utils.notify').success(
-                  'Persistence',
-                  'Session restored for: ' .. vim.fn.fnamemodify(cwd, ':t')
-                )
-                debug_log('Session restored successfully')
-              else
-                debug_log('Failed to restore session')
-              end
-            end, 100)
-          else
-            debug_log('No session file found - cleaning up for fresh start')
-
-            -- No session exists, clean up any buffers and start fresh
-            vim.defer_fn(function()
-              local buffers = vim.api.nvim_list_bufs()
-              for _, buf in ipairs(buffers) do
-                if vim.api.nvim_buf_is_loaded(buf) and vim.api.nvim_buf_is_valid(buf) then
-                  local bufname = vim.api.nvim_buf_get_name(buf)
-                  local buftype = vim.api.nvim_get_option_value('buftype', {
-                    buf = buf,
-                  })
-
-                  -- Delete any buffer that's not a special buffer type
-                  -- This includes the directory buffer that gets created
-                  if buftype == '' or bufname:match('/$') then
-                    debug_log('Deleting buffer for fresh start: ' .. buf .. ' (' .. bufname .. ')')
-                    pcall(vim.api.nvim_buf_delete, buf, {
-                      force = true,
-                    })
-                  end
-                end
-              end
-
-              -- Start with clean empty buffer for 'nvim .' with no session
-              require('utils.notify').warn('Persistence', 'No session found for: ' .. vim.fn.fnamemodify(cwd, ':t'))
-            end, 50)
-          end
-        else
-          debug_log('Session restoration not triggered - normal nvim startup')
-          -- For 'nvim' without arguments or with file arguments, just start normally
-          -- No special handling needed - let nvim start with its normal behavior
-        end
-      end,
-      nested = true,
-    })
-
-    -- Simplified auto-save session on exit
-    vim.api.nvim_create_autocmd('VimLeavePre', {
-      group = vim.api.nvim_create_augroup('PersistenceAutoSave', {
-        clear = true,
-      }),
-      callback = function()
-        debug_log('VimLeavePre triggered')
-
-        -- Don't save in nested nvim instances
-        if vim.env.NVIM then
-          debug_log('Skipping save - nested nvim instance')
-          return
-        end
-
-        -- Check if we should save
-        if has_meaningful_buffers() then
-          local cwd = vim.fn.getcwd()
-          debug_log('Saving session for: ' .. cwd)
-
-          local success = pcall(function() require('persistence').save() end)
-
-          if success then
-            print('Session saved for: ' .. vim.fn.fnamemodify(cwd, ':t'))
-            debug_log('Session saved successfully')
-          else
-            print('Failed to save session for: ' .. vim.fn.fnamemodify(cwd, ':t'))
-            debug_log('Failed to save session')
-          end
-        else
-          debug_log('No meaningful buffers - skipping save')
-        end
-      end,
-    })
-
-    -- Detect stdin to avoid auto-restore when using pipes
-    vim.api.nvim_create_autocmd('StdinReadPre', {
-      group = vim.api.nvim_create_augroup('PersistenceStdinDetect', {
-        clear = true,
-      }),
-      callback = function()
-        vim.g.started_with_stdin = true
-        debug_log('Stdin detected - disabling auto-restore')
-      end,
-    })
-
-    -- Optional: Auto-save on directory change
-    vim.api.nvim_create_autocmd('DirChanged', {
-      group = vim.api.nvim_create_augroup('PersistenceDirChange', {
-        clear = true,
-      }),
-      callback = function(ev)
-        debug_log('Directory changed from ' .. tostring(ev.file) .. ' to ' .. vim.fn.getcwd())
-
-        -- Save session for the old directory if we had meaningful buffers
-        if has_meaningful_buffers() then
-          vim.schedule(function()
-            pcall(function() require('persistence').save() end)
-            debug_log('Session saved due to directory change')
-          end)
-        end
-      end,
-    })
-
-    -- Optional: Periodic auto-save (every 5 minutes after buffer writes)
-    local last_save_time = 0
-    vim.api.nvim_create_autocmd({ 'BufWritePost' }, {
-      group = vim.api.nvim_create_augroup('PersistencePeriodicSave', {
-        clear = true,
-      }),
-      callback = function()
-        local current_time = vim.fn.localtime()
-        if current_time - last_save_time > 300 then -- 5 minutes
-          last_save_time = current_time
-
-          if has_meaningful_buffers() and require('persistence').current() then
+        -- Simple post-restore cleanup
+        post_open = function()
+            -- Clean up any problematic buffers that got restored
             vim.schedule(function()
-              pcall(function() require('persistence').save() end)
-              debug_log('Periodic session save completed')
+                for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                    if vim.api.nvim_buf_is_valid(buf) then
+                        local filetype = vim.api.nvim_get_option_value('filetype', {
+                            buf = buf
+                        })
+                        local buftype = vim.api.nvim_get_option_value('buftype', {
+                            buf = buf
+                        })
+                        local bufname = vim.api.nvim_buf_get_name(buf)
+
+                        -- Remove any restored trouble/panel buffers
+                        if filetype == 'trouble' or filetype == 'exclusive-panel' or
+                            (bufname == '' and buftype == 'nofile' and filetype == '') then
+                            pcall(vim.api.nvim_buf_delete, buf, {
+                                force = true
+                            })
+                        end
+                    end
+                end
             end)
-          end
         end
-      end,
-    })
+    },
 
-    -- User commands for easy testing and debugging
-    vim.api.nvim_create_user_command('PersistenceTest', function()
-      local current_session = require('persistence').current()
-      local cwd = vim.fn.getcwd()
-      local argc = vim.fn.argc()
-      local argv = vim.fn.argv()
+    keys = {{
+        '<leader>Sr',
+        function()
+            require('persistence').load()
+            require('utils.notify').success('Persistence', 'Session restored')
+        end,
+        desc = 'Restore session for current directory'
+    }, {
+        '<leader>Sl',
+        function()
+            require('persistence').load({
+                last = true
+            })
+            require('utils.notify').success('Persistence', 'Last session restored')
+        end,
+        desc = 'Load last session'
+    }, {
+        '<leader>Ss',
+        function()
+            require('persistence').save()
+            require('utils.notify').success('Persistence', 'Session saved')
+        end,
+        desc = 'Save current session'
+    }, {
+        '<leader>Sd',
+        function()
+            require('persistence').stop()
+            require('utils.notify').info('Persistence', 'Session persistence disabled')
+        end,
+        desc = 'Stop session persistence'
+    }},
 
-      print('=== Persistence Test ===')
-      print('Current directory: ' .. cwd)
-      print('Session file: ' .. (current_session or 'none'))
-      print('Session exists: ' .. tostring(current_session and vim.fn.filereadable(current_session) == 1))
-      print('Arguments count: ' .. argc)
-      print('Arguments: ' .. vim.inspect(argv))
-      print('Has meaningful buffers: ' .. tostring(has_meaningful_buffers()))
-      print('Nested nvim: ' .. tostring(vim.env.NVIM ~= nil))
-      print('Started by dashboard: ' .. tostring(vim.g.started_by_dashboard))
-      print('Started with stdin: ' .. tostring(vim.g.started_with_stdin))
+    init = function()
+        -- Helper function to check if we have meaningful buffers
+        local function has_meaningful_buffers()
+            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                if vim.api.nvim_buf_is_loaded(buf) and vim.api.nvim_buf_is_valid(buf) then
+                    local buftype = vim.api.nvim_get_option_value('buftype', {
+                        buf = buf
+                    })
+                    local bufname = vim.api.nvim_buf_get_name(buf)
 
-      -- List current buffers
-      print('\n=== Current Buffers ===')
-      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-        if vim.api.nvim_buf_is_loaded(buf) then
-          local bufname = vim.api.nvim_buf_get_name(buf)
-          local buftype = vim.api.nvim_get_option_value('buftype', {
-            buf = buf,
-          })
-          local filetype = vim.api.nvim_get_option_value('filetype', {
-            buf = buf,
-          })
-          print(
-            'Buffer '
-              .. buf
-              .. ': '
-              .. (bufname ~= '' and bufname or '[No Name]')
-              .. ' (buftype: '
-              .. buftype
-              .. ', filetype: '
-              .. filetype
-              .. ')'
-          )
+                    if buftype == '' and bufname ~= '' and vim.fn.filereadable(bufname) == 1 then
+                        return true
+                    end
+                end
+            end
+            return false
         end
-      end
-    end, {
-      desc = 'Test session restoration and show current state',
-    })
 
-    vim.api.nvim_create_user_command('PersistenceDebug', function()
-      vim.g.persistence_debug = not vim.g.persistence_debug
-      local status = vim.g.persistence_debug and 'enabled' or 'disabled'
-      require('utils.notify').info('Persistence', 'Debug logging ' .. status)
-    end, {
-      desc = 'Toggle persistence debug logging',
-    })
+        -- Auto-restore session when starting with 'nvim .'
+        vim.api.nvim_create_autocmd('VimEnter', {
+            group = vim.api.nvim_create_augroup('PersistenceAutoRestore', {
+                clear = true
+            }),
+            callback = function()
+                local argv = vim.fn.argv()
+                local argc = vim.fn.argc()
 
-    -- Custom quit commands that handle modified buffers gracefully
-    vim.api.nvim_create_user_command('QAll', function()
-      -- Save all modified buffers first
-      vim.cmd('wall')
-      -- Then quit all
-      vim.cmd('qall')
-    end, {
-      desc = 'Save all and quit all',
-    })
+                -- Only auto-restore for 'nvim .' and no special buffers
+                local should_restore = argc == 1 and argv[1] == '.' and not vim.env.NVIM and
+                                           not vim.g.started_with_stdin
 
-    -- Create a better quit command
-    vim.keymap.set('n', '<leader>qq', function()
-      -- Check if there are modified buffers
-      local modified_buffers = {}
-      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-        if
-          vim.api.nvim_buf_is_loaded(buf)
-          and vim.api.nvim_get_option_value('modified', {
-            buf = buf,
-          })
-        then
-          table.insert(modified_buffers, vim.api.nvim_buf_get_name(buf))
-        end
-      end
+                if should_restore then
+                    vim.defer_fn(function()
+                        local success = pcall(function()
+                            require('persistence').load()
+                        end)
 
-      if #modified_buffers > 0 then
-        local choice = vim.fn.confirm(
-          'There are ' .. #modified_buffers .. ' modified buffers. What do you want to do?',
-          '&Save all and quit\n&Quit without saving\n&Cancel',
-          1
-        )
+                        if success then
+                            require('utils.notify').success('Persistence', 'Session restored')
+                        end
+                    end, 50)
+                end
+            end,
+            nested = true
+        })
 
-        if choice == 1 then
-          vim.cmd('QuitAll')
-        elseif choice == 2 then
-          vim.cmd('ForceQuitAll')
-        end
-      else
-        vim.cmd('qall')
-      end
-    end, {
-      desc = 'Smart quit all',
-    })
-  end,
+        -- Auto-save session on exit
+        vim.api.nvim_create_autocmd('VimLeavePre', {
+            group = vim.api.nvim_create_augroup('PersistenceAutoSave', {
+                clear = true
+            }),
+            callback = function()
+                if has_meaningful_buffers() then
+                    pcall(function()
+                        require('persistence').save()
+                    end)
+                end
+            end
+        })
+
+        -- Detect stdin to avoid auto-restore when using pipes
+        vim.api.nvim_create_autocmd('StdinReadPre', {
+            group = vim.api.nvim_create_augroup('PersistenceStdinDetect', {
+                clear = true
+            }),
+            callback = function()
+                vim.g.started_with_stdin = true
+            end
+        })
+    end
 }

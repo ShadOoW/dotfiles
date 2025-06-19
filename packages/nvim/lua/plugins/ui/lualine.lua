@@ -91,7 +91,7 @@ return {
     end
 
     local function java_version()
-      if vim.bo.filetype == 'java' then return ' Java' end
+      if vim.bo.filetype == 'java' then return ' Java' end
       return ''
     end
 
@@ -243,6 +243,149 @@ return {
               readonly = ' ',
               unnamed = '[No Name]',
             },
+            fmt = function(str)
+              -- Get current buffer info
+              local bufnr = vim.api.nvim_get_current_buf()
+              local buf_name = vim.api.nvim_buf_get_name(bufnr)
+              local buf_type = vim.bo[bufnr].buftype
+              local filetype = vim.bo[bufnr].filetype
+
+              -- Priority 1.5: Handle trouble buffers - use filetype as primary detection
+              if filetype == 'trouble' then
+                -- This is definitely a trouble buffer, let's determine what type
+
+                -- First check if we have a stored mode globally
+                if _G.current_trouble_mode then
+                  local mode_map = {
+                    diagnostics = ' Workspace Problems',
+                    quickfix = ' Quickfix',
+                    loclist = ' Location List',
+                    lsp_references = ' References',
+                    lsp_definitions = ' Definitions',
+                    lsp_type_definitions = ' Type Defs',
+                    lsp_implementations = ' Implementations',
+                    lsp_document_symbols = ' Symbols',
+                    lsp_workspace_symbols = ' Workspace',
+                  }
+
+                  return mode_map[_G.current_trouble_mode]
+                    or (' ' .. (_G.current_trouble_mode:gsub('_', ' '):gsub('^%l', string.upper)))
+                end
+
+                -- Fallback: try to detect via trouble API
+                local trouble_ok, trouble = pcall(require, 'trouble')
+                if trouble_ok then
+                  -- Try to detect the trouble mode from the trouble API
+                  local current_mode = 'diagnostics' -- default fallback
+
+                  -- Check if trouble has an API to get current mode
+                  if trouble.get_mode then
+                    current_mode = trouble.get_mode() or 'diagnostics'
+                  elseif trouble.is_open then
+                    -- Check different modes to see which one is open
+                    for mode, _ in pairs({
+                      diagnostics = true,
+                      quickfix = true,
+                      loclist = true,
+                      lsp_references = true,
+                      lsp_definitions = true,
+                      lsp_type_definitions = true,
+                      lsp_implementations = true,
+                      lsp_document_symbols = true,
+                      lsp_workspace_symbols = true,
+                    }) do
+                      if trouble.is_open(mode) then
+                        current_mode = mode
+                        break
+                      end
+                    end
+                  end
+
+                  -- Map trouble modes to display names
+                  local mode_map = {
+                    diagnostics = ' Workspace Problems',
+                    quickfix = ' Quickfix',
+                    loclist = ' Location List',
+                    lsp_references = ' References',
+                    lsp_definitions = ' Definitions',
+                    lsp_type_definitions = ' Type Defs',
+                    lsp_implementations = ' Implementations',
+                    lsp_document_symbols = ' Symbols',
+                    lsp_workspace_symbols = ' Workspace',
+                  }
+
+                  return mode_map[current_mode] or ' Trouble'
+                end
+
+                return ' Trouble'
+              end
+
+              -- Priority 2: Handle trouble buffers with buffer name patterns (fallback)
+              if buf_name:match('^trouble://') or buf_name:find('trouble') then
+                local trouble_type = buf_name:match('^trouble://([^/]+)')
+                if trouble_type then
+                  local type_map = {
+                    diagnostics = ' Workspace Problems',
+                    quickfix = ' Quickfix',
+                    loclist = ' Location List',
+                    lsp_references = ' References',
+                    lsp_definitions = ' Definitions',
+                    lsp_type_definitions = ' Type Defs',
+                    lsp_implementations = ' Implementations',
+                    lsp_document_symbols = ' Symbols',
+                    lsp_workspace_symbols = ' Workspace',
+                  }
+                  return type_map[trouble_type] or (' ' .. trouble_type:gsub('_', ' '):gsub('^%l', string.upper))
+                end
+                return ' Trouble'
+              end
+
+              -- Priority 3: Check for other custom buffer variables
+              local custom_name = vim.b[bufnr].custom_buffer_name
+              if custom_name and custom_name ~= '' then return custom_name end
+
+              -- Priority 4: Handle special buffer types
+              if buf_type == 'nofile' or buf_type == 'terminal' then
+                -- Handle terminal buffers
+                if buf_name:match('^term://') then return '  Terminal' end
+
+                -- Handle other special buffers based on filetype
+                local filetype_names = {
+                  notify = ' Notifications',
+                  noice = ' Messages',
+                  outputpanel = ' Output',
+                }
+
+                if filetype_names[filetype] then return filetype_names[filetype] end
+
+                -- Handle other special buffers based on buffer name patterns
+                local special_names = {
+                  ['NvimTree'] = ' Files',
+                  ['neo-tree'] = ' Files',
+                  ['aerial'] = ' Outline',
+                  ['Outline'] = ' Outline',
+                  ['dapui_'] = ' Debug',
+                  ['dap-repl'] = ' Debug REPL',
+                  ['gitcommit'] = ' Git Commit',
+                  ['fugitive://'] = ' Git',
+                  ['DiffviewFiles'] = ' Git Diff',
+                  ['NeogitStatus'] = ' Git Status',
+                }
+
+                for pattern, name in pairs(special_names) do
+                  if buf_name:find(pattern) then return name end
+                end
+
+                -- Special handling for empty buffer names with nofile type
+                if buf_name == '' and buf_type == 'nofile' then return '[Special Buffer]' end
+
+                -- If it's a nofile buffer but no special handling, show buffer type
+                if buf_type == 'nofile' then return '[' .. (buf_type:gsub('^%l', string.upper)) .. ']' end
+              end
+
+              -- Priority 5: Return original string for normal files
+              return str
+            end,
           },
         },
         lualine_x = {
@@ -315,11 +458,11 @@ return {
             function()
               local format = vim.bo.fileformat
               if format == 'unix' then
-                return ' '
+                return ' '
               elseif format == 'dos' then
-                return ' '
+                return ' '
               elseif format == 'mac' then
-                return ' '
+                return ' '
               else
                 return format
               end

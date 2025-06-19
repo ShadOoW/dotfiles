@@ -19,6 +19,5 @@ return {
   require('plugins.ui.indent-blankline'),
   require('plugins.ui.matchparen'),
   require('plugins.ui.nvim-navic'),
-  require('plugins.ui.sidebar'),
   require('plugins.ui.cinnamon'),
 }

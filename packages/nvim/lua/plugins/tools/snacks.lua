@@ -19,6 +19,42 @@ return {
     },
     notifier = {
       enabled = true,
+      keep = function(notif) return vim.fn.fnamemodify(notif.msg[1] or '', ':t') ~= 'mini.lua' end,
+      history = true, -- Enable notification history for picker
+      top_down = true,
+      width = {
+        min = 40,
+        max = 0.4,
+      },
+      height = {
+        min = 1,
+        max = 0.6,
+      },
+      margin = {
+        top = 0,
+        right = 1,
+        bottom = 0,
+      },
+      padding = {
+        top = 1,
+        right = 2,
+        bottom = 1,
+        left = 2,
+      },
+      sort = { 'level', 'added' },
+      icons = {
+        error = '󰅚',
+        warn = '󰀪',
+        info = '󰋽',
+        debug = '󰌶',
+        trace = '󰌶',
+      },
+      style = {
+        wo = {
+          winblend = 5,
+        },
+        border = 'rounded',
+      },
     },
     quickfile = {
       enabled = true,
@@ -696,53 +732,66 @@ return {
     })
 
     -- Notifications and Messages
-    vim.keymap.set(
-      'n',
-      '<leader>sn',
-      function() snacks.picker.notifications(picker_config('Notifications Search', '󰎟')) end,
-      {
-        desc = 'Notifications search',
-      }
-    )
-
-    vim.keymap.set('n', '<leader>sm', function()
-      local ok, noice = pcall(require, 'noice')
-      if ok then
-        vim.cmd('Noice picker')
-      else
-        -- Fallback to notify history if noice not available
-        local notify_ok, notify = pcall(require, 'notify')
-        if notify_ok and notify.history then
-          local items = {}
-          for _, notif in ipairs(notify.history()) do
-            table.insert(items, {
-              text = notif.message,
-              level = notif.level,
-              time = notif.time,
-              title = notif.title,
-            })
-          end
-
-          snacks.picker.pick('notifications', {
-            title = '󰎟 Noice History',
-            items = items,
-            format = function(item)
-              if not item then return '' end
-              local level_icon = item.level == vim.log.levels.ERROR and '󰅚'
-                or item.level == vim.log.levels.WARN and '󰀪'
-                or item.level == vim.log.levels.INFO and '󰋽'
-                or '󰌶'
-              local text = item.text or ''
-              if type(text) ~= 'string' then text = tostring(text) end
-              return string.format('%s %s', level_icon, text)
-            end,
-          })
-        else
-          vim.notify('Noice not available and no notification history', vim.log.levels.WARN)
-        end
+    vim.keymap.set('n', '<leader>sn', function()
+      -- Use snacks notifier get_history API (correct method)
+      local history = snacks.notifier.get_history()
+      if not history or #history == 0 then
+        vim.notify('No notifications found - try :TestNotify to generate some', vim.log.levels.WARN)
+        return
       end
+
+      local items = {}
+      for i, notif in ipairs(history) do
+        local message = notif.msg
+        if type(message) == 'table' then message = table.concat(message, ' ') end
+
+        -- Format notification for picker
+        local level_icons = {
+          [vim.log.levels.ERROR] = '󰅚',
+          [vim.log.levels.WARN] = '󰀪',
+          [vim.log.levels.INFO] = '󰋽',
+          [vim.log.levels.DEBUG] = '󰌶',
+        }
+
+        local icon = level_icons[notif.level] or '󰋽'
+        local title = notif.opts and notif.opts.title or 'Notification'
+        local display_text = string.format('%s %s: %s', icon, title, tostring(message or ''))
+
+        table.insert(items, {
+          text = display_text,
+          message = tostring(message or ''),
+          level = notif.level,
+          time = notif.time,
+          title = title,
+          icon = icon,
+        })
+      end
+
+      -- Use snacks picker to display notifications
+      snacks.picker.pick({
+        source = 'list',
+        items = items,
+        title = '󰂚 Notification History',
+        preview = function(item)
+          return {
+            '# ' .. item.title,
+            '',
+            'Level: '
+              .. (
+                item.level == vim.log.levels.ERROR and 'ERROR'
+                or item.level == vim.log.levels.WARN and 'WARN'
+                or item.level == vim.log.levels.INFO and 'INFO'
+                or 'DEBUG'
+              ),
+            'Time: ' .. (item.time and os.date('%H:%M:%S', item.time) or 'Unknown'),
+            '',
+            '## Message:',
+            item.message,
+          }
+        end,
+      })
     end, {
-      desc = 'Noice history',
+      desc = 'Show notification history',
     })
 
     -- Yank History (if available)
@@ -826,6 +875,121 @@ return {
       })
     end, {
       desc = 'Recent files in current project',
+    })
+
+    -- Set snacks as default notification handler to ensure history works
+    vim.notify = snacks.notifier.notify
+
+    -- Create test notification command for debugging
+    vim.api.nvim_create_user_command('TestNotify', function()
+      snacks.notifier.notify('This is a test info notification', 'info', {
+        title = 'Info Test',
+      })
+
+      vim.defer_fn(
+        function()
+          snacks.notifier.notify('Test warning message with longer content to test wrapping', 'warn', {
+            title = 'Warning Test',
+          })
+        end,
+        500
+      )
+
+      vim.defer_fn(
+        function()
+          snacks.notifier.notify('Test error message', 'error', {
+            title = 'Error Test',
+          })
+        end,
+        1000
+      )
+
+      vim.defer_fn(function() snacks.notifier.notify('Debug message without title', 'debug') end, 1500)
+
+      vim.defer_fn(
+        function()
+          snacks.notifier.notify('Multiple line notification\nSecond line\nThird line', 'info', {
+            title = 'Multi-line Test',
+          })
+        end,
+        2000
+      )
+
+      vim.notify('Generated 5 test notifications - use <leader>sn to view history', vim.log.levels.INFO)
+    end, {
+      desc = 'Create test notifications to verify history works',
+    })
+
+    -- Enhanced notification keymaps
+    vim.keymap.set('n', '<leader>nh', function() snacks.notifier.show_history() end, {
+      desc = 'Show notification history panel',
+    })
+
+    vim.keymap.set('n', '<leader>nd', function() snacks.notifier.hide() end, {
+      desc = 'Dismiss all notifications',
+    })
+
+    -- Alternative keymap for notification history (same as <leader>sn)
+    vim.keymap.set('n', '<leader>nn', function()
+      -- Use snacks notifier get_history API (correct method)
+      local history = snacks.notifier.get_history()
+      if not history or #history == 0 then
+        vim.notify('No notifications found - try :TestNotify to generate some', vim.log.levels.WARN)
+        return
+      end
+
+      local items = {}
+      for i, notif in ipairs(history) do
+        local message = notif.msg
+        if type(message) == 'table' then message = table.concat(message, ' ') end
+
+        -- Format notification for picker
+        local level_icons = {
+          [vim.log.levels.ERROR] = '󰅚',
+          [vim.log.levels.WARN] = '󰀪',
+          [vim.log.levels.INFO] = '󰋽',
+          [vim.log.levels.DEBUG] = '󰌶',
+        }
+
+        local icon = level_icons[notif.level] or '󰋽'
+        local title = notif.opts and notif.opts.title or 'Notification'
+        local display_text = string.format('%s %s: %s', icon, title, tostring(message or ''))
+
+        table.insert(items, {
+          text = display_text,
+          message = tostring(message or ''),
+          level = notif.level,
+          time = notif.time,
+          title = title,
+          icon = icon,
+        })
+      end
+
+      -- Use snacks picker to display notifications
+      snacks.picker.pick({
+        source = 'list',
+        items = items,
+        title = '󰂚 Notification History (Alt)',
+        preview = function(item)
+          return {
+            '# ' .. item.title,
+            '',
+            'Level: '
+              .. (
+                item.level == vim.log.levels.ERROR and 'ERROR'
+                or item.level == vim.log.levels.WARN and 'WARN'
+                or item.level == vim.log.levels.INFO and 'INFO'
+                or 'DEBUG'
+              ),
+            'Time: ' .. (item.time and os.date('%H:%M:%S', item.time) or 'Unknown'),
+            '',
+            '## Message:',
+            item.message,
+          }
+        end,
+      })
+    end, {
+      desc = 'Alternative notification history picker',
     })
   end,
 }

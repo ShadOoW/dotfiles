@@ -330,7 +330,7 @@ return {
 
               -- Determine which replacement to do first based on position
               -- Always replace the later one first to avoid coordinate shifts
-              local first_element, second_element, first_text, second_text
+              local frst_element, second_element, first_text, second_text
               local first_start_row, first_start_col, first_end_row, first_end_col
               local second_start_row, second_start_col, second_end_row, second_end_col
               local cursor_follows_first = false

@@ -7,11 +7,14 @@ local keymap = require('utils.keymap')
 -- Disable command-line window completely using multiple approaches
 -- This prevents the annoying q: buffer that interferes with normal workflow
 
--- Method 1: Disable keybindings in all modes
-local modes = { 'n', 'v', 'x', 'o', 'i', 'c', 't' }
+-- Method 1: Disable keybindings - ONLY in normal mode to avoid command-line delays
+-- The 'c' mode mapping for 'q:' was causing delays when typing 'q' in command line
 local cmd_keys = { 'q:', 'q/', 'q?' }
 
-for _, mode in ipairs(modes) do
+-- Only disable in normal, visual, and related modes - NOT in command-line mode
+local safe_modes = { 'n', 'v', 'x', 'o', 'i', 't' }
+
+for _, mode in ipairs(safe_modes) do
   for _, key in ipairs(cmd_keys) do
     vim.keymap.set(mode, key, '<Nop>', {
       remap = false,
@@ -146,8 +149,30 @@ end, 'Setup project workflow')
 
 keymap.n('<leader>Ao', '<cmd>OutputPanel<CR>', 'Toggle output panel')
 
--- Diagnostic keymaps
+-- Basic diagnostic keymaps
 keymap.n('<leader>xq', vim.diagnostic.setloclist, 'Open diagnostic quickfix list')
+
+-- Quick diagnostic navigation (IntelliJ-style)
+keymap.n('[d', vim.diagnostic.goto_prev, 'Previous diagnostic')
+keymap.n(']d', vim.diagnostic.goto_next, 'Next diagnostic')
+keymap.n(
+  '[e',
+  function()
+    vim.diagnostic.goto_prev({
+      severity = vim.diagnostic.severity.ERROR,
+    })
+  end,
+  'Previous error'
+)
+keymap.n(
+  ']e',
+  function()
+    vim.diagnostic.goto_next({
+      severity = vim.diagnostic.severity.ERROR,
+    })
+  end,
+  'Next error'
+)
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Tab Management

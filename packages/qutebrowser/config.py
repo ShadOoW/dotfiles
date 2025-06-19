@@ -31,7 +31,7 @@ c.backend = 'webengine'
 c.messages.timeout = 5000
 c.qt.chromium.low_end_device_mode = 'auto'
 
-# Disable crash report dialog and session restoration messages
+# Disable crash report dialog and session restoraion messages
 c.session.lazy_restore = False
 
 # Disable QtWebEngine crash reporter
