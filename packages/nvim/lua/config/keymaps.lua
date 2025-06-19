@@ -1,5 +1,6 @@
 -- Keymaps configuration
 local keymap = require('utils.keymap')
+local notify = require('utils.notify')
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- COMPREHENSIVE COMMAND-LINE WINDOW DISABLING
@@ -36,7 +37,7 @@ vim.api.nvim_create_autocmd('CmdwinEnter', {
   callback = function()
     -- Immediately close if somehow opened
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-c>', true, false, true), 'n', false)
-    vim.notify('Command-line window disabled - use : for commands', vim.log.levels.WARN)
+    notify.warn('Keymaps', 'Command-line window disabled')
     return true
   end,
 })
@@ -70,9 +71,7 @@ keymap.n('<leader>fQ', function()
     end
   end
 
-  vim.notify('Closed ' .. closed_count .. ' buffers', vim.log.levels.INFO, {
-    title = 'Buffer Management',
-  })
+  notify.info('Buffer Management', 'Closed ' .. closed_count .. ' buffers')
 end, 'Close all buffers except current')
 keymap.n('<leader>fw', '<cmd>write<CR>', 'Write file')
 
@@ -137,7 +136,7 @@ keymap.n('<leader>Aa', '<cmd>TmuxPanes<cr>', 'List nvim panes in tmux session')
 
 keymap.n('<leader>Ar', function()
   vim.cmd('checktime')
-  vim.notify('Checked all buffers for external changes', vim.log.levels.INFO)
+  notify.info('Buffer Management', 'Checked all buffers for external changes')
 end, 'Reload all buffers from disk')
 
 -- Session and Project Management
@@ -214,7 +213,7 @@ keymap.n('<leader>wf', function()
       async = true,
     })
   else
-    vim.notify('Not a web file type', vim.log.levels.WARN)
+    notify.warn('Web Development', 'Not a web file type')
   end
 end, 'Format web file')
 
@@ -223,7 +222,7 @@ keymap.n('<leader>we', function()
   if vim.bo.filetype == 'html' then
     -- Toggle highlighting for embedded JS/CSS
     vim.cmd('syntax sync fromstart')
-    vim.notify('Refreshed embedded language highlighting', vim.log.levels.INFO)
+    notify.info('Web Development', 'Refreshed embedded language highlighting')
   end
 end, 'Refresh embedded language highlighting')
 
@@ -238,9 +237,9 @@ keymap.n('<leader>wl', function()
   local cwd = vim.fn.getcwd()
   vim.fn.jobstart({ 'live-server', cwd }, {
     detach = true,
-    on_exit = function() vim.notify('Live server stopped', vim.log.levels.INFO) end,
+    on_exit = function() notify.info('Live Server', 'Server stopped') end,
   })
-  vim.notify('Live server started for: ' .. cwd, vim.log.levels.INFO)
+  notify.info('Live Server', 'Started for: ' .. cwd)
 end, 'Start live server')
 
 -- Open in browser
@@ -256,9 +255,9 @@ keymap.n('<leader>wo', function()
         detach = true,
       })
     end
-    vim.notify('Opened in browser: ' .. vim.fn.expand('%:t'), vim.log.levels.INFO)
+    notify.info('Web Development', 'Opened in browser: ' .. vim.fn.expand('%:t'))
   else
-    vim.notify('Not an HTML file', vim.log.levels.WARN)
+    notify.warn('Web Development', 'Not an HTML file')
   end
 end, 'Open HTML file in browser')
 

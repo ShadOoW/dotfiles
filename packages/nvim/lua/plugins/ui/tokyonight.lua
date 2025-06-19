@@ -1,3 +1,5 @@
+local notify = require('utils.notify')
+
 return {
   'folke/tokyonight.nvim',
   priority = 1000, -- Load before other start plugins
@@ -265,7 +267,7 @@ return {
     -- Set colorscheme with error handling
     local ok, err = pcall(vim.cmd.colorscheme, 'tokyonight-night')
     if not ok then
-      vim.notify('Failed to load tokyonight-night: ' .. err, vim.log.levels.WARN)
+      notify.warn('Tokyonight', 'Failed to load tokyonight-night: ' .. err)
       -- Fallback to default colorscheme
       vim.cmd.colorscheme('default')
     end

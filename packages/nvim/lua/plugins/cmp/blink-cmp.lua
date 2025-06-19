@@ -344,6 +344,8 @@ return {
   },
 
   config = function()
+    local notify = require('utils.notify')
+
     -- Terminal compatibility fix for Ctrl+Space
     vim.keymap.set('i', '<Nul>', '<C-Space>', {
       remap = false,
@@ -362,10 +364,10 @@ return {
       local blink = require('blink.cmp')
       if blink.is_visible() then
         blink.hide()
-        vim.notify('Completion menu hidden', vim.log.levels.INFO)
+        notify.info('Blink CMP', 'Completion menu hidden')
       else
         blink.show()
-        vim.notify('Completion menu shown', vim.log.levels.INFO)
+        notify.info('Blink CMP', 'Completion menu shown')
       end
     end, {
       desc = 'Toggle blink.cmp completion',
@@ -382,7 +384,7 @@ return {
 
     -- Additional debug keymaps for testing
     vim.keymap.set('n', '<leader>ct', function()
-      vim.notify('Testing completion triggers:', vim.log.levels.INFO)
+      notify.info('Blink CMP', 'Testing completion triggers:')
       print('Available triggers:')
       print('  Ctrl+Space (toggle), Ctrl+N, Ctrl+Y, Ctrl+@')
       print('  Use :BlinkShow to manually trigger')

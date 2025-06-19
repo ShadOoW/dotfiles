@@ -1,5 +1,6 @@
 -- Simple Panel Manager for Exclusive Panel Management
 -- Ensures only one panel from a group is open at a time
+local notify = require('utils.notify')
 local M = {}
 
 -- Active panel tracking
@@ -25,7 +26,7 @@ function M.create_exclusive_group(group_name, panel_configs)
   local function open_exclusive(panel_id, opts)
     local config = group.configs[panel_id]
     if not config then
-      vim.notify('Panel ' .. panel_id .. ' not found in group ' .. group_name, vim.log.levels.WARN)
+      notify.warn('Panel Manager', 'Panel ' .. panel_id .. ' not found in group ' .. group_name)
       return false
     end
 

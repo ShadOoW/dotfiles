@@ -3,6 +3,8 @@ return {
   {
     'lervag/wiki.vim',
     config = function()
+      local notify = require('utils.notify')
+
       -- Wiki configuration
       vim.g.wiki_root = '/mnt/share/wiki'
       vim.g.wiki_filetypes = { 'md' }
@@ -99,7 +101,7 @@ return {
       -- Use WikiJournalCopyToNext if available, otherwise fallback
       wiki_keymap('c', function()
         local success = pcall(vim.cmd, 'WikiJournalCopyToNext')
-        if not success then vim.notify('WikiJournalCopyToNext not available in current buffer', vim.log.levels.WARN) end
+        if not success then notify.warn('Wiki', 'WikiJournalCopyToNext not available in current buffer') end
       end, 'Copy to Next Journal')
 
       -- Search and navigation (use fallbacks for missing commands)
@@ -115,7 +117,7 @@ return {
 
       wiki_keymap('l', function()
         local success = pcall(vim.cmd, 'WikiFzfToc')
-        if not success then vim.notify('Table of Contents not available', vim.log.levels.INFO) end
+        if not success then notify.info('Wiki', 'Table of Contents not available') end
       end, 'Table of Contents')
 
       -- Page management (use available commands)
@@ -125,13 +127,13 @@ return {
 
         -- Check if it's a wiki file
         if not current_file:match('/mnt/share/wiki/') then
-          vim.notify('Not a wiki file', vim.log.levels.WARN)
+          notify.warn('Wiki', 'Not a wiki file')
           return
         end
 
         -- Check if file exists
         if vim.fn.filereadable(current_file) == 0 then
-          vim.notify('File does not exist', vim.log.levels.WARN)
+          notify.warn('Wiki', 'File does not exist')
           return
         end
 
@@ -146,19 +148,19 @@ return {
             -- Close the buffer and switch to previous buffer
             vim.cmd('bprevious')
             vim.cmd('bdelete! ' .. vim.fn.bufnr(current_file))
-            vim.notify('Wiki file deleted: ' .. filename, vim.log.levels.INFO)
+            notify.success('Wiki', 'File deleted: ' .. filename)
 
             -- Regenerate summary since file was deleted
             vim.schedule(function() vim.cmd('WikiSummary') end)
           else
-            vim.notify('Failed to delete file: ' .. filename, vim.log.levels.ERROR)
+            notify.error('Wiki', 'Failed to delete file: ' .. filename)
           end
         end
       end, 'Delete Page')
 
       wiki_keymap('r', function()
         local success = pcall(vim.cmd, 'WikiPageRename')
-        if not success then vim.notify('WikiPageRename not available in current buffer', vim.log.levels.WARN) end
+        if not success then notify.warn('Wiki', 'WikiPageRename not available in current buffer') end
       end, 'Rename Page')
 
       wiki_keymap('T', function()
@@ -168,18 +170,18 @@ return {
 
       wiki_keymap('G', function()
         local success = pcall(vim.cmd, 'WikiGraphFindBacklinks')
-        if not success then vim.notify('Backlinks not available', vim.log.levels.INFO) end
+        if not success then notify.info('Wiki', 'Backlinks not available') end
       end, 'Find Backlinks')
 
       -- Export and utilities (use fallbacks)
       wiki_keymap('e', function()
         local success = pcall(vim.cmd, 'WikiExport')
-        if not success then vim.notify('WikiExport not available', vim.log.levels.INFO) end
+        if not success then notify.info('Wiki', 'WikiExport not available') end
       end, 'Export Wiki')
 
       wiki_keymap('E', function()
         local success = pcall(vim.cmd, 'WikiExportTOC')
-        if not success then vim.notify('WikiExportTOC not available', vim.log.levels.INFO) end
+        if not success then notify.info('Wiki', 'WikiExportTOC not available') end
       end, 'Export TOC')
 
       wiki_keymap('f', function()
@@ -223,7 +225,7 @@ return {
         -- Create directories with error handling
         for _, dir in ipairs(wiki_dirs) do
           local success = pcall(vim.fn.mkdir, dir, 'p')
-          if not success then vim.notify('Failed to create directory: ' .. dir, vim.log.levels.WARN) end
+          if not success then notify.warn('Wiki', 'Failed to create directory: ' .. dir) end
         end
 
         -- Create template files if they don't exist
@@ -361,9 +363,9 @@ Last updated: {{date}}
           if new_line ~= line then vim.api.nvim_buf_set_lines(0, i - 1, i, false, { new_line }) end
         end
         if modified then
-          vim.notify('Toggled all checkboxes in file', vim.log.levels.INFO)
+          notify.success('Wiki', 'Toggled all checkboxes in file')
         else
-          vim.notify('No checkboxes found to toggle', vim.log.levels.WARN)
+          notify.warn('Wiki', 'No checkboxes found to toggle')
         end
       end, 'Toggle All Checkboxes')
 
@@ -421,7 +423,7 @@ Last updated: {{date}}
             '<C-Space>',
             function()
               local success = pcall(vim.cmd, 'MkdnToggleToDo')
-              if not success then vim.notify('Checkbox toggle not available', vim.log.levels.WARN) end
+              if not success then notify.warn('Wiki', 'Checkbox toggle not available') end
             end,
             vim.tbl_extend('force', opts, {
               desc = 'Toggle checkbox',
@@ -434,7 +436,7 @@ Last updated: {{date}}
             '<leader>x',
             function()
               local success = pcall(vim.cmd, 'MkdnToggleToDo')
-              if not success then vim.notify('Checkbox toggle not available', vim.log.levels.WARN) end
+              if not success then notify.warn('Wiki', 'Checkbox toggle not available') end
             end,
             vim.tbl_extend('force', opts, {
               desc = 'Toggle checkbox (alt)',
@@ -465,10 +467,10 @@ Last updated: {{date}}
                     'n',
                     false
                   )
-                -- Handle regular lists
+                  -- Handle regular lists
                 elseif before_cursor:match('%s*%- ') then
                   return vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<CR>- ', true, false, true), 'n', false)
-                -- Handle numbered lists
+                  -- Handle numbered lists
                 elseif before_cursor:match('%s*%d+%. ') then
                   local num = before_cursor:match('%s*(%d+)%. ')
                   local next_num = tonumber(num) + 1

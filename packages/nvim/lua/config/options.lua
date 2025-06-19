@@ -1,4 +1,6 @@
 -- Vim options
+local notify = require('utils.notify')
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -233,17 +235,12 @@ vim.api.nvim_create_autocmd('SwapExists', {
     local file_name = args.file
 
     -- Show a discrete notification instead of the full dialog
-    vim.notify(
+    notify.warn(
+      'Swap File',
       string.format(
         'Swap file exists for %s. Press "e" to edit anyway, "r" to recover, "q" to quit.',
         vim.fn.fnamemodify(file_name, ':t')
-      ),
-      vim.log.levels.WARN,
-      {
-        title = 'Swap File Found',
-        timeout = 5000,
-        render = 'compact',
-      }
+      )
     )
 
     -- Set swap choice to 'e' (edit anyway) by default for non-interactive use

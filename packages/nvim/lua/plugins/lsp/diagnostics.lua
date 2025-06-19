@@ -1,4 +1,6 @@
 -- IntelliJ IDEA-like diagnostics system with none-ls and real-time updates
+local notify = require('utils.notify')
+
 return {
   'nvimtools/none-ls.nvim',
   dependencies = {
@@ -12,12 +14,12 @@ return {
     -- Ensure required modules are available
     local ok_null_ls, null_ls = pcall(require, 'null-ls')
     if not ok_null_ls then
-      vim.notify('null-ls not available', vim.log.levels.WARN)
+      notify.warn('Diagnostics', 'null-ls not available')
       return
     end
 
     local ok_lint, lint = pcall(require, 'lint')
-    if not ok_lint then vim.notify('nvim-lint not available', vim.log.levels.WARN) end
+    if not ok_lint then notify.warn('Diagnostics', 'nvim-lint not available') end
 
     -- Enhanced diagnostic functions
     local function refresh_problems_panel()
@@ -115,28 +117,15 @@ return {
       if not intellij_diagnostics.ui.show_progress then return end
 
       if not progress.progress_handle then
-        progress.progress_handle = vim.notify(message, vim.log.levels.INFO, {
-          title = 'Project Analysis',
-          timeout = false,
-          hide_from_history = true,
-        })
+        progress.progress_handle = notify.info('Project Analysis', message)
       else
-        progress.progress_handle = vim.notify(message, vim.log.levels.INFO, {
-          title = 'Project Analysis',
-          timeout = false,
-          hide_from_history = true,
-          replace = progress.progress_handle,
-        })
+        progress.progress_handle = notify.info('Project Analysis', message)
       end
     end
 
     local function hide_progress()
       if progress.progress_handle then
-        vim.notify('Analysis complete', vim.log.levels.INFO, {
-          title = 'Project Analysis',
-          timeout = 3000,
-          replace = progress.progress_handle,
-        })
+        notify.success('Project Analysis', 'Analysis complete')
         progress.progress_handle = nil
       end
     end
@@ -250,13 +239,7 @@ return {
           if progress.active_jobs <= 0 then hide_progress() end
 
           if error_count > 0 then
-            vim.notify(
-              string.format('TypeScript analysis complete: %d errors found', error_count),
-              vim.log.levels.WARN,
-              {
-                title = 'TypeScript Diagnostics',
-              }
-            )
+            notify.warn('TypeScript Diagnostics', string.format('Analysis complete: %d errors found', error_count))
           end
         end,
       }):start()
@@ -387,9 +370,7 @@ return {
       vim.defer_fn(function()
         if progress.active_jobs == 0 then
           hide_progress()
-          vim.notify(string.format('Workspace analysis complete (%d files)', #files), vim.log.levels.INFO, {
-            title = 'IntelliJ Diagnostics',
-          })
+          notify.success('IntelliJ Diagnostics', string.format('Workspace analysis complete (%d files)', #files))
         end
       end, 5000)
     end
@@ -468,7 +449,7 @@ return {
         external = {},
         lint = {},
       }
-      vim.notify('All diagnostics cleared', vim.log.levels.INFO)
+      notify.success('IntelliJ Diagnostics', 'All diagnostics cleared')
     end, {
       desc = 'Clear all diagnostics',
     })

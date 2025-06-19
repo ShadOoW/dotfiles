@@ -184,6 +184,7 @@ return {
   },
 
   config = function(_, opts)
+    local notify = require('utils.notify')
     local snacks = require('snacks')
     snacks.setup(opts)
 
@@ -333,7 +334,7 @@ return {
             local cmd = item.cmd or item.text or item
             if type(cmd) == 'string' then
               vim.cmd(cmd)
-              vim.notify('Executed: ' .. cmd, vim.log.levels.INFO)
+              notify.success('Commands', 'Executed: ' .. cmd)
             end
           end,
         },
@@ -353,10 +354,7 @@ return {
     -- Quick command search (alternative to ':')
     vim.keymap.set('n', '<leader>sx', function()
       -- Show help notification
-      vim.notify('Commands Picker: Enter=Execute, Tab=Preview, q/Esc=Quit, Ctrl+C=Cancel', vim.log.levels.INFO, {
-        title = 'Commands Help',
-        timeout = 3000,
-      })
+      notify.info('Commands Help', 'Enter=Execute, Tab=Preview, q/Esc=Quit, Ctrl+C=Cancel')
 
       snacks.picker.commands(picker_config('Search Commands', '󰘳', {
         actions = {
@@ -364,12 +362,12 @@ return {
             local cmd = item.cmd or item.text or item
             if type(cmd) == 'string' then
               vim.cmd(cmd)
-              vim.notify('✓ Executed: ' .. cmd, vim.log.levels.INFO)
+              notify.success('Commands', 'Executed: ' .. cmd)
             end
           end,
           preview = function(item)
             local cmd = item.cmd or item.text or item
-            if type(cmd) == 'string' then vim.notify('Preview: ' .. cmd, vim.log.levels.INFO) end
+            if type(cmd) == 'string' then notify.info('Commands', 'Preview: ' .. cmd) end
           end,
         },
         keys = {
@@ -427,7 +425,7 @@ return {
       local all_tags = vim.fn.taglist('.*')
 
       if #all_tags == 0 then
-        vim.notify('No tags found. Make sure ctags are generated.', vim.log.levels.WARN)
+        notify.warn('CTags', 'No tags found. Make sure ctags are generated.')
         return
       end
 
@@ -684,7 +682,7 @@ return {
             cwd = expanded_path,
           }))
         else
-          vim.notify('Directory not found: ' .. expanded_path, vim.log.levels.ERROR)
+          notify.error('Project Files', 'Directory not found: ' .. expanded_path)
         end
       end
     end, {
@@ -696,7 +694,7 @@ return {
       -- Check if we have any open tabs
       local tabs = vim.api.nvim_list_tabpages()
       if #tabs <= 1 then
-        vim.notify('No tabs to show', vim.log.levels.WARN)
+        notify.warn('Tabs', 'No tabs to show')
         return
       end
 
@@ -736,7 +734,7 @@ return {
       -- Use snacks notifier get_history API (correct method)
       local history = snacks.notifier.get_history()
       if not history or #history == 0 then
-        vim.notify('No notifications found - try :TestNotify to generate some', vim.log.levels.WARN)
+        notify.warn('Notifications', 'No notifications found.')
         return
       end
 
@@ -833,7 +831,7 @@ return {
           },
         })
       else
-        vim.notify('Yank history not available', vim.log.levels.WARN)
+        notify.warn('Yank History', 'Yank history not available')
       end
     end, {
       desc = 'Yank history',
@@ -880,46 +878,6 @@ return {
     -- Set snacks as default notification handler to ensure history works
     vim.notify = snacks.notifier.notify
 
-    -- Create test notification command for debugging
-    vim.api.nvim_create_user_command('TestNotify', function()
-      snacks.notifier.notify('This is a test info notification', 'info', {
-        title = 'Info Test',
-      })
-
-      vim.defer_fn(
-        function()
-          snacks.notifier.notify('Test warning message with longer content to test wrapping', 'warn', {
-            title = 'Warning Test',
-          })
-        end,
-        500
-      )
-
-      vim.defer_fn(
-        function()
-          snacks.notifier.notify('Test error message', 'error', {
-            title = 'Error Test',
-          })
-        end,
-        1000
-      )
-
-      vim.defer_fn(function() snacks.notifier.notify('Debug message without title', 'debug') end, 1500)
-
-      vim.defer_fn(
-        function()
-          snacks.notifier.notify('Multiple line notification\nSecond line\nThird line', 'info', {
-            title = 'Multi-line Test',
-          })
-        end,
-        2000
-      )
-
-      vim.notify('Generated 5 test notifications - use <leader>sn to view history', vim.log.levels.INFO)
-    end, {
-      desc = 'Create test notifications to verify history works',
-    })
-
     -- Enhanced notification keymaps
     vim.keymap.set('n', '<leader>nh', function() snacks.notifier.show_history() end, {
       desc = 'Show notification history panel',
@@ -934,7 +892,7 @@ return {
       -- Use snacks notifier get_history API (correct method)
       local history = snacks.notifier.get_history()
       if not history or #history == 0 then
-        vim.notify('No notifications found - try :TestNotify to generate some', vim.log.levels.WARN)
+        notify.warn('Notifications', 'No notifications found.')
         return
       end
 

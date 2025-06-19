@@ -1,5 +1,6 @@
 -- All user commands for Neovim configuration
 -- Centralized command definitions
+local notify = require('utils.notify')
 vim.api.nvim_create_user_command('Qa', function() vim.cmd('qall') end, {
   desc = 'Quit all',
 })
@@ -16,7 +17,7 @@ vim.api.nvim_create_user_command('Q', function(opts)
 
   -- Check if buffer has unsaved changes and no bang
   if vim.bo[buf].modified and not opts.bang then
-    vim.notify('No write since last change (add ! to override)', vim.log.levels.ERROR)
+    notify.error('Commands', 'No write since last change (add ! to override)')
     return
   end
 
@@ -156,7 +157,7 @@ vim.api.nvim_create_user_command('ConfigReload', function() require('utils.reloa
 vim.api.nvim_create_user_command('LspRestart', function()
   local clients = vim.lsp.get_clients()
   if #clients == 0 then
-    vim.notify('No LSP clients running', vim.log.levels.WARN)
+    notify.warn('LSP', 'No clients running')
     return
   end
 
@@ -166,12 +167,12 @@ vim.api.nvim_create_user_command('LspRestart', function()
     vim.lsp.stop_client(client.id, true)
   end
 
-  vim.notify('Stopped LSP clients: ' .. table.concat(client_names, ', '), vim.log.levels.INFO)
+  notify.info('LSP', 'Stopped clients: ' .. table.concat(client_names, ', '))
 
   -- Restart LSP after a short delay
   vim.defer_fn(function()
     vim.cmd('LspStart')
-    vim.notify('LSP clients restarted', vim.log.levels.INFO)
+    notify.success('LSP', 'Clients restarted')
   end, 1000)
 end, {
   desc = 'Restart all LSP clients',
@@ -185,23 +186,23 @@ vim.api.nvim_create_user_command('LspStop', function(opts)
     for _, client in ipairs(clients) do
       if client.name == server_name then
         vim.lsp.stop_client(client.id, true)
-        vim.notify('Stopped LSP client: ' .. server_name, vim.log.levels.INFO)
+        notify.info('LSP', 'Stopped client: ' .. server_name)
         return
       end
     end
-    vim.notify('LSP client not found: ' .. server_name, vim.log.levels.WARN)
+    notify.warn('LSP', 'Client not found: ' .. server_name)
   else
     -- Stop all servers
     local clients = vim.lsp.get_clients()
     if #clients == 0 then
-      vim.notify('No LSP clients running', vim.log.levels.WARN)
+      notify.warn('LSP', 'No clients running')
       return
     end
 
     for _, client in ipairs(clients) do
       vim.lsp.stop_client(client.id, true)
     end
-    vim.notify('Stopped all LSP clients', vim.log.levels.INFO)
+    notify.info('LSP', 'Stopped all clients')
   end
 end, {
   nargs = '?',
@@ -211,7 +212,7 @@ end, {
 vim.api.nvim_create_user_command('LspInfo', function()
   local clients = vim.lsp.get_clients()
   if #clients == 0 then
-    vim.notify('No LSP clients running', vim.log.levels.INFO)
+    notify.info('LSP', 'No clients running')
     return
   end
 

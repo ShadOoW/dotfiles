@@ -213,6 +213,7 @@ return {
   },
 
   config = function(_, opts)
+    local notify = require('utils.notify')
     require('nvim-treesitter.configs').setup(opts)
 
     -- Configure treesitter context
@@ -257,10 +258,7 @@ return {
       local cursor_node = ts_utils.get_node_at_cursor()
 
       if not cursor_node then
-        vim.notify('No treesitter node found at cursor', vim.log.levels.WARN, {
-          title = 'Smart Swap',
-          timeout = 2000,
-        })
+        notify.warn('Smart Swap', 'No treesitter node found at cursor')
         return false
       end
 
@@ -686,15 +684,9 @@ return {
       -- Provide visual feedback
       if success then
         local direction = dir == 'next' and 'forward' or 'backward'
-        vim.notify(string.format('Swapped %s %s', swapped_type, direction), vim.log.levels.INFO, {
-          title = 'Smart Swap',
-          timeout = 1000,
-        })
+        notify.info('Smart Swap', string.format('Swapped %s %s', swapped_type, direction))
       else
-        vim.notify('No swappable text objects found at cursor position', vim.log.levels.WARN, {
-          title = 'Smart Swap',
-          timeout = 2000,
-        })
+        notify.warn('Smart Swap', 'No swappable text objects found at cursor position')
       end
 
       return success

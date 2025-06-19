@@ -1,4 +1,6 @@
 -- Autocommands
+local notify = require('utils.notify')
+
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
 --  See `:help vim.highlight.on_yank()`
@@ -57,10 +59,7 @@ vim.api.nvim_create_autocmd('FileChangedShellPost', {
     desc = 'Notify when file is reloaded due to external changes',
     callback = function()
         local file_name = vim.fn.expand('<afile>')
-        vim.notify('File reloaded: ' .. vim.fn.fnamemodify(file_name, ':~'), vim.log.levels.INFO, {
-            title = 'File Auto-Reload',
-            timeout = 2000
-        })
+        notify.info('File Auto-Reload', 'File reloaded: ' .. vim.fn.fnamemodify(file_name, ':~'))
     end
 })
 
@@ -153,7 +152,7 @@ vim.api.nvim_create_autocmd('FileType', {
 
             -- If diagnostic config fails, just silently continue
             if not ok then
-                vim.notify('Failed to configure diagnostics for buffer ' .. buf, vim.log.levels.DEBUG)
+                notify.debug('Failed to configure diagnostics for buffer ' .. buf)
             end
         end
     end
@@ -296,10 +295,7 @@ local function generate_wiki_summary()
 
     -- Ensure wiki directory exists
     if vim.fn.isdirectory(wiki_root) == 0 then
-        vim.notify('Wiki directory not found: ' .. wiki_root, vim.log.levels.WARN, {
-            title = 'Wiki Summary',
-            timeout = 3000
-        })
+        notify.warn('Wiki Summary', 'Wiki directory not found: ' .. wiki_root)
         return false
     end
 
@@ -461,17 +457,11 @@ local function generate_wiki_summary()
     -- Write the summary file
     local success, err = pcall(vim.fn.writefile, summary_lines, summary_file)
     if not success then
-        vim.notify('Failed to write SUMMARY.md: ' .. tostring(err), vim.log.levels.ERROR, {
-            title = 'Wiki Summary',
-            timeout = 5000
-        })
+        notify.error('Wiki Summary', 'Failed to write SUMMARY.md: ' .. tostring(err))
         return false
     end
 
-    vim.notify('Generated SUMMARY.md with ' .. (#summary_lines - 2) .. ' entries', vim.log.levels.INFO, {
-        title = 'Wiki Summary',
-        timeout = 2000
-    })
+    notify.success('Wiki Summary', 'Generated SUMMARY.md with ' .. (#summary_lines - 2) .. ' entries')
     return true
 end
 
@@ -536,10 +526,7 @@ vim.api.nvim_create_autocmd({'BufNewFile'}, {
 
 -- Manual summary generation command
 vim.api.nvim_create_user_command('WikiSummary', function()
-    vim.notify('Generating wiki summary...', vim.log.levels.INFO, {
-        title = 'Wiki Summary',
-        timeout = 1000
-    })
+    notify.info('Wiki Summary', 'Generating wiki summary...')
     generate_wiki_summary()
 end, {
     desc = 'Manually generate wiki SUMMARY.md'
@@ -549,34 +536,22 @@ end, {
 vim.api.nvim_create_user_command('WikiBuild', function()
     local wiki_dir = '/mnt/share/wiki'
 
-    vim.notify('Building wiki manually...', vim.log.levels.INFO, {
-        title = 'Wiki Build',
-        timeout = 2000
-    })
+    notify.info('Wiki Build', 'Building wiki manually...')
 
     vim.fn.jobstart({'mdbook', 'build', wiki_dir}, {
         cwd = wiki_dir,
         on_exit = function(_, exit_code)
             if exit_code == 0 then
-                vim.notify('Wiki built successfully', vim.log.levels.INFO, {
-                    title = 'Wiki Build',
-                    timeout = 2000
-                })
+                notify.success('Wiki Build', 'Wiki built successfully')
             else
-                vim.notify('Wiki build failed (exit code: ' .. exit_code .. ')', vim.log.levels.ERROR, {
-                    title = 'Wiki Build',
-                    timeout = 5000
-                })
+                notify.error('Wiki Build', 'Wiki build failed (exit code: ' .. exit_code .. ')')
             end
         end,
         on_stderr = function(_, data)
             if data and #data > 0 then
                 local error_msg = table.concat(data, '\n'):gsub('^%s+', ''):gsub('%s+$', '')
                 if error_msg ~= '' then
-                    vim.notify('Wiki build error: ' .. error_msg, vim.log.levels.ERROR, {
-                        title = 'Wiki Build',
-                        timeout = 5000
-                    })
+                    notify.error('Wiki Build', 'Wiki build error: ' .. error_msg)
                 end
             end
         end,
@@ -591,24 +566,15 @@ end, {
 vim.api.nvim_create_user_command('WikiClean', function()
     local wiki_dir = '/mnt/share/wiki'
 
-    vim.notify('Cleaning wiki build...', vim.log.levels.INFO, {
-        title = 'Wiki Clean',
-        timeout = 2000
-    })
+    notify.info('Wiki Clean', 'Cleaning wiki build...')
 
     -- Use rm -rf to clean the book directory since mdbook clean might not work reliably
     vim.fn.jobstart({'sh', '-c', 'cd "' .. wiki_dir .. '" && rm -rf book/'}, {
         on_exit = function(_, exit_code)
             if exit_code == 0 then
-                vim.notify('Wiki build directory cleaned successfully', vim.log.levels.INFO, {
-                    title = 'Wiki Clean',
-                    timeout = 2000
-                })
+                notify.success('Wiki Clean', 'Wiki build directory cleaned successfully')
             else
-                vim.notify('Wiki clean failed (exit code: ' .. exit_code .. ')', vim.log.levels.ERROR, {
-                    title = 'Wiki Clean',
-                    timeout = 5000
-                })
+                notify.error('Wiki Clean', 'Wiki clean failed (exit code: ' .. exit_code .. ')')
             end
         end
     })
@@ -630,12 +596,12 @@ vim.api.nvim_create_autocmd('BufWritePre', {
 })
 
 -- Close trouble windows after session load
-vim.api.nvim_create_autocmd("User", {
-    pattern = "PersistenceLoadPost",
+vim.api.nvim_create_autocmd('User', {
+    pattern = 'PersistenceLoadPost',
     callback = function()
         for _, win in ipairs(vim.api.nvim_list_wins()) do
             local buf = vim.api.nvim_win_get_buf(win)
-            if vim.bo[buf].filetype == "trouble" then
+            if vim.bo[buf].filetype == 'trouble' or vim.bo[buf].filetype == 'noice' then
                 vim.api.nvim_win_close(win, true)
             end
         end

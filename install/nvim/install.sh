@@ -11,6 +11,7 @@ pacman_pkg=(
     prettierd
     ctags
     pandoc-cli
+    glow
 )
 
 # Source global functions

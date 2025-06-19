@@ -4,14 +4,14 @@ return {
   lazy = false, -- Load immediately
   priority = 1000, -- High priority - load before other plugins
   config = function()
+    local notify = require('utils.notify')
+
     -- Simple workspace analysis fallback
     local function simple_workspace_analysis()
       local project_root = vim.fn.getcwd()
 
       -- Show progress
-      vim.notify('Starting workspace analysis...', vim.log.levels.INFO, {
-        title = 'IntelliJ Diagnostics',
-      })
+      notify.info('Problems', 'Starting workspace analysis...')
 
       -- Try TypeScript analysis
       local has_tsconfig = vim.fn.filereadable(project_root .. '/tsconfig.json') == 1
@@ -20,9 +20,9 @@ return {
           cwd = project_root,
           on_exit = function(_, code)
             if code == 0 then
-              vim.notify('TypeScript: No errors found', vim.log.levels.INFO)
+              notify.success('TypeScript', 'No errors found')
             else
-              vim.notify('TypeScript: Found errors (check :checkhealth)', vim.log.levels.WARN)
+              notify.warn('TypeScript', 'Found errors (check :checkhealth)')
             end
           end,
         })
@@ -43,9 +43,9 @@ return {
           cwd = project_root,
           on_exit = function(_, code)
             if code == 0 then
-              vim.notify('ESLint: No errors found', vim.log.levels.INFO)
+              notify.success('ESLint', 'No errors found')
             else
-              vim.notify('ESLint: Found errors (check output)', vim.log.levels.WARN)
+              notify.warn('ESLint', 'Found errors (check output)')
             end
           end,
         })
@@ -63,7 +63,7 @@ return {
         end
       end
 
-      vim.defer_fn(function() vim.notify('Basic workspace analysis complete', vim.log.levels.INFO) end, 2000)
+      vim.defer_fn(function() notify.info('Problems', 'Basic workspace analysis complete') end, 2000)
     end
 
     -- Simple problems view opener
@@ -72,12 +72,12 @@ return {
       local ok_trouble, trouble = pcall(require, 'trouble')
       if ok_trouble then
         trouble.open('diagnostics')
-        vim.notify('Opened problems view', vim.log.levels.INFO)
+        notify.info('Problems', 'Opened problems view')
       else
         -- Fallback to quickfix if trouble not available
         vim.diagnostic.setqflist()
         vim.cmd('copen')
-        vim.notify('Opened quickfix list (trouble not available)', vim.log.levels.WARN)
+        notify.warn('Problems', 'Opened quickfix list (trouble not available)')
       end
     end
 
@@ -102,16 +102,16 @@ return {
       vim.fn.setqflist({})
       vim.fn.setloclist(0, {})
 
-      vim.notify('All diagnostics cleared', vim.log.levels.INFO)
+      notify.success('Problems', 'All diagnostics cleared')
     end
 
     -- Always create these commands (will override if main plugin loads)
     vim.api.nvim_create_user_command('IntellijAnalyze', simple_workspace_analysis, {
-      desc = 'IntelliJ-like workspace analysis (basic version)',
+      desc = 'Workspace analysis (basic version)',
     })
 
     vim.api.nvim_create_user_command('IntellijQuickFix', open_problems_view, {
-      desc = 'Open IntelliJ-like problems view',
+      desc = 'Open Problems view',
     })
 
     vim.api.nvim_create_user_command('IntellijClearDiagnostics', clear_all_diagnostics, {
@@ -124,7 +124,7 @@ return {
       if vim.fn.filereadable(project_root .. '/tsconfig.json') == 1 then
         vim.cmd('!npx tsc --noEmit')
       else
-        vim.notify('No tsconfig.json found in project root', vim.log.levels.WARN)
+        notify.warn('TypeScript', 'No tsconfig.json found in project root')
       end
     end, {
       desc = 'Run TypeScript type check',
@@ -145,7 +145,7 @@ return {
       if has_eslint then
         vim.cmd('!npx eslint .')
       else
-        vim.notify('No ESLint config found in project root', vim.log.levels.WARN)
+        notify.warn('ESLint', 'No ESLint config found in project root')
       end
     end, {
       desc = 'Run ESLint',
@@ -174,7 +174,7 @@ return {
         end
       end
 
-      vim.notify('Refreshed LSP clients and diagnostics', vim.log.levels.INFO)
+      notify.success('Problems', 'Refreshed LSP clients and diagnostics')
     end, {
       desc = 'Refresh LSP and diagnostics',
     })
@@ -241,11 +241,9 @@ return {
       local ok_null_ls = pcall(require, 'null-ls')
       table.insert(status, string.format('None-ls: %s', ok_null_ls and 'Available' or 'Not available'))
 
-      vim.notify(table.concat(status, '\n'), vim.log.levels.INFO, {
-        title = 'IntelliJ Diagnostics',
-      })
+      notify.info('Problems', table.concat(status, '\n'))
     end, {
-      desc = 'Show IntelliJ diagnostics status',
+      desc = 'Show diagnostics status',
     })
   end,
 }
