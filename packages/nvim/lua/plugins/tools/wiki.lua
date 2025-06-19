@@ -467,10 +467,10 @@ Last updated: {{date}}
                     'n',
                     false
                   )
-                  -- Handle regular lists
+                -- Handle regular lists
                 elseif before_cursor:match('%s*%- ') then
                   return vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<CR>- ', true, false, true), 'n', false)
-                  -- Handle numbered lists
+                -- Handle numbered lists
                 elseif before_cursor:match('%s*%d+%. ') then
                   local num = before_cursor:match('%s*(%d+)%. ')
                   local next_num = tonumber(num) + 1

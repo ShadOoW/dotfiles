@@ -88,7 +88,7 @@ return {
       pcall(function() vim.cmd('silent! wall') end)
     end,
 
-    -- Simple post-restore cleanup
+    -- Enhanced post-restore cleanup with Lazy/Mason state tracking
     post_open = function()
       -- Clean up any problematic buffers that got restored
       vim.schedule(function()
@@ -102,10 +102,12 @@ return {
             })
             local bufname = vim.api.nvim_buf_get_name(buf)
 
-            -- Remove any restored trouble/panel buffers
+            -- Remove any restored trouble/panel buffers or Lazy/Mason windows
             if
               filetype == 'trouble'
               or filetype == 'exclusive-panel'
+              or filetype == 'lazy'
+              or filetype == 'mason'
               or (bufname == '' and buftype == 'nofile' and filetype == '')
             then
               pcall(vim.api.nvim_buf_delete, buf, {
@@ -114,6 +116,11 @@ return {
             end
           end
         end
+
+        -- Emit the PersistenceLoadPost event that our autocommand will handle
+        vim.api.nvim_exec_autocmds('User', {
+          pattern = 'PersistenceLoadPost',
+        })
       end)
     end,
   },

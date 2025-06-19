@@ -401,7 +401,7 @@ return {
         end
         return false, nil
 
-        -- Check for class field context - use manual node swapping
+      -- Check for class field context - use manual node swapping
       elseif string.find(hierarchy_str, 'field_declaration') then
         -- Use manual field swapping instead of text objects
         local field_declaration = nil
@@ -521,7 +521,7 @@ return {
         end
         return false, nil
 
-        -- Check for HTML attribute context - use manual node swapping
+      -- Check for HTML attribute context - use manual node swapping
       elseif string.find(hierarchy_str, 'attribute') and string.find(hierarchy_str, 'start_tag') then
         -- Use manual attribute swapping for HTML
         local attribute = nil
@@ -644,12 +644,12 @@ return {
         end
         return false, nil
 
-        -- Check for parameter context
+      -- Check for parameter context
       elseif string.find(hierarchy_str, 'parameter') or string.find(hierarchy_str, 'argument_list') then
         table.insert(swap_targets, { '@parameter.inner', 'parameter' })
         table.insert(swap_targets, { '@argument.outer', 'argument' })
 
-        -- Default fallback
+      -- Default fallback
       else
         table.insert(swap_targets, { '@parameter.inner', 'parameter' })
         table.insert(swap_targets, { '@argument.outer', 'argument' })

@@ -160,10 +160,17 @@ return {
       -- Auto-sort Tailwind classes after save
       local ft = vim.bo[bufnr].filetype
       if
-        vim.tbl_contains(
-          { 'html', 'css', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'vue', 'svelte', 'astro' },
-          ft
-        )
+        vim.tbl_contains({
+          'html',
+          'css',
+          'javascript',
+          'typescript',
+          'javascriptreact',
+          'typescriptreact',
+          'vue',
+          'svelte',
+          'astro',
+        }, ft)
       then
         local conform = require('conform')
         conform.format({

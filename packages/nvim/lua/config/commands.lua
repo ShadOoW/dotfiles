@@ -298,3 +298,47 @@ vim.api.nvim_create_user_command('BufDebug', function()
 end, {
   desc = 'Debug buffer information',
 })
+
+-- ===== Session Management Commands =====
+
+vim.api.nvim_create_user_command('SessionCheck', function()
+  local session_utils = require('utils.session')
+
+  print('=== Session Utility Status ===')
+  print('')
+
+  -- Check Lazy status
+  local has_lazy_pending = session_utils.has_pending_lazy_operations()
+  print('Lazy pending operations: ' .. (has_lazy_pending and 'YES' or 'NO'))
+
+  -- Check Mason status
+  local has_mason_pending = session_utils.has_pending_mason_installations()
+  print('Mason pending installations: ' .. (has_mason_pending and 'YES' or 'NO'))
+
+  -- Overall recommendation
+  local action = session_utils.get_post_session_action()
+  print('')
+  print('Recommended post-session action: ' .. (action or 'NONE'))
+
+  if action then
+    notify.info('Session Check', 'Recommended action: ' .. action)
+  else
+    notify.success('Session Check', 'No pending operations detected')
+  end
+end, {
+  desc = 'Check session utility status and pending operations',
+})
+
+vim.api.nvim_create_user_command('SessionOpenLazy', function()
+  vim.cmd('Lazy')
+  notify.info('Session', 'Manually opened Lazy')
+end, {
+  desc = 'Manually open Lazy (for testing session behavior)',
+})
+
+vim.api.nvim_create_user_command('SessionOpenMason', function()
+  vim.cmd('Mason')
+  notify.info('Session', 'Manually opened Mason')
+end, {
+  desc = 'Manually open Mason (for testing session behavior)',
+})
