@@ -160,6 +160,36 @@ vim.opt.confirm = false -- Don't confirm when abandoning buffers
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
+-- Conceallevel and modifiable settings for markdown files
+local markdown_group = vim.api.nvim_create_augroup('MarkdownSettings', {
+  clear = true,
+})
+
+vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile', 'FileType' }, {
+  group = markdown_group,
+  pattern = { '*.md', 'markdown' },
+  callback = function()
+    vim.opt_local.conceallevel = 2
+    vim.opt_local.concealcursor = 'nc'
+    vim.opt_local.modifiable = true
+    vim.opt_local.wrap = true
+  end,
+  desc = 'Set conceallevel and modifiable for markdown files',
+})
+
+-- Protect conceallevel from being changed by other plugins
+vim.api.nvim_create_autocmd({ 'ModeChanged', 'CmdlineEnter', 'CmdlineLeave' }, {
+  group = markdown_group,
+  pattern = '*',
+  callback = function()
+    if vim.bo.filetype == 'markdown' and vim.opt_local.conceallevel:get() ~= 2 then
+      vim.opt_local.conceallevel = 2
+      vim.opt_local.concealcursor = 'nc'
+    end
+  end,
+  desc = 'Protect conceallevel=2 in markdown files from mode changes',
+})
+
 -- Clean startup - remove intro and make buffers behave properly
 vim.api.nvim_create_autocmd('VimEnter', {
   group = vim.api.nvim_create_augroup('CleanStartup', {
