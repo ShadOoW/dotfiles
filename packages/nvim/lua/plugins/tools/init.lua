@@ -8,7 +8,6 @@ return {
   require('plugins.tools.which-key'),
   require('plugins.tools.genghis'),
   require('plugins.tools.yanky'),
-  require('plugins.tools.peek'),
   require('plugins.tools.markdown-preview'),
   require('plugins.tools.obsidian'),
   require('plugins.tools.overseer'),

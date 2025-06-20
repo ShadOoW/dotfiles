@@ -30,30 +30,8 @@ local plugin_spec = {
     vim.g.mkdp_browserfunc = 'g:OpenMarkdownPreview'
 
     -- General keymaps
-    vim.keymap.set('n', '<leader>mp', '<cmd>MarkdownPreviewToggle<cr>', {
+    vim.keymap.set('n', '<leader>ap', '<cmd>MarkdownPreviewToggle<cr>', {
       desc = 'Toggle markdown preview',
-    })
-    vim.keymap.set('n', '<leader>ms', '<cmd>MarkdownPreviewStop<cr>', {
-      desc = 'Stop markdown preview',
-    })
-
-    -- Obsidian-specific keymaps (for obsidian files)
-    vim.api.nvim_create_autocmd('FileType', {
-      pattern = 'obsidian',
-      callback = function()
-        vim.keymap.set('n', '<leader>omp', '<cmd>MarkdownPreviewToggle<cr>', {
-          desc = 'Toggle markdown preview (browser)',
-          buffer = true,
-        })
-        vim.keymap.set('n', '<leader>oms', '<cmd>MarkdownPreviewStop<cr>', {
-          desc = 'Stop markdown preview',
-          buffer = true,
-        })
-        vim.keymap.set('n', '<leader>omr', '<cmd>MarkdownPreview<cr>', {
-          desc = 'Start markdown preview',
-          buffer = true,
-        })
-      end,
     })
   end,
 }

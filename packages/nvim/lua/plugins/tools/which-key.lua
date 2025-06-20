@@ -56,7 +56,7 @@ return {
         },
         {
           '<leader>a',
-          group = 'Wiki & Journal',
+          group = 'Notes & Journal',
         },
         {
           '<leader>d',
