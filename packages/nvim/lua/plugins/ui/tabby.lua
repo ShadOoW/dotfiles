@@ -190,8 +190,8 @@ return {
         {
           -- Current working directory
           ' '
-            .. vim.fn.fnamemodify(vim.fn.getcwd(), ':t')
-            .. ' ',
+          .. vim.fn.fnamemodify(vim.fn.getcwd(), ':t')
+          .. ' ',
           hl = 'TabbyTabLine',
         },
         -- Right padding
