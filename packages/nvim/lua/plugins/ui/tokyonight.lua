@@ -124,10 +124,18 @@ return {
           bg = 'NONE',
         }
 
-        -- Fix visual selection to be subtle but visible
+        -- Enhanced Visual selection highlighting for better visibility with transparent background
         hl.Visual = {
-          bg = c.bg_visual,
-          fg = 'NONE',
+          bg = '#0ea5e9', -- Bright cyan-blue background for maximum visibility
+          fg = '#1a1b26', -- Dark foreground for excellent contrast
+          bold = true, -- Add bold styling for extra emphasis
+        }
+
+        -- Make VisualNOS consistent with Visual for better UX
+        hl.VisualNOS = {
+          bg = '#0ea5e9', -- Same as Visual for consistency
+          fg = '#1a1b26', -- Dark foreground for excellent contrast
+          bold = true, -- Add bold styling for extra emphasis
         }
 
         -- Fix search highlighting
@@ -343,6 +351,20 @@ return {
       })
       vim.api.nvim_set_hl(0, 'CursorColumn', {
         bg = 'NONE',
+      })
+
+      -- Enhanced Visual mode highlighting (force apply)
+      vim.api.nvim_set_hl(0, 'Visual', {
+        bg = '#0ea5e9', -- Solid, contrasting background for excellent visibility
+        fg = '#1a1b26', -- Dark foreground for excellent contrast
+        bold = true, -- Add bold styling for extra emphasis
+      })
+
+      -- Make VisualNOS consistent with Visual for better UX
+      vim.api.nvim_set_hl(0, 'VisualNOS', {
+        bg = '#0ea5e9', -- Same as Visual for consistency
+        fg = '#1a1b26', -- Dark foreground for excellent contrast
+        bold = true, -- Add bold styling for extra emphasis
       })
 
       -- Diagnostic and git signs with enhanced colors
