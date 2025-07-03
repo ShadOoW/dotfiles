@@ -8,10 +8,17 @@ pacman_pkg=(
     markdownlint-cli2
     vscode-langservers-extracted
     superhtml-bin
-    prettierd
     ctags
     pandoc-cli
     glow
+
+    # Formatters
+    rustywind
+    stylua
+    shfmt
+    shellcheck
+    eslint_d
+    prettierd
 )
 
 # Source global functions

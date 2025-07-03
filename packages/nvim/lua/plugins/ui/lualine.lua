@@ -95,6 +95,16 @@ return {
       return ''
     end
 
+    -- Custom components
+    local function buffer_count()
+      local buffers = vim.fn.len(vim.fn.getbufinfo({
+        buflisted = 1,
+        bufmodified = 0,
+        fileloaded = 1, -- Only count file buffers
+      }))
+      return string.format(' %d', buffers)
+    end
+
     -- Custom theme with modern colors
     local custom_theme = {
       normal = {
@@ -214,6 +224,7 @@ return {
           },
         },
         lualine_b = {
+          buffer_count,
           {
             'branch',
             icon = '',
@@ -272,34 +283,10 @@ return {
                     or (' ' .. (_G.current_trouble_mode:gsub('_', ' '):gsub('^%l', string.upper)))
                 end
 
-                -- Fallback: try to detect via trouble API
-                local trouble_ok, trouble = pcall(require, 'trouble')
-                if trouble_ok then
-                  -- Try to detect the trouble mode from the trouble API
-                  local current_mode = 'diagnostics' -- default fallback
-
-                  -- Check if trouble has an API to get current mode
-                  if trouble.get_mode then
-                    current_mode = trouble.get_mode() or 'diagnostics'
-                  elseif trouble.is_open then
-                    -- Check different modes to see which one is open
-                    for mode, _ in pairs({
-                      diagnostics = true,
-                      quickfix = true,
-                      loclist = true,
-                      lsp_references = true,
-                      lsp_definitions = true,
-                      lsp_type_definitions = true,
-                      lsp_implementations = true,
-                      lsp_document_symbols = true,
-                      lsp_workspace_symbols = true,
-                    }) do
-                      if trouble.is_open(mode) then
-                        current_mode = mode
-                        break
-                      end
-                    end
-                  end
+                -- Fallback: try to detect via trouble view
+                local view_ok, view = pcall(require, 'trouble.view')
+                if view_ok and view.current and view.current.mode then
+                  local current_mode = view.current.mode
 
                   -- Map trouble modes to display names
                   local mode_map = {

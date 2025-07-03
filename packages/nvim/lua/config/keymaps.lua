@@ -81,11 +81,11 @@ keymap.n('<leader><Left>', '<cmd>bprevious<CR>', 'Previous buffer')
 
 -- LSP Goto keymaps
 keymap.n('<leader>ga', vim.lsp.buf.code_action, 'Code Action')
-keymap.n('<leader>gR', function() require('snacks').picker.lsp_references() end, 'List References')
-keymap.n('<leader>gi', function() require('snacks').picker.lsp_implementations() end, 'List Implementations')
-keymap.n('<leader>gd', function() require('snacks').picker.lsp_definitions() end, 'List Definitions')
+keymap.n('<leader>gR', function() require('fzf-lua').lsp_references() end, 'List References')
+keymap.n('<leader>gi', function() require('fzf-lua').lsp_implementations() end, 'List Implementations')
+keymap.n('<leader>gd', function() require('fzf-lua').lsp_definitions() end, 'List Definitions')
 keymap.n('<leader>gD', vim.lsp.buf.declaration, 'Goto Declaration')
-keymap.n('<leader>gt', function() require('snacks').picker.lsp_type_definitions() end, 'List Type Definitions')
+keymap.n('<leader>gt', function() require('fzf-lua').lsp_typedefs() end, 'List Type Definitions')
 keymap.n('<leader>gr', '<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol')
 keymap.n('<leader>gh', '<cmd>lua vim.lsp.buf.hover()<cr>', 'Hover documentation')
 
@@ -150,6 +150,26 @@ keymap.n('<leader>Ao', '<cmd>OutputPanel<CR>', 'Toggle output panel')
 
 -- Basic diagnostic keymaps
 keymap.n('<leader>xq', vim.diagnostic.setloclist, 'Open diagnostic quickfix list')
+
+-- Add all open buffers to quickfix list
+vim.keymap.set('n', '<leader>sba', function()
+  local buffers = vim.fn.getbufinfo({
+    buflisted = 1,
+  })
+  local qf_list = {}
+  for _, buf in ipairs(buffers) do
+    if buf.name and buf.name ~= '' then
+      table.insert(qf_list, {
+        filename = buf.name,
+        lnum = buf.lnum or 1,
+      })
+    end
+  end
+  vim.fn.setqflist(qf_list)
+  require('trouble').open('quickfix')
+end, {
+  desc = 'Add all buffers to quickfix',
+})
 
 -- Quick diagnostic navigation (IntelliJ-style)
 keymap.n('[d', vim.diagnostic.goto_prev, 'Previous diagnostic')

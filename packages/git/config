@@ -21,3 +21,5 @@
 	editor = nano
 [push]
 	autoSetupRemote = true
+[safe]
+	directory = /mnt/share/brain

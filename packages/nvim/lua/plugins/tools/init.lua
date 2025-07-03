@@ -1,8 +1,10 @@
 -- Tools plugins
 return {
-  require('plugins.tools.snacks'),
+  require('plugins.tools.fzf-lua'),
   require('plugins.tools.guess-indent'),
   require('plugins.tools.gutentags'),
+  require('plugins.tools.harpoon'),
+  require('plugins.tools.oil'),
   require('plugins.tools.tmux-navigator'),
   require('plugins.tools.nvim-lint'),
   require('plugins.tools.which-key'),

@@ -85,3 +85,4 @@ if ! sudo grub-mkconfig -o "$GRUB_DIR/grub.cfg"; then
 fi
 
 log "success" "GRUB theme installation completed"
+

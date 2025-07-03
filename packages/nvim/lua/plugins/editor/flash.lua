@@ -23,7 +23,9 @@ return {
         'cmp_menu',
         'noice',
         'flash_prompt',
+        'fzf',
         function(win) return vim.bo[vim.api.nvim_win_get_buf(win)].filetype == 'neo-tree' end,
+        function(win) return vim.bo[vim.api.nvim_win_get_buf(win)].filetype == 'fzf' end,
       },
       -- Optional trigger character that needs to be typed before
       -- a jump label can be used. It's NOT recommended to set this,

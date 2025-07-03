@@ -65,47 +65,37 @@ return {
       {
         '<leader>xl',
         trouble_manager.keymap('loclist'),
-        desc = 'Location list',
+        desc = 'Trouble - Location list',
       },
       {
         '<leader>xw',
         trouble_manager.keymap('diagnostics'),
-        desc = 'Workspace problems',
+        desc = 'Trouble - Workspace problems',
       },
       {
         '<leader>xq',
         trouble_manager.keymap('qflist'),
-        desc = 'Quickfix list',
+        desc = 'Trouble - Quickfix list',
       },
       {
         '<leader>xr',
         trouble_manager.keymap('lsp_references'),
-        desc = 'LSP references',
+        desc = 'Trouble - LSP references',
       },
       {
         '<F10>',
         trouble_manager.keymap('diagnostics'),
-        desc = 'Toggle diagnostics',
+        desc = 'Trouble - Toggle diagnostics',
       },
       {
         '<leader>xs',
         trouble_manager.keymap('symbols'),
-        desc = 'Symbols (Trouble)',
-      },
-      {
-        '<leader>xL',
-        trouble_manager.keymap('loclist'),
-        desc = 'Location List (Trouble)',
-      },
-      {
-        '<leader>xQ',
-        trouble_manager.keymap('qflist'),
-        desc = 'Quickfix List (Trouble)',
+        desc = 'Trouble - Symbols',
       },
       {
         '<leader>xS',
         trouble_manager.keymap('lsp_document_symbols'),
-        desc = 'Document symbols',
+        desc = 'Trouble - Document symbols',
       },
     }
   end,
@@ -158,6 +148,7 @@ return {
         debounce = true,
       },
     },
+    actions = {},
     keys = {
       ['?'] = 'help',
       ['r'] = 'refresh',
@@ -246,5 +237,14 @@ return {
 
     -- Initialize global trouble mode tracking
     _G.current_trouble_mode = nil
+
+    -- Create an autocommand to track the current trouble mode
+    vim.api.nvim_create_autocmd('FileType', {
+      pattern = 'Trouble',
+      callback = function()
+        local view = require('trouble.view')
+        if view and view.current then _G.current_trouble_mode = view.current.mode end
+      end,
+    })
   end,
 }

@@ -93,28 +93,41 @@ return {
 
       -- Views configuration
       views = {
-        -- Compact notification view
+        -- Notification history view with folding
         notify = {
           backend = 'notify',
           fallback = 'mini',
           format = 'notify',
           replace = false,
-          merge = false,
+          merge = true,
         },
 
-        -- Command line popup positioned properly above lualine
-        cmdline_popup = {
+        -- Notification history view (cmdline_popup style)
+        notifications = {
+          backend = 'popup',
+          relative = 'editor',
+          position = {
+            row = '30%',
+            col = '50%',
+          },
+          size = {
+            width = '80%',
+            height = '60%',
+          },
           border = {
-            style = 'single',
-            padding = { 0, 1 },
+            style = 'rounded',
+            padding = { 1, 2 },
           },
           win_options = {
             winhighlight = {
-              Normal = 'NoiceCmdlinePopup',
+              Normal = 'Normal',
               FloatBorder = 'NoiceCmdlinePopupBorder',
-              CursorLine = 'PmenuSel',
-              Search = 'None',
             },
+            foldenable = true,
+            foldmethod = 'indent',
+            foldlevel = 1,
+            conceallevel = 2,
+            winblend = 0,
           },
         },
 
@@ -123,7 +136,7 @@ return {
           backend = 'mini',
           relative = 'editor',
           align = 'message-right',
-          timeout = 3000,
+          timeout = 2000,
           reverse = true,
           focusable = false,
           position = {
@@ -692,31 +705,34 @@ return {
       fg = '#c0caf5',
     })
 
-    -- Custom keymaps for better UX
-    vim.keymap.set('n', '<leader>nn', '<cmd>Noice<cr>', {
-      desc = 'Noice Messages',
+    -- Enhanced notification and message management keymaps
+    -- Message viewing and navigation
+    vim.keymap.set('n', '<leader>nm', '<cmd>Noice history<cr>', {
+      desc = 'Show message history',
     })
-    vim.keymap.set('n', '<leader>nh', '<cmd>Noice history<cr>', {
-      desc = 'Noice History',
+    vim.keymap.set('n', '<leader>nh', '<cmd>Noice last<cr>', {
+      desc = 'Show last message',
     })
-    vim.keymap.set('n', '<leader>nd', '<cmd>Noice dismiss<cr>', {
-      desc = 'Dismiss Noice Messages',
+    vim.keymap.set('n', '<leader>nl', function() require('noice').cmd('last') end, {
+      desc = 'Show last message',
     })
+
+    -- Error and diagnostic panels
     vim.keymap.set('n', '<leader>ne', '<cmd>Noice errors<cr>', {
-      desc = 'Noice Errors',
+      desc = 'Show error history',
     })
 
-    -- Add noice-specific keymaps
-    vim.keymap.set('n', '<leader>Al', function() require('noice').cmd('last') end, {
-      desc = 'Noice Last message',
+    -- Notification management
+    vim.keymap.set('n', '<leader>nd', '<cmd>Noice dismiss<cr>', {
+      desc = 'Dismiss message',
+    })
+    vim.keymap.set('n', '<leader>nD', function() require('noice').cmd('dismiss') end, {
+      desc = 'Dismiss all messages',
     })
 
-    vim.keymap.set('n', '<leader>Ah', function() require('noice').cmd('history') end, {
-      desc = 'Noice History',
-    })
-
-    vim.keymap.set('n', '<leader>AD', function() require('noice').cmd('dismiss') end, {
-      desc = 'Noice Dismiss all',
+    -- Notification history
+    vim.keymap.set('n', '<leader>nn', '<cmd>Noice notifications<cr>', {
+      desc = 'Show notification history',
     })
   end,
 

@@ -196,19 +196,26 @@ return {
       desc = 'List tag matches',
     })
 
-    -- Enhanced tag jumping with snacks picker integration
+    -- Enhanced tag jumping with fzf-lua integration
     vim.keymap.set('n', '<leader>tj', function()
       local word = vim.fn.expand('<cword>')
       if word ~= '' then
         -- Use word under cursor for pre-filtering
-        require('snacks').picker.pick({
-          title = '󰓻 CTags - ' .. word,
-          cmd = { 'grep', '-n', word, vim.fn.tagfiles()[1] or 'tags' },
-          preview = true,
+        require('fzf-lua').tags({
+          prompt = '󰓻 CTags - ' .. word .. ': ',
+          query = word,
+          winopts = {
+            title = '󰓻 CTags - ' .. word,
+          },
         })
       else
-        -- Show all tags using the snacks ctags picker from snacks.lua
-        vim.cmd('normal! <leader>sc')
+        -- Show all tags using the fzf-lua tags picker
+        require('fzf-lua').tags({
+          prompt = '󰓻 CTags: ',
+          winopts = {
+            title = '󰓻 CTags',
+          },
+        })
       end
     end, {
       desc = 'Jump to tag',

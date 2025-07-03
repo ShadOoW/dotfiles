@@ -2,95 +2,44 @@
 return {
   'petertriho/nvim-scrollbar',
   dependencies = { 'kevinhwang91/nvim-hlslens' },
-  event = { 'BufReadPost', 'BufNewFile' },
+  event = 'BufReadPost',
   config = function()
-    local colors = require('tokyonight.colors').setup()
-
     require('scrollbar').setup({
       show = true,
-      show_in_active_only = false,
-      set_highlights = true,
-      folds = 1000, -- handle folds
-      max_lines = false, -- disables if number of lines in buffer is higher
       handle = {
         text = ' ',
-        color = colors.fg_gutter,
-        color_nr = nil, -- cterm
-        highlight = 'CursorColumn',
-        hide_if_all_visible = true, -- Hides handle if all lines are visible
+        color = '#3b4261',
+        hide_if_all_visible = true,
       },
       marks = {
         Search = {
-          text = { '-', '=' },
-          priority = 0,
-          color = colors.orange,
-          highlight = 'Search',
+          color = '#ff9e64',
         },
         Error = {
-          text = { '-', '=' },
-          priority = 1,
-          color = colors.error,
-          highlight = 'DiagnosticVirtualTextError',
+          color = '#db4b4b',
         },
         Warn = {
-          text = { '-', '=' },
-          priority = 2,
-          color = colors.warning,
-          highlight = 'DiagnosticVirtualTextWarn',
+          color = '#e0af68',
         },
         Info = {
-          text = { '-', '=' },
-          priority = 3,
-          color = colors.info,
-          highlight = 'DiagnosticVirtualTextInfo',
+          color = '#0db9d7',
         },
         Hint = {
-          text = { '-', '=' },
-          priority = 4,
-          color = colors.hint,
-          highlight = 'DiagnosticVirtualTextHint',
+          color = '#1abc9c',
         },
         Misc = {
-          text = { '-', '=' },
-          priority = 5,
-          color = colors.purple,
-          highlight = 'Normal',
-        },
-        GitAdd = {
-          text = '┆',
-          priority = 7,
-          color = colors.git.add,
-          highlight = 'GitSignsAdd',
-        },
-        GitChange = {
-          text = '┆',
-          priority = 7,
-          color = colors.git.change,
-          highlight = 'GitSignsChange',
-        },
-        GitDelete = {
-          text = '▁',
-          priority = 7,
-          color = colors.git.delete,
-          highlight = 'GitSignsDelete',
+          color = '#9d7cd8',
         },
       },
-      excluded_buftypes = { 'terminal', 'nofile', 'quickfix', 'prompt' },
-      excluded_filetypes = {
-        'cmp_docs',
-        'cmp_menu',
-        'noice',
-        'prompt',
-        'TelescopePrompt',
-        'neo-tree',
-        'Trouble',
-        'trouble',
-        'lazy',
-        'mason',
-        'notify',
-        'toggleterm',
-        'lazyterm',
+      handlers = {
+        cursor = true,
+        diagnostic = true,
+        gitsigns = true,
+        handle = true,
+        search = true,
       },
+      excluded_buftypes = { 'terminal', 'prompt', 'nofile' },
+      excluded_filetypes = { 'prompt', 'TelescopePrompt', 'noice', 'notify' },
       autocmd = {
         render = {
           'BufWinEnter',
@@ -102,16 +51,10 @@ return {
           'VimResized',
           'WinScrolled',
         },
-        clear = { 'BufWinLeave', 'TabLeave', 'TermLeave', 'WinLeave' },
       },
-      handlers = {
-        cursor = true,
-        diagnostic = true,
-        gitsigns = true, -- Requires gitsigns
-        handle = true,
-        search = true, -- Requires hlslens
-        ale = false, -- Requires ALE
-      },
+      hide_if_all_visible = true,
+      show_in_active_only = false,
+      position = 'left', -- Show scrollbar on the left
     })
   end,
 }

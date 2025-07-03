@@ -20,4 +20,5 @@ return {
   require('plugins.ui.matchparen'),
   require('plugins.ui.nvim-navic'),
   require('plugins.ui.cinnamon'),
+  require('plugins.ui.render-markdown'),
 }

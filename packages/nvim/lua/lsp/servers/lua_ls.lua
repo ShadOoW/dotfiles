@@ -7,15 +7,21 @@ return {
         version = 'LuaJIT',
       },
       diagnostics = {
-        -- Get the language server to recognize the `vim` global
-        globals = {
-          'vim',
-        },
+        -- Get the language server to recognize the `vim` global and other common globals
+        globals = { 'vim', 'describe', 'it', 'before_each', 'after_each', 'pending', 'teardown', 'setup' },
+        -- Disable certain annoying diagnostics
+        disable = { 'missing-fields', 'incomplete-signature-doc' },
       },
       workspace = {
         -- Make the server aware of Neovim runtime files
-        library = vim.api.nvim_get_runtime_file('', true),
+        library = {
+          vim.env.VIMRUNTIME, -- Add the lazy.nvim path for plugin development
+          '${3rd}/luv/library',
+          '${3rd}/busted/library',
+        },
         checkThirdParty = false,
+        maxPreload = 100000,
+        preloadFileSize = 10000,
       },
       -- Do not send telemetry data
       telemetry = {
@@ -23,6 +29,15 @@ return {
       },
       completion = {
         callSnippet = 'Replace',
+      },
+      hint = {
+        enable = true,
+        arrayIndex = 'Disable',
+        await = true,
+        paramName = 'Disable',
+        paramType = false,
+        semicolon = 'Disable',
+        setType = false,
       },
     },
   },

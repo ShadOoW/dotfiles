@@ -3,10 +3,14 @@ return {
   event = 'BufWritePre',
   dependencies = { 'williamboman/mason.nvim' },
   opts = {
-    format_on_save = {
-      timeout_ms = 500,
-      lsp_format = 'fallback',
-    },
+    format_on_save = function(bufnr)
+      -- Disable with a global or buffer-local variable
+      if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then return end
+      return {
+        timeout_ms = 500,
+        lsp_format = 'fallback',
+      }
+    end,
     formatters_by_ft = {
       -- Web Development - JavaScript/TypeScript (prettierd only)
       javascript = { 'prettierd' },
@@ -35,7 +39,7 @@ return {
       xml = { 'xmlformat', 'prettierd' },
 
       -- Documentation (prettierd only)
-      markdown = { 'prettierd' },
+      -- markdown = { 'prettierd' },
       mdx = { 'prettierd' },
 
       -- Lua (stylua specialized)
@@ -97,17 +101,19 @@ return {
       -- Enhanced stylua for Lua
       stylua = {
         prepend_args = {
-          '--column-width',
-          '120',
-          '--collapse-simple-statement',
-          'Never',
-          '--indent-width',
-          '2',
           '--indent-type',
           'Spaces',
+          '--indent-width',
+          '2',
           '--quote-style',
-          'ForceQuote',
+          'ForceSingle',
+          '--collapse-simple-statement',
+          'Always',
+          '--call-parentheses',
+          'Always',
         },
+        -- Add condition to check if stylua is available
+        condition = function(self, ctx) return vim.fn.executable('stylua') == 1 end,
       },
 
       -- Shell formatting
@@ -160,17 +166,10 @@ return {
       -- Auto-sort Tailwind classes after save
       local ft = vim.bo[bufnr].filetype
       if
-        vim.tbl_contains({
-          'html',
-          'css',
-          'javascript',
-          'typescript',
-          'javascriptreact',
-          'typescriptreact',
-          'vue',
-          'svelte',
-          'astro',
-        }, ft)
+        vim.tbl_contains(
+          { 'html', 'css', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'vue', 'svelte', 'astro' },
+          ft
+        )
       then
         local conform = require('conform')
         conform.format({

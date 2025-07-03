@@ -2,7 +2,6 @@
 return {
   'gbprod/yanky.nvim',
   event = 'VeryLazy',
-  dependencies = { 'folke/snacks.nvim' },
   config = function()
     -- Basic yanky setup without telescope-specific options
     require('yanky').setup({

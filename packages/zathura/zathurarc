@@ -1,14 +1,127 @@
-# Dark mode for Zathura
+# Zathura configuration file
+
+# UI settings - Enhanced clipboard support
+set selection-clipboard clipboard
+set clipboard clipboard
+
+# Copy keybindings for Wayland
+map y toggle_page_mode
+map Y copy
+map <C-c> copy
+map <C-y> copy
+
+# Recolor settings for better readability
 set recolor true
+set recolor-lightcolor "#1a1b26"
+set recolor-darkcolor "#c0caf5"
+set recolor-reverse-video true
 set recolor-keephue true
 
-# Optional: UI color tweaks
-set default-bg "#1e1e2e"
-set default-fg "#cdd6f4"
-set statusbar-bg "#1e1e2e"
-set statusbar-fg "#89b4fa"
-set inputbar-bg "#1e1e2e"
-set inputbar-fg "#f38ba8"
+# Tokyo Night color scheme
+set notification-error-bg "#f7768e"
+set notification-error-fg "#1a1b26"
+set notification-warning-bg "#e0af68"
+set notification-warning-fg "#1a1b26"
+set notification-bg "#414868"
+set notification-fg "#c0caf5"
 
-# Keybindings
-map R recolor
+set completion-bg "#414868"
+set completion-fg "#c0caf5"
+set completion-group-bg "#24283b"
+set completion-group-fg "#7aa2f7"
+set completion-highlight-bg "#7aa2f7"
+set completion-highlight-fg "#1a1b26"
+
+set index-bg "#414868"
+set index-fg "#c0caf5"
+set index-active-bg "#7aa2f7"
+set index-active-fg "#1a1b26"
+
+set inputbar-bg "#414868"
+set inputbar-fg "#c0caf5"
+
+set statusbar-bg "#414868"
+set statusbar-fg "#c0caf5"
+
+set highlight-color "#414868"
+set highlight-active-color "#565f89"
+
+set default-bg "#1a1b26"
+set default-fg "#c0caf5"
+
+set render-loading true
+set render-loading-bg "#1a1b26"
+set render-loading-fg "#c0caf5"
+
+# Enhanced zoom and scroll settings
+set zoom-min 10
+set zoom-max 1000
+set zoom-step 15
+set synctex true
+set synctex-editor-command "nvim +%{line} %{input}"
+
+# Enhanced page settings for better reading experience
+set pages-per-row 1
+set first-page-column 1:1
+set adjust-open best-fit
+set smooth-scroll true
+set scroll-step 50
+set scroll-hstep 50
+set scroll-wrap false
+set scroll-page-aware true
+set scroll-full-overlap 0.01
+set link-zoom true
+set link-hadjust true
+
+# Search settings
+set incremental-search true
+set search-hadjust true
+
+# Enhanced font settings for better readability
+set font "JetBrainsMono Nerd Font 16"
+
+# Enhanced window settings
+set window-title-basename true
+set window-title-page true
+set statusbar-basename true
+set statusbar-h-padding 10
+set statusbar-v-padding 5
+set guioptions "shv"
+set show-scrollbars true
+set show-h-scrollbar true
+set show-v-scrollbar true
+
+# Enhanced key bindings for better usability
+map <C-i> recolor
+map r reload
+map R rotate
+map K zoom in
+map J zoom out
+map i recolor
+map p print
+map g goto top
+map G goto bottom
+
+# Additional convenience bindings
+map <C-r> rotate
+map <C-R> rotate rotate
+map <Space> scroll down
+map <S-Space> scroll up
+map <BackSpace> scroll up
+
+# Vim-like navigation
+map h scroll left
+map j scroll down
+map k scroll up
+map l scroll right
+map H navigate previous
+map L navigate next
+
+# Page navigation
+map <C-d> scroll half-down
+map <C-u> scroll half-up
+map <C-f> scroll full-down
+map <C-b> scroll full-up
+
+# Tab navigation
+map <C-Tab> focus_inputbar ":exec tabbed-surf-open"

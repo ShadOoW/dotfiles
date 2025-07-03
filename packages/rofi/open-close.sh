@@ -13,7 +13,7 @@ rofi_proc=$(ps aux | grep '[r]ofi' | grep -v "$0" | head -1)
 if [ -n "$rofi_proc" ]; then
     # Extract the command portion after the process info
     current_cmd=$(echo "$rofi_proc" | awk '{for(i=11;i<=NF;i++) printf "%s ", $i; print ""}' | sed 's/[[:space:]]*$//')
-    
+
     # Normalize commands for comparison by removing variable parts
     normalize_cmd() {
         local cmd="$1"
@@ -27,10 +27,10 @@ if [ -n "$rofi_proc" ]; then
         cmd=$(echo "$cmd" | sed 's|rofi -show window|window|g')
         echo "$cmd" | xargs  # trim whitespace
     }
-    
+
     current_normalized=$(normalize_cmd "$current_cmd")
     requested_normalized=$(normalize_cmd "$requested_cmd")
-    
+
     # If the same command is requested, toggle (close)
     if [ "$current_normalized" = "$requested_normalized" ]; then
         pkill -x rofi
@@ -47,3 +47,4 @@ else
     eval "$requested_cmd" &
     exit 0
 fi
+

@@ -381,17 +381,6 @@ return {
     vim.keymap.set('i', '<C-y>', function() require('blink.cmp').show() end, {
       desc = 'Show completion (Ctrl+Y)',
     })
-
-    -- Additional debug keymaps for testing
-    vim.keymap.set('n', '<leader>ct', function()
-      notify.info('Blink CMP', 'Testing completion triggers:')
-      print('Available triggers:')
-      print('  Ctrl+Space (toggle), Ctrl+N, Ctrl+Y, Ctrl+@')
-      print('  Use :BlinkShow to manually trigger')
-      print('  Current completion state: ' .. (require('blink.cmp').is_visible() and 'visible' or 'hidden'))
-    end, {
-      desc = 'Test completion triggers',
-    })
   end,
 
   -- Allows extending the providers array elsewhere in your config

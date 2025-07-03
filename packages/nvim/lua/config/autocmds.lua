@@ -1,6 +1,58 @@
 -- Autocommands
 local notify = require('utils.notify')
 
+-- Create an augroup for panel management
+local panel_group = vim.api.nvim_create_augroup('panel-management', {
+  clear = true,
+})
+
+-- Generic panel closing with 'q' for non-file buffers
+vim.api.nvim_create_autocmd('FileType', {
+  group = panel_group,
+  pattern = '*',
+  callback = function()
+    -- List of filetypes that should be treated as panels/windows
+    local panel_filetypes = {
+      'qf', -- Quickfix
+      'help', -- Help files
+      'fugitive', -- Git windows
+      'git', -- Git windows
+      'neotest-summary', -- Test summary
+      'neotest-output', -- Test output
+      'tsplayground', -- Treesitter playground
+      'lspinfo', -- LSP info
+      'spectre_panel', -- Search/replace
+      'startuptime', -- Startup time
+      'aerial', -- Symbol outline
+      'neotest-output-panel', -- Test output panel
+      'checkhealth', -- Health check
+      'man', -- Man pages
+      'diagnostics', -- Diagnostic windows
+      'DiffviewFiles', -- Diffview files
+      'DiffviewFileHistory', -- Diffview history
+      'Outline', -- Symbol outline
+      'TelescopePrompt', -- Telescope
+      'toggleterm', -- Terminal
+      'Trouble', -- Diagnostics
+      'sagaoutline', -- LSP Saga outline
+    }
+
+    -- Check if current buffer should be treated as a panel
+    local is_panel = vim.tbl_contains(panel_filetypes, vim.bo.filetype)
+      or (vim.bo.buftype ~= '' and vim.bo.buftype ~= 'terminal')
+
+    if is_panel then
+      -- Set buffer-local mapping for 'q' to close the window
+      vim.keymap.set('n', 'q', '<cmd>close<CR>', {
+        buffer = true,
+        silent = true,
+        desc = 'Close panel with q',
+      })
+    end
+  end,
+  desc = 'Set up panel closing behavior',
+})
+
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
 --  See `:help vim.highlight.on_yank()`
@@ -331,4 +383,19 @@ vim.api.nvim_create_autocmd('User', {
     end)
   end,
   desc = 'Clean up problematic windows and conditionally open Lazy/Mason after session restore',
+})
+
+-- Handle all vim errors as notifications instead of center screen
+vim.api.nvim_create_autocmd('CmdlineLeave', {
+  group = vim.api.nvim_create_augroup('error-notifications', {
+    clear = true,
+  }),
+  callback = function()
+    local msg = vim.v.errmsg
+    if msg and msg ~= '' then
+      -- Convert all error messages to notifications
+      require('utils.notify').error('Vim Error', msg)
+      vim.v.errmsg = '' -- Clear the error message to prevent center screen display
+    end
+  end,
 })

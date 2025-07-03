@@ -103,10 +103,8 @@ return {
         show_prefix = false,
       },
       mappings = {
-        go_in = '<CR>',
-        go_in_plus = '<C-CR>',
+        go_in_plus = '<CR>',
         go_out = '<BS>',
-        go_out_plus = '-',
         show_help = 'g?',
         synchronize = '=', -- THIS IS KEY! Use this to save changes to disk
         trim_left = '<',

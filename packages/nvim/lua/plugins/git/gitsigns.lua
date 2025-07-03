@@ -124,22 +124,5 @@ return {
   config = function()
     -- Setup gitsigns first
     require('gitsigns').setup()
-
-    -- Add global git file operations keymaps (these don't need buffer context)
-    vim.keymap.set('n', '<leader>hf', function() require('snacks').picker.git_files() end, {
-      desc = 'Git Files',
-    })
-
-    vim.keymap.set('n', '<leader>hc', function() require('snacks').picker.git_log() end, {
-      desc = 'Git Commits',
-    })
-
-    vim.keymap.set('n', '<leader>hB', function() require('snacks').picker.git_branches() end, {
-      desc = 'Git Branches',
-    })
-
-    vim.keymap.set('n', '<leader>hst', function() require('snacks').picker.git_status() end, {
-      desc = 'Git Status',
-    })
   end,
 }
