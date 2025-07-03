@@ -10,7 +10,6 @@ return {
 
     -- Helper function to add files to quickfix list and open trouble
     local function add_files_to_quickfix(files)
-      notify.info('add_files_to_quickfix called with:', vim.inspect(files))
       if not files or #files == 0 then
         notify.warn('add_files_to_quickfix', 'No files to add.')
         return
@@ -20,9 +19,6 @@ return {
       for _, entry in ipairs(files) do
         local cleaned_entry = string.match(entry, '[a-zA-Z0-9/.].*') or entry
         local absolute_path = vim.fn.fnamemodify(cleaned_entry, ':p')
-        notify.info(
-          'Processing file: ' .. entry .. ', Cleaned entry: ' .. cleaned_entry .. ', Absolute path: ' .. absolute_path
-        )
         table.insert(qf_list, {
           filename = absolute_path,
           lnum = 1,
@@ -30,7 +26,6 @@ return {
         })
       end
 
-      notify.info('Final quickfix list:', vim.inspect(qf_list))
       vim.fn.setqflist(qf_list)
       vim.schedule(function() require('trouble').toggle('quickfix') end)
     end

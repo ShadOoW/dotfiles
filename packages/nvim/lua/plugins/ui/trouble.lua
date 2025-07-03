@@ -73,7 +73,7 @@ return {
         desc = 'Trouble - Workspace problems',
       },
       {
-        '<leader>xq',
+        '<leader>xc',
         trouble_manager.keymap('qflist'),
         desc = 'Trouble - Quickfix list',
       },
