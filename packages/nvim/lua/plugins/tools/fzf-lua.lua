@@ -1,6 +1,5 @@
 -- FZF-Lua - Modern Neovim fuzzy finder with enhanced features
 -- Keymaps: <leader>s* for all picker functions
-
 return {
   'ibhagwan/fzf-lua',
   dependencies = { 'nvim-tree/nvim-web-devicons', 'nvim-treesitter/nvim-treesitter' },
@@ -8,6 +7,33 @@ return {
     local fzf = require('fzf-lua')
     local actions = require('fzf-lua.actions')
     local notify = require('utils.notify')
+
+    -- Helper function to add files to quickfix list and open trouble
+    local function add_files_to_quickfix(files)
+      notify.info('add_files_to_quickfix called with:', vim.inspect(files))
+      if not files or #files == 0 then
+        notify.warn('add_files_to_quickfix', 'No files to add.')
+        return
+      end
+
+      local qf_list = {}
+      for _, entry in ipairs(files) do
+        local cleaned_entry = string.match(entry, '[a-zA-Z0-9/.].*') or entry
+        local absolute_path = vim.fn.fnamemodify(cleaned_entry, ':p')
+        notify.info(
+          'Processing file: ' .. entry .. ', Cleaned entry: ' .. cleaned_entry .. ', Absolute path: ' .. absolute_path
+        )
+        table.insert(qf_list, {
+          filename = absolute_path,
+          lnum = 1,
+          text = entry,
+        })
+      end
+
+      notify.info('Final quickfix list:', vim.inspect(qf_list))
+      vim.fn.setqflist(qf_list)
+      vim.schedule(function() require('trouble').toggle('quickfix') end)
+    end
 
     fzf.setup({
       winopts = {
@@ -36,7 +62,7 @@ return {
           ['<PageUp>'] = 'preview-page-up',
           ['<PageDown>'] = 'preview-page-down',
           ['<CR>'] = 'select',
-          ['<S-CR>'] = 'select',
+          -- ['<S-CR>'] = 'select',
         },
         fzf = {
           ['ctrl-f'] = 'preview-page-down',
@@ -101,6 +127,7 @@ return {
         files = {
           ['default'] = actions.file_edit,
           ['alt-t'] = actions.file_tabedit,
+          ['alt-c'] = function(selected) add_files_to_quickfix(selected) end,
         },
       },
     })
@@ -127,42 +154,71 @@ return {
       {
         '<leader>sF',
         function()
-          fzf.files(
-            picker_opts(
-              'Find Files (All)',
-              '󰈞',
-              { fd_opts = '--color=never --type f --no-ignore --hidden --follow', find_opts = '-type f' }
-            )
-          )
+          fzf.files(picker_opts('Find Files (All)', '󰈞', {
+            fd_opts = '--color=never --type f --no-ignore --hidden --follow',
+            find_opts = '-type f',
+          }))
         end,
         'Find files (all/hidden)',
       },
       { '<leader>sg', function() fzf.live_grep(picker_opts('Live Grep', '󰩉')) end, 'Live grep' },
-      { '<leader>sw', function() fzf.grep_cword(picker_opts('Grep Word', '󰩉')) end, 'Grep word under cursor' },
+      {
+        '<leader>sw',
+        function() fzf.grep_cword(picker_opts('Grep Word', '󰩉')) end,
+        'Grep word under cursor',
+      },
       {
         '<leader>sb',
-        function() fzf.buffers(picker_opts('Buffers', '󰈔', { winopts = { preview = { hidden = 'hidden' } } })) end,
+        function()
+          fzf.buffers(picker_opts('Buffers', '󰈔', {
+            winopts = {
+              preview = {
+                hidden = 'hidden',
+              },
+            },
+          }))
+        end,
         'Find buffers',
       },
       {
         '<leader>so',
-        function() fzf.oldfiles(picker_opts('Recent Files', '󱋢', { cwd_only = true })) end,
+        function()
+          fzf.oldfiles(picker_opts('Recent Files', '󱋢', {
+            cwd_only = true,
+          }))
+        end,
         'Recent files',
       },
-      { '<leader>s.', function() fzf.oldfiles(picker_opts('Recent Files (All)', '󱋢')) end, 'Recent files (all)' },
-      { '<leader>s/', function() fzf.blines(picker_opts('Current Buffer Lines', '󰍉')) end, 'Current buffer lines' },
+      {
+        '<leader>s.',
+        function() fzf.oldfiles(picker_opts('Recent Files (All)', '󱋢')) end,
+        'Recent files (all)',
+      },
+      {
+        '<leader>s/',
+        function() fzf.blines(picker_opts('Current Buffer Lines', '󰍉')) end,
+        'Current buffer lines',
+      },
       {
         '<leader>s?',
         function() fzf.grep_curbuf(picker_opts('Grep Current Buffer', '󰍉')) end,
         'Grep current buffer',
       },
-      { '<leader>sl', function() fzf.lines(picker_opts('Lines in All Buffers', '󰍉')) end, 'Lines in all buffers' },
+      {
+        '<leader>sl',
+        function() fzf.lines(picker_opts('Lines in All Buffers', '󰍉')) end,
+        'Lines in all buffers',
+      },
       { '<leader>:', function() fzf.commands(picker_opts('Commands', '󰘳')) end, 'Commands' },
       { '<leader>sk', function() fzf.keymaps(picker_opts('Keymaps', '󰌋')) end, 'Keymaps' },
       { '<leader>sj', function() fzf.jumps(picker_opts('Jump List', '󰕰')) end, 'Jump list' },
       { '<leader>sH', function() fzf.help_tags(picker_opts('Help Tags', '󰋗')) end, 'Help tags' },
       { '<leader>sr', function() fzf.resume() end, 'Resume last search' },
-      { '<leader>sGd', function() fzf.lsp_definitions(picker_opts('LSP Definitions', '󰒊')) end, 'LSP definitions' },
+      {
+        '<leader>sGd',
+        function() fzf.lsp_definitions(picker_opts('LSP Definitions', '󰒊')) end,
+        'LSP definitions',
+      },
       {
         '<leader>sGD',
         function() fzf.lsp_declarations(picker_opts('LSP Declarations', '󰒊')) end,
@@ -178,7 +234,11 @@ return {
         function() fzf.lsp_typedefs(picker_opts('LSP Type Definitions', '󰒊')) end,
         'LSP type definitions',
       },
-      { '<leader>sR', function() fzf.lsp_references(picker_opts('LSP References', '󰒊')) end, 'LSP references' },
+      {
+        '<leader>sR',
+        function() fzf.lsp_references(picker_opts('LSP References', '󰒊')) end,
+        'LSP references',
+      },
       {
         '<leader>ss',
         function() fzf.lsp_document_symbols(picker_opts('Document Symbols', '󰒕')) end,
@@ -200,39 +260,83 @@ return {
         'Workspace diagnostics',
       },
       { '<leader>sGf', function() fzf.git_files(picker_opts('Git Files', '󰊢')) end, 'Git files' },
-      { '<leader>sGs', function() fzf.git_status(picker_opts('Git Status', '󰊢')) end, 'Git status' },
-      { '<leader>sGc', function() fzf.git_commits(picker_opts('Git Commits', '󰊢')) end, 'Git commits' },
+      {
+        '<leader>sGs',
+        function() fzf.git_status(picker_opts('Git Status', '󰊢')) end,
+        'Git status',
+      },
+      {
+        '<leader>sGc',
+        function() fzf.git_commits(picker_opts('Git Commits', '󰊢')) end,
+        'Git commits',
+      },
       {
         '<leader>sGb',
         function() fzf.git_bcommits(picker_opts('Git Buffer Commits', '󰊢')) end,
         'Git buffer commits',
       },
-      { '<leader>sGB', function() fzf.git_branches(picker_opts('Git Branches', '󰊢')) end, 'Git branches' },
-      { '<leader>sq', function() fzf.quickfix(picker_opts('Quickfix List', '󱖫')) end, 'Quickfix list' },
-      { '<leader>sQ', function() fzf.loclist(picker_opts('Location List', '󰌘')) end, 'Location list' },
+      {
+        '<leader>sGB',
+        function() fzf.git_branches(picker_opts('Git Branches', '󰊢')) end,
+        'Git branches',
+      },
+      {
+        '<leader>sq',
+        function() fzf.quickfix(picker_opts('Quickfix List', '󱖫')) end,
+        'Quickfix list',
+      },
+      {
+        '<leader>sQ',
+        function() fzf.loclist(picker_opts('Location List', '󰌘')) end,
+        'Location list',
+      },
       {
         '<leader>sp',
-        function() fzf.files(picker_opts('Project Files', '󰈞', { cwd = '/mnt/backup/code' })) end,
+        function()
+          fzf.files(picker_opts('Project Files', '󰈞', {
+            cwd = '/mnt/backup/code',
+          }))
+        end,
         'Project files',
       },
       {
         '<leader>sP',
         function()
           local input = vim.fn.input('Projects directory: ', '/mnt/backup/code', 'dir')
-          if input ~= '' then fzf.files(picker_opts('Project Files', '󰈞', { cwd = input })) end
+          if input ~= '' then
+            fzf.files(picker_opts('Project Files', '󰈞', {
+              cwd = input,
+            }))
+          end
         end,
         'Project files (choose directory)',
       },
       {
         '<leader><leader>',
-        function() fzf.buffers(picker_opts('Buffers', '󰈔', { winopts = { preview = { hidden = 'hidden' } } })) end,
+        function()
+          fzf.buffers(picker_opts('Buffers', '󰈔', {
+            winopts = {
+              preview = {
+                hidden = 'hidden',
+              },
+            },
+          }))
+        end,
         'Buffers (quick access)',
       },
-      { '<C-S-f>', function() fzf.live_grep(picker_opts('Live Grep', '󰩉')) end, 'Quick live grep' },
+      {
+        '<C-S-f>',
+        function() fzf.live_grep(picker_opts('Live Grep', '󰩉')) end,
+        'Quick live grep',
+      },
       { '<C-p>', function() fzf.files(picker_opts('Find Files', '󰈞')) end, 'Quick file finder' },
       {
         '\\',
-        function() fzf.oldfiles(picker_opts('Recent Files in Project', '󰈞', { cwd_only = true })) end,
+        function()
+          fzf.oldfiles(picker_opts('Recent Files in Project', '󰈞', {
+            cwd_only = true,
+          }))
+        end,
         'Recent files in current project',
       },
       { '<leader>sc', function() fzf.tags(picker_opts('CTags', '󰓻')) end, 'CTags' },
@@ -276,7 +380,9 @@ return {
     }
 
     for _, keymap in ipairs(keymaps) do
-      vim.keymap.set('n', keymap[1], keymap[2], { desc = keymap[3] })
+      vim.keymap.set('n', keymap[1], keymap[2], {
+        desc = keymap[3],
+      })
     end
 
     vim.api.nvim_create_user_command(
@@ -287,7 +393,9 @@ return {
           cwd = vim.fn.stdpath('config'),
         })
       end,
-      { desc = 'Find files in Neovim config' }
+      {
+        desc = 'Find files in Neovim config',
+      }
     )
 
     -- Obsidian integration
