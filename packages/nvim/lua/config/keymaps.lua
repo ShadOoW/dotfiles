@@ -318,3 +318,7 @@ keymap.n('g<Down>', function() vim.lsp.buf.definition() end, 'Go to definition')
 -- Navigate jumplist (cursor/buffer position history)
 keymap.n('g<Left>', '<C-o>', 'Previous cursor position (jumplist)')
 keymap.n('g<Right>', '<C-i>', 'Next cursor position (jumplist)')
+
+-- Command-line abbreviations
+vim.cmd([[cnoreabbrev git Git]])
+vim.cmd([[cnoreabbrev g G]])
