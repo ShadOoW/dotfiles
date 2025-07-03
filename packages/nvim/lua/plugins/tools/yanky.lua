@@ -33,11 +33,22 @@ return {
     vim.keymap.set({ 'n', 'x' }, 'y', '<Plug>(YankyYank)', {
       desc = 'Yank text',
     })
-    vim.keymap.set({ 'n', 'x' }, 'p', '<Plug>(YankyPutAfter)', {
-      desc = 'Put after cursor',
-    })
-    vim.keymap.set({ 'n', 'x' }, 'P', '<Plug>(YankyPutBefore)', {
-      desc = 'Put before cursor',
+
+    -- Set buffer-local keymaps for p and P, excluding git buffers
+    vim.api.nvim_create_autocmd('BufEnter', {
+      pattern = '*',
+      callback = function()
+        if vim.bo.filetype ~= 'git' then
+          vim.keymap.set({ 'n', 'x' }, 'p', '<Plug>(YankyPutAfter)', {
+            desc = 'Put after cursor',
+            buffer = true,
+          })
+          vim.keymap.set({ 'n', 'x' }, 'P', '<Plug>(YankyPutBefore)', {
+            desc = 'Put before cursor',
+            buffer = true,
+          })
+        end
+      end,
     })
     vim.keymap.set('n', '<c-n>', '<Plug>(YankyCycleForward)', {
       desc = 'Cycle forward through yank history',
