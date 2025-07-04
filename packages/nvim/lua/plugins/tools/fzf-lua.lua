@@ -46,6 +46,13 @@ return {
           border = false,
           vertical = 'up:45%',
         },
+        on_create = function()
+          -- Disable neovim's built-in Escape key handling in fzf windows
+          vim.keymap.set('t', '<Esc>', '<Esc>', {
+            buffer = true,
+            nowait = true,
+          })
+        end,
       },
       keymap = {
         builtin = {
@@ -68,10 +75,14 @@ return {
           ['page-down'] = 'preview-page-down',
           ['enter'] = 'select',
           ['alt-t'] = 'select',
+          ['esc'] = 'abort',
         },
       },
       fzf_opts = {
         ['--bind'] = 'ctrl-c:abort,ctrl-y:execute-silent(echo {+} | xclip -selection clipboard),esc:abort,ctrl-/:toggle-preview,ctrl-l:toggle-preview,ctrl-d:preview-page-down,ctrl-u:preview-page-up,page-down:preview-page-down,page-up:preview-page-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,ctrl-a:toggle-all',
+        ['--exit-0'] = true,
+        ['--no-multi'] = '',
+        ['--exact'] = '',
         ['--cycle'] = '',
         ['--keep-right'] = '',
         ['--scroll-off'] = '5',
@@ -235,12 +246,12 @@ return {
         'LSP references',
       },
       {
-        '<leader>ss',
+        '<leader>sS',
         function() fzf.lsp_document_symbols(picker_opts('Document Symbols', '󰒕')) end,
         'Document symbols',
       },
       {
-        '<leader>sS',
+        '<leader>sW',
         function() fzf.lsp_workspace_symbols(picker_opts('Workspace Symbols', '󰒕')) end,
         'Workspace symbols',
       },
@@ -256,7 +267,7 @@ return {
       },
       { '<leader>sGf', function() fzf.git_files(picker_opts('Git Files', '󰊢')) end, 'Git files' },
       {
-        '<leader>sGs',
+        '<leader>ss',
         function() fzf.git_status(picker_opts('Git Status', '󰊢')) end,
         'Git status',
       },
@@ -372,6 +383,11 @@ return {
         end,
         'Yank history',
       },
+      {
+        '<leader>sY',
+        function() fzf.files(picker_opts('Yank History', '󰆐')) end,
+        'Yank history',
+      },
     }
 
     for _, keymap in ipairs(keymaps) do
@@ -426,5 +442,16 @@ return {
         },
       })
     end
+
+    -- Terminal mode mapping for Escape
+    vim.api.nvim_create_autocmd('FileType', {
+      pattern = 'fzf',
+      callback = function()
+        vim.keymap.set('t', '<Esc>', '<C-c>', {
+          buffer = true,
+          nowait = true,
+        })
+      end,
+    })
   end,
 }
