@@ -80,7 +80,6 @@ return {
       },
       fzf_opts = {
         ['--bind'] = 'ctrl-c:abort,ctrl-y:execute-silent(echo {+} | xclip -selection clipboard),esc:abort,ctrl-/:toggle-preview,ctrl-l:toggle-preview,ctrl-d:preview-page-down,ctrl-u:preview-page-up,page-down:preview-page-down,page-up:preview-page-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,ctrl-a:toggle-all',
-        ['--exit-0'] = true,
         ['--cycle'] = '',
         ['--keep-right'] = '',
         ['--scroll-off'] = '5',
