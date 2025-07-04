@@ -39,8 +39,8 @@ return {
           group = 'Session',
         },
         {
-          '<leader>A',
-          group = 'Admin',
+          '<leader>e',
+          group = 'Editor',
         },
         {
           '<leader>g',
@@ -59,12 +59,8 @@ return {
           group = 'Notes & Journal',
         },
         {
-          '<leader>d',
-          group = 'Debug',
-        },
-        {
           '<leader>h',
-          group = 'Git',
+          group = 'Harpoon',
         },
         {
           '<leader>1',

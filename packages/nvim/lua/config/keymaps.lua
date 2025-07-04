@@ -132,21 +132,24 @@ end, 'Open file explorer')
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Tmux Integration
-keymap.n('<leader>Aa', '<cmd>TmuxPanes<cr>', 'List nvim panes in tmux session')
+keymap.n('<leader>ea', '<cmd>TmuxPanes<cr>', 'List nvim panes in tmux session')
 
-keymap.n('<leader>Ar', function()
+keymap.n('<leader>eR', function()
   vim.cmd('checktime')
   notify.info('Buffer Management', 'Checked all buffers for external changes')
 end, 'Reload all buffers from disk')
 
+keymap.n('<leader>er', '<cmd>:e!<CR>', 'Reload file from disk (:e!)')
+keymap.n('<leader>ea', '<cmd>:%bd<CR>', 'Close all buffer (:%bd)')
+
 -- Session and Project Management
-keymap.n('<leader>Ap', function()
+keymap.n('<leader>ep', function()
   -- Switch to project root and setup session
   local tmux = require('utils.tmux')
   if tmux.is_tmux() then tmux.setup_project_workflow() end
 end, 'Setup project workflow')
 
-keymap.n('<leader>Ao', '<cmd>OutputPanel<CR>', 'Toggle output panel')
+keymap.n('<leader>xo', '<cmd>OutputPanel<CR>', 'Toggle output panel')
 
 -- Basic diagnostic keymaps
 keymap.n('<leader>xq', vim.diagnostic.setloclist, 'Open diagnostic quickfix list')
