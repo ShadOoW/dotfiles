@@ -23,7 +23,7 @@ aur_packages=(
 
     # Cursors
     whitesur-cursor-theme-git
-    bibata-cursor-git
+    bibata-cursor-theme
     oreo-cursors-git
     volantes-cursors-git
 )
@@ -40,4 +40,3 @@ log "info" "Installing GTK themes, icons and cursors"
 install_packages_aur "${aur_packages[@]}" || exit 1
 
 log "success" "GTK themes installation completed"
-
