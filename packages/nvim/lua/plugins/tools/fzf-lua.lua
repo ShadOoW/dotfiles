@@ -8,6 +8,14 @@ return {
     local actions = require('fzf-lua.actions')
     local notify = require('utils.notify')
 
+    -- Helper function to clean file paths from fzf results
+    local function clean_file_path(file)
+      -- Clean the file path from icons, spaces, and buffer numbers
+      local cleaned = string.match(file, '[a-zA-Z0-9/._-].*') or file
+      cleaned = cleaned:match('%[%d+%]%s*(.+)') or cleaned
+      return vim.fn.fnamemodify(cleaned, ':p')
+    end
+
     -- Helper function to add files to quickfix list and open trouble
     local function add_files_to_quickfix(files)
       if not files or #files == 0 then
@@ -17,8 +25,7 @@ return {
 
       local qf_list = {}
       for _, entry in ipairs(files) do
-        local cleaned_entry = string.match(entry, '[a-zA-Z0-9/.].*') or entry
-        local absolute_path = vim.fn.fnamemodify(cleaned_entry, ':p')
+        local absolute_path = clean_file_path(entry)
         table.insert(qf_list, {
           filename = absolute_path,
           lnum = 1,
@@ -28,6 +35,84 @@ return {
 
       vim.fn.setqflist(qf_list)
       vim.schedule(function() require('trouble').toggle('quickfix') end)
+    end
+
+    -- Helper functions for harpoon integration
+    local function add_to_harpoon(selected, opts)
+      if not selected or #selected == 0 then return end
+      local harpoon = require('harpoon')
+      local absolute_path = clean_file_path(selected[1])
+
+      -- Add to harpoon without closing picker
+      vim.schedule(function()
+        -- Get current cursor position from the buffer if it exists
+        local row, col = 0, 0
+        local bufnr = vim.fn.bufnr(absolute_path)
+        if bufnr > 0 and vim.api.nvim_buf_is_loaded(bufnr) then
+          local win = vim.fn.bufwinid(bufnr)
+          if win > 0 then
+            row = vim.api.nvim_win_get_cursor(win)[1] - 1
+            col = vim.api.nvim_win_get_cursor(win)[2]
+          end
+        end
+
+        -- Create proper harpoon item with full context
+        local item = {
+          value = absolute_path,
+          context = {
+            row = row,
+            col = col,
+            line = '',
+            before = {},
+            after = {},
+            register_names = {},
+            registers = {},
+            length = 0,
+          },
+        }
+
+        -- Try to get buffer content for context if buffer exists
+        if bufnr > 0 and vim.api.nvim_buf_is_loaded(bufnr) then
+          local lines = vim.api.nvim_buf_get_lines(bufnr, math.max(0, row - 2), row + 3, false)
+          if #lines > 0 then
+            item.context.line = lines[math.min(3, #lines)] or ''
+            item.context.before = { lines[1] or '', lines[2] or '' }
+            item.context.after = { lines[4] or '', lines[5] or '' }
+            item.context.length = #item.context.line
+          end
+        end
+
+        harpoon:list():add(item)
+        notify.info('Harpoon', 'Added ' .. vim.fn.fnamemodify(absolute_path, ':t') .. ' to harpoon')
+      end)
+
+      if opts and opts.fn_post then opts.fn_post() end
+      return false -- Return false to prevent picker from closing
+    end
+
+    local function remove_from_harpoon(selected, opts)
+      if not selected or #selected == 0 then return end
+      local harpoon = require('harpoon')
+      local absolute_path = clean_file_path(selected[1])
+
+      -- Remove from harpoon without closing picker
+      vim.schedule(function()
+        local list = harpoon:list()
+        local idx = nil
+        for i, item in ipairs(list:display()) do
+          if item.value == absolute_path then
+            idx = i
+            break
+          end
+        end
+        if idx then
+          list:removeAt(idx)
+          notify.info('Harpoon', 'Removed ' .. vim.fn.fnamemodify(absolute_path, ':t') .. ' from harpoon')
+        end
+      end)
+
+      if opts and opts.fn_post then opts.fn_post() end
+      return false -- Return false to prevent picker from closing
     end
 
     fzf.setup({
@@ -64,7 +149,8 @@ return {
           ['<PageUp>'] = 'preview-page-up',
           ['<PageDown>'] = 'preview-page-down',
           ['<CR>'] = 'select',
-          -- ['<S-CR>'] = 'select',
+          ['<Right>'] = 'toggle+down',
+          ['<Left>'] = 'toggle+down',
         },
         fzf = {
           ['ctrl-f'] = 'preview-page-down',
@@ -76,10 +162,12 @@ return {
           ['enter'] = 'select',
           ['alt-t'] = 'select',
           ['esc'] = 'abort',
+          ['right'] = 'toggle+down',
+          ['left'] = 'toggle+down',
         },
       },
       fzf_opts = {
-        ['--bind'] = 'ctrl-c:abort,ctrl-y:execute-silent(echo {+} | xclip -selection clipboard),esc:abort,ctrl-/:toggle-preview,ctrl-l:toggle-preview,ctrl-d:preview-page-down,ctrl-u:preview-page-up,page-down:preview-page-down,page-up:preview-page-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,ctrl-a:toggle-all',
+        ['--bind'] = 'ctrl-c:abort,ctrl-y:execute-silent(echo {+} | xclip -selection clipboard),esc:abort,ctrl-/:toggle-preview,ctrl-l:toggle-preview,ctrl-d:preview-page-down,ctrl-u:preview-page-up,page-down:preview-page-down,page-up:preview-page-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,ctrl-a:toggle-all,right:toggle+down,left:toggle+down',
         ['--cycle'] = '',
         ['--keep-right'] = '',
         ['--scroll-off'] = '5',
@@ -131,6 +219,30 @@ return {
           ['default'] = actions.file_edit,
           ['alt-t'] = actions.file_tabedit,
           ['alt-c'] = function(selected) add_files_to_quickfix(selected) end,
+          ['right'] = function(selected)
+            add_to_harpoon(selected, {
+              fn_post = function() end,
+            })
+          end,
+          ['left'] = function(selected)
+            remove_from_harpoon(selected, {
+              fn_post = function() end,
+            })
+          end,
+        },
+        buffers = {
+          ['default'] = actions.buf_edit,
+          ['alt-t'] = actions.buf_tabedit,
+          ['right'] = function(selected)
+            add_to_harpoon(selected, {
+              fn_post = function() end,
+            })
+          end,
+          ['left'] = function(selected)
+            remove_from_harpoon(selected, {
+              fn_post = function() end,
+            })
+          end,
         },
       },
     })
