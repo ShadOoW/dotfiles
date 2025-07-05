@@ -105,6 +105,16 @@ return {
       return string.format(' %d', buffers)
     end
 
+    local function harpoon_count()
+      local ok, harpoon = pcall(require, 'harpoon')
+      if not ok then return '' end
+
+      local list = harpoon:list()
+      local count = list:length()
+
+      return string.format('󱡅 %d', count)
+    end
+
     -- Custom theme with modern colors
     local custom_theme = {
       normal = {
@@ -225,6 +235,7 @@ return {
         },
         lualine_b = {
           buffer_count,
+          harpoon_count,
           {
             'branch',
             icon = '',
@@ -497,6 +508,16 @@ return {
     })
     vim.api.nvim_create_autocmd('LspDetach', {
       group = lsp_group,
+      callback = function() vim.cmd('redrawstatus') end,
+    })
+
+    -- Auto-refresh when harpoon changes
+    local harpoon_group = vim.api.nvim_create_augroup('StatuslineHarpoon', {
+      clear = true,
+    })
+    vim.api.nvim_create_autocmd('User', {
+      pattern = { 'HarpoonNav', 'HarpoonAdd', 'HarpoonRemove' },
+      group = harpoon_group,
       callback = function() vim.cmd('redrawstatus') end,
     })
   end,
