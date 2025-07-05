@@ -218,6 +218,8 @@ return {
         files = {
           ['default'] = actions.file_edit,
           ['alt-t'] = actions.file_tabedit,
+          ['ctrl-v'] = actions.file_vsplit,
+          ['ctrl-s'] = actions.file_split,
           ['alt-c'] = function(selected) add_files_to_quickfix(selected) end,
           ['right'] = function(selected)
             add_to_harpoon(selected, {
@@ -233,6 +235,8 @@ return {
         buffers = {
           ['default'] = actions.buf_edit,
           ['alt-t'] = actions.buf_tabedit,
+          ['ctrl-v'] = actions.buf_vsplit,
+          ['ctrl-s'] = actions.buf_split,
           ['right'] = function(selected)
             add_to_harpoon(selected, {
               fn_post = function() end,
