@@ -175,6 +175,58 @@ return {
       return opts and opts.no_exit and selected[1] or nil
     end
 
+    local function picker_opts(title, icon, extra_opts)
+      local config = {
+        prompt = icon and (icon .. ' ' .. title .. ': ') or (title .. ': '),
+        winopts = {
+          title = icon and (icon .. ' ' .. title) or title,
+        },
+        fzf_opts = {
+          ['--info'] = 'inline',
+          ['--layout'] = 'reverse',
+        },
+        silent = true,
+      }
+
+      -- Add harpoon indicator for file and buffer pickers
+      if title:find('Files') or title:find('Recent') or title:find('Buffers') then
+        config.fn_transform = harpoon_transform
+      end
+
+      if extra_opts then config = vim.tbl_deep_extend('force', config, extra_opts) end
+      return config
+    end
+
+    -- Reusable harpoon toggle action for buffers that handles recursive reload
+    local function create_harpoon_buffer_action()
+      return {
+        fn = function(selected, opts)
+          local result = toggle_harpoon(selected, opts)
+          -- Manual reload to preserve transform function
+          vim.schedule(function()
+            fzf.buffers(picker_opts('Buffers', '󰈔', {
+              winopts = {
+                preview = {
+                  hidden = 'hidden',
+                },
+              },
+              actions = {
+                ['default'] = actions.buf_edit,
+                ['alt-t'] = actions.buf_tabedit,
+                ['ctrl-v'] = actions.buf_vsplit,
+                ['ctrl-s'] = actions.buf_split,
+                ['alt-a'] = create_harpoon_buffer_action(), -- Recursive reference
+              },
+            }))
+          end)
+          return result
+        end,
+        reload = false,
+        no_exit = true,
+        resume = true,
+      }
+    end
+
     fzf.setup({
       winopts = {
         height = 0.98,
@@ -507,52 +559,7 @@ return {
               ['alt-t'] = actions.buf_tabedit,
               ['ctrl-v'] = actions.buf_vsplit,
               ['ctrl-s'] = actions.buf_split,
-              ['alt-a'] = {
-                fn = function(selected, opts)
-                  local result = toggle_harpoon(selected, opts)
-                  -- Manual reload to preserve transform function
-                  vim.schedule(function()
-                    fzf.buffers(picker_opts('Buffers', '󰈔', {
-                      winopts = {
-                        preview = {
-                          hidden = 'hidden',
-                        },
-                      },
-                      actions = {
-                        ['default'] = actions.buf_edit,
-                        ['alt-t'] = actions.buf_tabedit,
-                        ['ctrl-v'] = actions.buf_vsplit,
-                        ['ctrl-s'] = actions.buf_split,
-                        ['alt-a'] = {
-                          fn = function(sel, o)
-                            local res = toggle_harpoon(sel, o)
-                            -- Recursive manual reload
-                            vim.schedule(
-                              function()
-                                fzf.buffers(picker_opts('Buffers', '󰈔', {
-                                  winopts = {
-                                    preview = {
-                                      hidden = 'hidden',
-                                    },
-                                  },
-                                }))
-                              end
-                            )
-                            return res
-                          end,
-                          reload = false,
-                          no_exit = true,
-                          resume = true,
-                        },
-                      },
-                    }))
-                  end)
-                  return result
-                end,
-                reload = false,
-                no_exit = true,
-                resume = true,
-              },
+              ['alt-a'] = create_harpoon_buffer_action(),
             },
           }))
         end,
