@@ -17,7 +17,7 @@ return {
       -- See :h 'conceallevel' for more information about meaning of values
       conceal = {
         -- conceallevel used for buffers with this plugin
-        default = vim.opt.conceallevel:get(),
+        default = 0,
         -- Used when not being rendered, gets user default
         rendered = 3,
       },
@@ -35,14 +35,14 @@ return {
         -- See :h 'conceallevel'
         conceallevel = {
           -- Used when not being rendered, gets user default
-          default = vim.opt.conceallevel:get(),
+          default = 0,
           -- Used when being rendered, see :h 'conceallevel'
           rendered = 3,
         },
         -- See :h 'concealcursor'
         concealcursor = {
           -- Used when not being rendered, gets user default
-          default = vim.opt.concealcursor:get(),
+          default = '',
           -- Used when being rendered, see :h 'concealcursor'
           rendered = '',
         },
