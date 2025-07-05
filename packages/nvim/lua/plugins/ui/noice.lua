@@ -98,8 +98,9 @@ return {
           backend = 'notify',
           fallback = 'mini',
           format = 'notify',
-          replace = false,
-          merge = true,
+          replace = true,
+          merge = false,
+          animate = false,
         },
 
         -- Notification history view (cmdline_popup style)
