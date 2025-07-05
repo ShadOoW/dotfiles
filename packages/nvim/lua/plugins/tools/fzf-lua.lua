@@ -10,61 +10,71 @@ return {
 
     -- Helper function to clean file paths from fzf results
     local function clean_file_path(file)
-      -- Remove ANSI color codes first
-      local cleaned = file:gsub('\27%[[0-9;]*m', '')
+      local cleaned = file
 
-      -- Remove git status indicators (M, A, D, etc.) at the beginning
+      -- Remove ANSI color codes
+      cleaned = cleaned:gsub('\27%[[0-9;]*m', '')
+
+      -- Remove harpoon indicator at the beginning
+      cleaned = cleaned:gsub('^󱡅 ', '')
+      cleaned = cleaned:gsub('^  ', '')
+
+      -- Remove git status indicators
       cleaned = cleaned:gsub('^%s*[MADRCU]%s*', '')
 
-      -- Remove any leading whitespace
-      cleaned = cleaned:gsub('^%s*', '')
-
-      -- Remove buffer numbers like [1]
+      -- Remove buffer numbers like [1] or [8]
       cleaned = cleaned:gsub('^%[%d+%]%s*', '')
 
-      -- Remove file icons - be more aggressive about removing non-ASCII characters at the start
-      -- Keep removing the first character until we hit a normal filename character
+      -- Remove file icons - keep removing non-filename characters at start
       while cleaned:len() > 0 and not cleaned:match('^[%w%._/-]') do
         cleaned = cleaned:gsub('^.%s*', '')
       end
 
-      -- Trim any remaining leading/trailing whitespace
+      -- Remove line numbers
+      cleaned = cleaned:gsub(':%d+:%d+$', '')
+      cleaned = cleaned:gsub(':%d+$', '')
+
+      -- Trim whitespace
       cleaned = cleaned:match('^%s*(.-)%s*$')
+
+      -- Special handling for buffer entries - check if it's already a full path
+      if cleaned:match('^/') then
+        -- Already an absolute path, use as is
+        return cleaned
+      end
 
       -- Convert to absolute path
       return vim.fn.fnamemodify(cleaned, ':p')
     end
 
-    -- Debug logging helper
-    local function debug_log(context, message, data)
-      local msg = string.format('[%s] %s\n%s', context, message, vim.inspect(data or {}))
-      notify.debug(msg, {
-        title = 'FZF-Harpoon',
-      })
-    end
-
-    -- Check if a file is in harpoon
+    -- Check if a file is in harpoon (using same logic as toggle_harpoon)
     local function is_in_harpoon(file_path)
       local harpoon = require('harpoon')
       local list = harpoon:list()
 
-      -- Check if file is in harpoon using Harpoon 2 API
       for i = 1, list:length() do
         local item = list:get(i)
-        if item and item.value == file_path then return true end
+        if item and item.value then
+          local item_path = item.value:gsub(':%d+:%d+$', ''):gsub(':%d+$', '')
+          local normalized_file_path = file_path:gsub(':%d+:%d+$', ''):gsub(':%d+$', '')
+
+          if item_path == normalized_file_path or item.value == file_path then return true end
+        end
       end
       return false
     end
 
-    -- Format entry with harpoon status
-    local function format_entry_with_harpoon(entry)
+    -- Simple harpoon transform that adds indicator to display
+    local function harpoon_transform(entry)
+      -- Skip if entry already has indicator (prevent double application)
+      if entry:match('^󱡅 ') or entry:match('^  ') then return entry end
+
       local file_path = clean_file_path(entry)
       local in_harpoon = is_in_harpoon(file_path)
-      -- Return a table with two columns: harpoon status and file path
-      return {
-        in_harpoon and '󱡅' or ' ', -- Column 1: harpoon indicator
-        entry, -- Column 2: original entry with icons
-      }
+      local indicator = in_harpoon and '󱡅 ' or '  '
+
+      -- Simply prepend the indicator to the entry
+      return indicator .. entry
     end
 
     -- Helper function to add files to quickfix list and open trouble
@@ -89,87 +99,80 @@ return {
     end
 
     -- Helper functions for harpoon integration
-    local function add_to_harpoon(selected, opts)
-      if not selected or #selected == 0 then return end
+    local function toggle_harpoon(selected, opts)
+      if not selected or #selected == 0 then return opts and opts.no_exit and '' or nil end
+
       local harpoon = require('harpoon')
       local absolute_path = clean_file_path(selected[1])
 
-      debug_log('add_to_harpoon', 'Adding file to harpoon', {
-        file = absolute_path,
-      })
-
-      -- Get current cursor position from the buffer if it exists
-      local row, col = 0, 0
-      local bufnr = vim.fn.bufnr(absolute_path)
-      if bufnr > 0 and vim.api.nvim_buf_is_loaded(bufnr) then
-        local win = vim.fn.bufwinid(bufnr)
-        if win > 0 then
-          row = vim.api.nvim_win_get_cursor(win)[1] - 1
-          col = vim.api.nvim_win_get_cursor(win)[2]
-        end
-      end
-
-      -- Create proper harpoon item with full context
-      local item = {
-        value = absolute_path,
-        context = {
-          row = row,
-          col = col,
-          line = '',
-          before = {},
-          after = {},
-          register_names = {},
-          registers = {},
-          length = 0,
-        },
-      }
-
-      -- Try to get buffer content for context if buffer exists
-      if bufnr > 0 and vim.api.nvim_buf_is_loaded(bufnr) then
-        local lines = vim.api.nvim_buf_get_lines(bufnr, math.max(0, row - 2), row + 3, false)
-        if #lines > 0 then
-          item.context.line = lines[math.min(3, #lines)] or ''
-          item.context.before = { lines[1] or '', lines[2] or '' }
-          item.context.after = { lines[4] or '', lines[5] or '' }
-          item.context.length = #item.context.line
-        end
-      end
-
-      -- Add to harpoon
-      harpoon:list():add(item)
-      notify.info('Harpoon', 'Added ' .. vim.fn.fnamemodify(absolute_path, ':t') .. ' to harpoon')
-
-      -- Return the current selection to maintain position
-      return opts.no_exit and selected[1] or nil
-    end
-
-    local function remove_from_harpoon(selected, opts)
-      if not selected or #selected == 0 then return end
-      local harpoon = require('harpoon')
-      local absolute_path = clean_file_path(selected[1])
-
-      debug_log('remove_from_harpoon', 'Removing file from harpoon', {
-        file = absolute_path,
-      })
-
-      -- Find and remove from harpoon using Harpoon 2 API
       local list = harpoon:list()
       local idx = nil
+
+      -- Find if file is already in harpoon with more comprehensive matching
       for i = 1, list:length() do
         local item = list:get(i)
-        if item and item.value == absolute_path then
-          idx = i
-          break
+        if item and item.value then
+          local item_path = item.value:gsub(':%d+:%d+$', ''):gsub(':%d+$', '')
+          local normalized_absolute_path = absolute_path:gsub(':%d+:%d+$', ''):gsub(':%d+$', '')
+
+          if item_path == normalized_absolute_path or item.value == absolute_path then
+            idx = i
+            break
+          end
         end
       end
 
       if idx then
-        list:removeAt(idx)
+        -- File is in harpoon, remove it
+        list:remove_at(idx)
         notify.info('Harpoon', 'Removed ' .. vim.fn.fnamemodify(absolute_path, ':t') .. ' from harpoon')
+      else
+        -- File is not in harpoon, add it
+
+        -- Get current cursor position from the buffer if it exists
+        local row, col = 0, 0
+        local bufnr = vim.fn.bufnr(absolute_path)
+        if bufnr > 0 and vim.api.nvim_buf_is_loaded(bufnr) then
+          local win = vim.fn.bufwinid(bufnr)
+          if win > 0 then
+            row = vim.api.nvim_win_get_cursor(win)[1] - 1
+            col = vim.api.nvim_win_get_cursor(win)[2]
+          end
+        end
+
+        -- Create proper harpoon item with full context
+        local item = {
+          value = absolute_path,
+          context = {
+            row = row,
+            col = col,
+            line = '',
+            before = {},
+            after = {},
+            register_names = {},
+            registers = {},
+            length = 0,
+          },
+        }
+
+        -- Try to get buffer content for context if buffer exists
+        if bufnr > 0 and vim.api.nvim_buf_is_loaded(bufnr) then
+          local lines = vim.api.nvim_buf_get_lines(bufnr, math.max(0, row - 2), row + 3, false)
+          if #lines > 0 then
+            item.context.line = lines[math.min(3, #lines)] or ''
+            item.context.before = { lines[1] or '', lines[2] or '' }
+            item.context.after = { lines[4] or '', lines[5] or '' }
+            item.context.length = #item.context.line
+          end
+        end
+
+        -- Add to harpoon
+        list:add(item)
+        notify.info('Harpoon', 'Added ' .. vim.fn.fnamemodify(absolute_path, ':t') .. ' to harpoon')
       end
 
       -- Return the current selection to maintain position
-      return opts.no_exit and selected[1] or nil
+      return opts and opts.no_exit and selected[1] or nil
     end
 
     fzf.setup({
@@ -205,7 +208,7 @@ return {
           ['<C-c>'] = 'abort',
           ['<PageUp>'] = 'preview-page-up',
           ['<PageDown>'] = 'preview-page-down',
-          ['<CR>'] = 'select',
+          ['<CR>'] = 'accept',
         },
         fzf = {
           ['ctrl-f'] = 'preview-page-down',
@@ -214,8 +217,8 @@ return {
           ['ctrl-y'] = 'execute-silent(echo {+} | xclip -selection clipboard)',
           ['page-up'] = 'preview-page-up',
           ['page-down'] = 'preview-page-down',
-          ['enter'] = 'select',
-          ['alt-t'] = 'select',
+          ['enter'] = 'accept',
+          ['alt-t'] = 'accept',
           ['esc'] = 'abort',
         },
       },
@@ -257,16 +260,14 @@ return {
         git_icons = true,
         file_icons = true,
         color_icons = true,
-        -- Use fd directly
         find_command = 'fd',
-        -- Transform entries to add harpoon indicator
-        fn_transform = function(entry)
-          local file_path = clean_file_path(entry)
-          local in_harpoon = is_in_harpoon(file_path)
-
-          -- Always prepend with indicator
-          return string.format('%s %s', in_harpoon and '󱡅' or ' ', entry)
-        end,
+        fn_transform = harpoon_transform,
+      },
+      buffers = {
+        git_icons = true,
+        file_icons = true,
+        color_icons = true,
+        fn_transform = harpoon_transform,
       },
       grep = {
         resume = true,
@@ -282,17 +283,11 @@ return {
         files = {
           ['default'] = actions.file_edit,
           ['alt-t'] = actions.file_tabedit,
-          ['ctrl-v'] = actions.file_vsplit,
-          ['ctrl-s'] = actions.file_split,
+          ['alt-v'] = actions.file_vsplit,
+          ['alt-s'] = actions.file_split,
           ['alt-c'] = function(selected) add_files_to_quickfix(selected) end,
-          ['right'] = {
-            fn = add_to_harpoon,
-            reload = true,
-            no_exit = true,
-            resume = true,
-          },
-          ['left'] = {
-            fn = remove_from_harpoon,
+          ['alt-a'] = {
+            fn = toggle_harpoon,
             reload = true,
             no_exit = true,
             resume = true,
@@ -303,14 +298,8 @@ return {
           ['alt-t'] = actions.buf_tabedit,
           ['ctrl-v'] = actions.buf_vsplit,
           ['ctrl-s'] = actions.buf_split,
-          ['right'] = {
-            fn = add_to_harpoon,
-            reload = true,
-            no_exit = true,
-            resume = true,
-          },
-          ['left'] = {
-            fn = remove_from_harpoon,
+          ['alt-a'] = {
+            fn = toggle_harpoon,
             reload = true,
             no_exit = true,
             resume = true,
@@ -332,15 +321,9 @@ return {
         silent = true,
       }
 
-      -- Add harpoon indicator for file pickers
-      if title:find('Files') or title:find('Recent') then
-        config.fn_transform = function(entry)
-          local file_path = clean_file_path(entry)
-          local in_harpoon = is_in_harpoon(file_path)
-
-          -- Always prepend with indicator
-          return string.format('%s %s', in_harpoon and '󱡅' or ' ', entry)
-        end
+      -- Add harpoon indicator for file and buffer pickers
+      if title:find('Files') or title:find('Recent') or title:find('Buffers') then
+        config.fn_transform = harpoon_transform
       end
 
       if extra_opts then config = vim.tbl_deep_extend('force', config, extra_opts) end
@@ -400,7 +383,7 @@ return {
       },
       {
         '<leader>s?',
-        function() fzf.grep_curbuf(picker_opts('Grep Current Buffer', '��')) end,
+        function() fzf.grep_curbuf(picker_opts('Grep Current Buffer', '')) end,
         'Grep current buffer',
       },
       {
@@ -517,6 +500,58 @@ return {
             winopts = {
               preview = {
                 hidden = 'hidden',
+              },
+            },
+            actions = {
+              ['default'] = actions.buf_edit,
+              ['alt-t'] = actions.buf_tabedit,
+              ['ctrl-v'] = actions.buf_vsplit,
+              ['ctrl-s'] = actions.buf_split,
+              ['alt-a'] = {
+                fn = function(selected, opts)
+                  local result = toggle_harpoon(selected, opts)
+                  -- Manual reload to preserve transform function
+                  vim.schedule(function()
+                    fzf.buffers(picker_opts('Buffers', '󰈔', {
+                      winopts = {
+                        preview = {
+                          hidden = 'hidden',
+                        },
+                      },
+                      actions = {
+                        ['default'] = actions.buf_edit,
+                        ['alt-t'] = actions.buf_tabedit,
+                        ['ctrl-v'] = actions.buf_vsplit,
+                        ['ctrl-s'] = actions.buf_split,
+                        ['alt-a'] = {
+                          fn = function(sel, o)
+                            local res = toggle_harpoon(sel, o)
+                            -- Recursive manual reload
+                            vim.schedule(
+                              function()
+                                fzf.buffers(picker_opts('Buffers', '󰈔', {
+                                  winopts = {
+                                    preview = {
+                                      hidden = 'hidden',
+                                    },
+                                  },
+                                }))
+                              end
+                            )
+                            return res
+                          end,
+                          reload = false,
+                          no_exit = true,
+                          resume = true,
+                        },
+                      },
+                    }))
+                  end)
+                  return result
+                end,
+                reload = false,
+                no_exit = true,
+                resume = true,
               },
             },
           }))
