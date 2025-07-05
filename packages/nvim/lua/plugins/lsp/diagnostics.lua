@@ -119,7 +119,7 @@ return {
       if not progress.progress_handle then
         progress.progress_handle = notify.info('Project Analysis', message)
       else
-        progress.progress_handle = notify.info('Project Analysis', message)
+        progress.progress_handle = notify.info('Project Analysis', message, { replace = progress.progress_handle })
       end
     end
 
