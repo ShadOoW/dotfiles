@@ -1,7 +1,6 @@
 -- UI plugins
 return {
   require('plugins.ui.tokyonight'),
-  require('plugins.ui.onedark'),
   require('plugins.ui.notify'),
   require('plugins.ui.lualine'),
   require('plugins.ui.mini-modules'),
@@ -18,7 +17,6 @@ return {
   require('plugins.ui.modes'),
   require('plugins.ui.indent-blankline'),
   require('plugins.ui.matchparen'),
-  require('plugins.ui.nvim-navic'),
   require('plugins.ui.cinnamon'),
   require('plugins.ui.render-markdown'),
 }
