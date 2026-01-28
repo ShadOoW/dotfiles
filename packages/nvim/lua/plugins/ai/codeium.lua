@@ -12,12 +12,13 @@ return {
         manual = false,
         default_filetype_enabled = true,
         idle_delay = 150,
-        virtual_text_priority = 100,
+        virtual_text_priority = 200,
         map_keys = true,
         key_bindings = {
+          -- Tab accepts AI suggestion; keep others non-intrusive
           accept = '<Tab>',
-          accept_word = '<C-w>',
-          accept_line = '<C-l>',
+          accept_word = '<C-M-CR>',
+          accept_line = '<M-\\>',
           clear = '<C-BS>',
           next = '<M-]>',
           prev = '<M-[>',
@@ -25,9 +26,16 @@ return {
       },
     })
 
-    -- NOTE: Tab is used for completion acceptance
-    -- Tab: Accept completion
-    -- Ctrl+W: Accept word
-    -- Ctrl+L: Accept line
+    -- Improve Codeium ghost text visibility
+    pcall(vim.api.nvim_set_hl, 0, 'CodeiumSuggestion', {
+      fg = '#7aa2f7',
+      italic = true,
+      nocombine = true,
+    })
+    pcall(vim.api.nvim_set_hl, 0, 'CodeiumVirtualText', {
+      fg = '#7aa2f7',
+      italic = true,
+      nocombine = true,
+    })
   end,
 }

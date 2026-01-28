@@ -325,3 +325,95 @@ keymap.n('g<Right>', '<C-i>', 'Next cursor position (jumplist)')
 -- Command-line abbreviations
 vim.cmd([[cnoreabbrev git Git]])
 vim.cmd([[cnoreabbrev g G]])
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Odin-specific keybindings
+-- ═══════════════════════════════════════════════════════════════════════════════
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'odin',
+  callback = function(args)
+    local buf = args.buf
+    local opts = {
+      buffer = buf,
+      silent = true,
+    }
+
+    -- Build and run commands for Odin
+    vim.keymap.set(
+      'n',
+      '<leader>zy',
+      function()
+        local cmd = 'odin build . -out:' .. vim.fn.expand('%:t:r')
+        vim.cmd('terminal ' .. cmd)
+      end,
+      vim.tbl_extend('force', opts, {
+        desc = 'Build Odin project',
+      })
+    )
+
+    vim.keymap.set(
+      'n',
+      '<leader>zr',
+      function()
+        local binary_name = vim.fn.expand('%:t:r')
+        local cmd = 'odin run . -out:' .. binary_name
+        vim.cmd('terminal ' .. cmd)
+      end,
+      vim.tbl_extend('force', opts, {
+        desc = 'Run Odin project',
+      })
+    )
+
+    vim.keymap.set(
+      'n',
+      '<leader>zc',
+      function()
+        local cmd = 'odin check .'
+        vim.cmd('terminal ' .. cmd)
+      end,
+      vim.tbl_extend('force', opts, {
+        desc = 'Check Odin project',
+      })
+    )
+
+    vim.keymap.set(
+      'n',
+      '<leader>zt',
+      function()
+        local cmd = 'odin test .'
+        vim.cmd('terminal ' .. cmd)
+      end,
+      vim.tbl_extend('force', opts, {
+        desc = 'Test Odin project',
+      })
+    )
+
+    -- Format with odinfmt
+    vim.keymap.set(
+      'n',
+      '<leader>zf',
+      function()
+        vim.lsp.buf.format({
+          async = true,
+        })
+      end,
+      vim.tbl_extend('force', opts, {
+        desc = 'Format Odin file',
+      })
+    )
+
+    -- Quick Odin documentation lookup
+    vim.keymap.set(
+      'n',
+      '<leader>zd',
+      function()
+        local word = vim.fn.expand('<cword>')
+        vim.cmd('terminal odin doc ' .. word)
+      end,
+      vim.tbl_extend('force', opts, {
+        desc = 'Odin documentation lookup',
+      })
+    )
+  end,
+  desc = 'Odin-specific keybindings',
+})

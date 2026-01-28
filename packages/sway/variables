@@ -9,6 +9,7 @@ set {
     $window ~/.config/rofi/open-close.sh "rofi -show window"
     $clipboard ~/.config/rofi/open-close.sh "cliphist list | rofi -dmenu -display-columns 2 | cliphist decode | wl-copy"
     $commands ~/.config/rofi/open-close.sh "~/.config/rofi/custom-commands.sh"
+    $projects ~/.config/rofi/open-close.sh "~/.config/dotfiles/packages/kitty/scripts/project-manager.sh"
     
     # Scratchpad settings
     $sp_terminal "~/.config/sway/scripts/toggle-scratchpad.sh terminal app_id terminal-mark 'kitty --app-id terminal-mark'"

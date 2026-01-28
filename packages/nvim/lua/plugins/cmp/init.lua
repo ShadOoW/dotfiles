@@ -1,2 +1,2 @@
 -- Completion plugins
-return { require('plugins.cmp.blink-cmp') }
+return { require('plugins.cmp.nvim-cmp') }

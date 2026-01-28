@@ -3,6 +3,9 @@ exec {
     autotiling-rs 3 4 5 6 7 8 9 10 &
     wl-paste --watch cliphist store &
 
+    # Start MRU focus tracker for Alt-Tab behavior
+    ~/.config/dotfiles/packages/sway/scripts/sway_mru_daemon.py &
+
     # Start applications in background with consistent naming convention
     sp_terminal &
     sp_music &

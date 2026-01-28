@@ -59,8 +59,8 @@ return {
           group = 'Notes & Journal',
         },
         {
-          '<leader>h',
-          group = 'Harpoon',
+          '<leader>z',
+          group = 'File Type',
         },
         {
           '<leader>1',

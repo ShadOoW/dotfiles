@@ -34,7 +34,6 @@ is_running=$(swaymsg -t get_tree | jq ".. | objects | select(.marks? != null and
 if [ "$is_running" -ge 1 ]; then
     # Toggle visibility - show window and apply properties
     swaymsg "[con_mark=\"$MARK_NAME\"] scratchpad show"
-    set_window_properties
 else
     if [ -z "$COMMAND" ]; then
         echo "Error: No command provided to launch application"

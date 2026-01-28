@@ -9,12 +9,13 @@ bindsym {
     $mod+d exec $menu
     $mod+Shift+d exec $window
     $mod+c exec $clipboard
-    $mod+x exec $commands
+
+    $mod+Shift+x exec $commands
     $mod+a exec $sp_explorer
     $mod+m exec $sp_music
     $mod+z exec $sp_terminal
-    $mod+Shift+x exec $sp_chatgpt
-    $mod+w exec $sp_whatsapp
+    # $mod+Shift+x exec $sp_chatgpt
+    # $mod+w exec $sp_whatsapp
     # Start wiki development environment
     $mod+Shift+m exec ~/.config/dotfiles/packages/sway/scripts/start-wiki-dev.sh
     # Generate AI header image
@@ -40,9 +41,9 @@ floating_modifier $mod normal
 # Moving around:
 #
 bindsym {
-    # Focus next
-    $mod+Tab focus next
-    $mod+Shift+Tab focus prev
+    # Focus next (MRU across workspace)
+    $mod+Tab exec ~/.config/dotfiles/packages/sway/scripts/sway_mru_cycle.py prev
+    $mod+Shift+Tab exec ~/.config/dotfiles/packages/sway/scripts/sway_mru_cycle.py next
 
     # Or use $mod+[up|down|left|right]
     $mod+Left focus left
@@ -184,3 +185,6 @@ bindsym $mod+Shift+p exec sway-screenshot -m output -o ~/Pictures -f "screenshot
 
 # Lock screen
 bindsym $mod+l exec swaylock
+
+# Project manager
+bindsym $mod+x exec $projects

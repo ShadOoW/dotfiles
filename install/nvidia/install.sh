@@ -47,7 +47,7 @@ fi
 CONF_FILE="/etc/modprobe.d/nvidia.conf"
 if [ ! -f "$CONF_FILE" ]; then
     log "info" "Creating Nvidia modprobe configuration"
-    echo "options nvidia_drm modeset=1 fbdev=1" | sudo tee "$CONF_FILE" >/dev/null
+    echo "options nvidia_drm modeset=1 fbdev=1" | sudo tee "$CONF_FILE" > /dev/null
     log "success" "Nvidia modprobe options added"
 else
     log "info" "Nvidia modprobe config already exists"
@@ -57,17 +57,17 @@ fi
 if [ -f /etc/default/grub ]; then
     log "info" "Configuring GRUB for Nvidia"
     updated=0
-    
+
     if ! grep -q "nvidia-drm.modeset=1" /etc/default/grub; then
         sudo sed -i 's/\(GRUB_CMDLINE_LINUX_DEFAULT=".*\)"/\1 nvidia-drm.modeset=1"/' /etc/default/grub
         updated=1
     fi
-    
+
     if ! grep -q "nvidia_drm.fbdev=1" /etc/default/grub; then
         sudo sed -i 's/\(GRUB_CMDLINE_LINUX_DEFAULT=".*\)"/\1 nvidia_drm.fbdev=1"/' /etc/default/grub
         updated=1
     fi
-    
+
     if [ "$updated" -eq 1 ]; then
         log "info" "Updating GRUB configuration"
         if ! sudo grub-mkconfig -o /boot/grub/grub.cfg; then
@@ -85,10 +85,10 @@ if [ -f /boot/loader/loader.conf ]; then
     log "info" "Configuring systemd-boot for Nvidia"
     for conf in /boot/loader/entries/*.conf; do
         [ -f "$conf" ] || continue
-        
+
         # Backup original config
         sudo cp "$conf" "$conf.bak"
-        
+
         # Update boot options
         opts=$(grep "^options" "$conf" | sed 's/ nvidia-drm.modeset=1//g; s/ nvidia_drm.fbdev=1//g')
         if ! sudo sed -i "/^options/c\\$opts nvidia-drm.modeset=1 nvidia_drm.fbdev=1" "$conf"; then

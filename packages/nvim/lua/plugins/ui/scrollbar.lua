@@ -168,7 +168,6 @@ return {
         'prompt',
         'TelescopePrompt',
         'TelescopeResults',
-        'toggleterm',
         'Trouble',
       },
       autocmd = {

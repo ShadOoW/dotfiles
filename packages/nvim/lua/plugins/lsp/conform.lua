@@ -6,6 +6,14 @@ return {
     format_on_save = function(bufnr)
       -- Disable with a global or buffer-local variable
       if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then return end
+
+      -- Use LSP formatting for Odin files (OLS handles formatting with ols.json config)
+      local filetype = vim.bo[bufnr].filetype
+      if filetype == 'odin' then return {
+        timeout_ms = 500,
+        lsp_format = 'prefer',
+      } end
+
       return {
         timeout_ms = 500,
         lsp_format = 'fallback',
@@ -56,8 +64,8 @@ return {
       -- Go (specialized formatters)
       go = { 'gofumpt', 'goimports' },
 
-      -- Rust (specialized formatter)
-      rust = { 'rustfmt' },
+      -- Rust (use LSP formatting via rust-analyzer)
+      rust = {},
 
       -- C/C++ (specialized formatter)
       c = { 'clang-format' },
@@ -68,6 +76,12 @@ return {
 
       -- Docker (prettierd)
       dockerfile = { 'prettierd' },
+
+      -- Odin (using LSP formatting via OLS with ols.json config)
+      -- odin = {'odinfmt'}
+
+      -- Dart/Flutter (using LSP formatting for best integration)
+      dart = {}, -- Use LSP formatting (dartls handles this)
     },
 
     formatters = {
@@ -159,6 +173,17 @@ return {
         args = { 'format', '-' },
         stdin = true,
       },
+
+
+      -- Odin formatting (handled by OLS LSP server)
+      -- odinfmt = {
+      --     command = 'odinfmt',
+      --     args = {'--stdin'},
+      --     stdin = true,
+      --     condition = function(self, ctx)
+      --         return vim.fn.executable('odinfmt') == 1
+      --     end
+      -- }
     },
 
     -- Custom format options

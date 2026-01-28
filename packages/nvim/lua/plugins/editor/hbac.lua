@@ -51,10 +51,9 @@ return {
       -- Filetypes to ignore
       ignore_filetypes = {
         'help',
-        'Trouble',
-        'dashboard',
-        'toggleterm',
-        'DiffviewFiles',
+      'Trouble',
+      'dashboard',
+      'DiffviewFiles',
         'DiffviewFileHistory',
         'qf',
         'TelescopePrompt',

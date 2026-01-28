@@ -22,9 +22,11 @@ return {
         'astro', -- Astro
         'jsonls', -- JSON
         'yamlls', -- YAML
-        'denols', -- Deno
         -- C/C++ Development
         'clangd', -- C/C++/Objective-C
+        -- Systems Programming
+        'rust_analyzer', -- Rust Language Server
+        'ols', -- Odin Language Server
         -- General
         'lua_ls', -- Lua
         'marksman', -- Markdown
@@ -32,6 +34,8 @@ return {
         'dockerls', -- Docker
       },
       automatic_installation = true,
+      -- Don't auto-setup servers - we configure them manually in servers.lua
+      handlers = {},
     })
   end,
 }

@@ -32,8 +32,57 @@ return {
     }
 
     lint.linters_by_ft = {
+      -- Documentation
       markdown = { 'markdownlint_cli2' },
+
+      -- Web Development
+      javascript = { 'eslint_d' },
+      typescript = { 'eslint_d' },
+      javascriptreact = { 'eslint_d' },
+      typescriptreact = { 'eslint_d' },
+      css = { 'stylelint' },
+      scss = { 'stylelint' },
+      less = { 'stylelint' },
+      html = { 'htmlhint' },
+      json = { 'jsonlint' },
+      yaml = { 'yamllint' },
+
+      -- Programming Languages
+      python = { 'flake8' },
+      lua = { 'luacheck' },
+      -- Rust: rust-analyzer (LSP) provides comprehensive diagnostics
+      -- No separate linter needed as rust-analyzer handles all Rust diagnostics
+      go = { 'golangcilint' },
+
+      -- Shell
+      bash = { 'shellcheck' },
+      sh = { 'shellcheck' },
+      zsh = { 'shellcheck' },
+
+      -- Config and Infrastructure
+      dockerfile = { 'hadolint' },
+      sql = { 'sqlfluff' },
+
+      -- Note: Odin uses OLS (Odin Language Server) for diagnostics
+      -- No separate linter needed as OLS provides comprehensive diagnostics
     }
+
+    -- Custom linter configurations
+    lint.linters.luacheck.args = {
+      '--globals',
+      'vim',
+      '--no-color',
+      '--codes',
+      '--ranges',
+      '--formatter',
+      'plain',
+      '-',
+    }
+
+    -- Manual lint command
+    vim.keymap.set('n', '<leader>Fl', function() lint.try_lint() end, {
+      desc = 'Trigger linting for current file',
+    })
 
     -- Create autocommand which carries out the actual linting
     -- on the specified events.

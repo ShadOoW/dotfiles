@@ -15,10 +15,6 @@ return {
       -- Remove ANSI color codes
       cleaned = cleaned:gsub('\27%[[0-9;]*m', '')
 
-      -- Remove harpoon indicator at the beginning
-      cleaned = cleaned:gsub('^󱡅 ', '')
-      cleaned = cleaned:gsub('^  ', '')
-
       -- Remove git status indicators
       cleaned = cleaned:gsub('^%s*[MADRCU]%s*', '')
 
@@ -47,35 +43,6 @@ return {
       return vim.fn.fnamemodify(cleaned, ':p')
     end
 
-    -- Check if a file is in harpoon (using same logic as toggle_harpoon)
-    local function is_in_harpoon(file_path)
-      local harpoon = require('harpoon')
-      local list = harpoon:list()
-
-      for i = 1, list:length() do
-        local item = list:get(i)
-        if item and item.value then
-          local item_path = item.value:gsub(':%d+:%d+$', ''):gsub(':%d+$', '')
-          local normalized_file_path = file_path:gsub(':%d+:%d+$', ''):gsub(':%d+$', '')
-
-          if item_path == normalized_file_path or item.value == file_path then return true end
-        end
-      end
-      return false
-    end
-
-    -- Simple harpoon transform that adds indicator to display
-    local function harpoon_transform(entry)
-      -- Skip if entry already has indicator (prevent double application)
-      if entry:match('^󱡅 ') or entry:match('^  ') then return entry end
-
-      local file_path = clean_file_path(entry)
-      local in_harpoon = is_in_harpoon(file_path)
-      local indicator = in_harpoon and '󱡅 ' or '  '
-
-      -- Simply prepend the indicator to the entry
-      return indicator .. entry
-    end
 
     -- Helper function to add files to quickfix list and open trouble
     local function add_files_to_quickfix(files)
@@ -98,82 +65,6 @@ return {
       vim.schedule(function() require('trouble').toggle('quickfix') end)
     end
 
-    -- Helper functions for harpoon integration
-    local function toggle_harpoon(selected, opts)
-      if not selected or #selected == 0 then return opts and opts.no_exit and '' or nil end
-
-      local harpoon = require('harpoon')
-      local absolute_path = clean_file_path(selected[1])
-
-      local list = harpoon:list()
-      local idx = nil
-
-      -- Find if file is already in harpoon with more comprehensive matching
-      for i = 1, list:length() do
-        local item = list:get(i)
-        if item and item.value then
-          local item_path = item.value:gsub(':%d+:%d+$', ''):gsub(':%d+$', '')
-          local normalized_absolute_path = absolute_path:gsub(':%d+:%d+$', ''):gsub(':%d+$', '')
-
-          if item_path == normalized_absolute_path or item.value == absolute_path then
-            idx = i
-            break
-          end
-        end
-      end
-
-      if idx then
-        -- File is in harpoon, remove it
-        list:remove_at(idx)
-        notify.info('Harpoon', 'Removed ' .. vim.fn.fnamemodify(absolute_path, ':t') .. ' from harpoon')
-      else
-        -- File is not in harpoon, add it
-
-        -- Get current cursor position from the buffer if it exists
-        local row, col = 0, 0
-        local bufnr = vim.fn.bufnr(absolute_path)
-        if bufnr > 0 and vim.api.nvim_buf_is_loaded(bufnr) then
-          local win = vim.fn.bufwinid(bufnr)
-          if win > 0 then
-            row = vim.api.nvim_win_get_cursor(win)[1] - 1
-            col = vim.api.nvim_win_get_cursor(win)[2]
-          end
-        end
-
-        -- Create proper harpoon item with full context
-        local item = {
-          value = absolute_path,
-          context = {
-            row = row,
-            col = col,
-            line = '',
-            before = {},
-            after = {},
-            register_names = {},
-            registers = {},
-            length = 0,
-          },
-        }
-
-        -- Try to get buffer content for context if buffer exists
-        if bufnr > 0 and vim.api.nvim_buf_is_loaded(bufnr) then
-          local lines = vim.api.nvim_buf_get_lines(bufnr, math.max(0, row - 2), row + 3, false)
-          if #lines > 0 then
-            item.context.line = lines[math.min(3, #lines)] or ''
-            item.context.before = { lines[1] or '', lines[2] or '' }
-            item.context.after = { lines[4] or '', lines[5] or '' }
-            item.context.length = #item.context.line
-          end
-        end
-
-        -- Add to harpoon
-        list:add(item)
-        notify.info('Harpoon', 'Added ' .. vim.fn.fnamemodify(absolute_path, ':t') .. ' to harpoon')
-      end
-
-      -- Return the current selection to maintain position
-      return opts and opts.no_exit and selected[1] or nil
-    end
 
     local function picker_opts(title, icon, extra_opts)
       local config = {
@@ -188,44 +79,10 @@ return {
         silent = true,
       }
 
-      -- Add harpoon indicator for file and buffer pickers
-      if title:find('Files') or title:find('Recent') or title:find('Buffers') then
-        config.fn_transform = harpoon_transform
-      end
-
       if extra_opts then config = vim.tbl_deep_extend('force', config, extra_opts) end
       return config
     end
 
-    -- Reusable harpoon toggle action for buffers that handles recursive reload
-    local function create_harpoon_buffer_action()
-      return {
-        fn = function(selected, opts)
-          local result = toggle_harpoon(selected, opts)
-          -- Manual reload to preserve transform function
-          vim.schedule(function()
-            fzf.buffers(picker_opts('Buffers', '󰈔', {
-              winopts = {
-                preview = {
-                  hidden = 'hidden',
-                },
-              },
-              actions = {
-                ['default'] = actions.buf_edit,
-                ['alt-t'] = actions.buf_tabedit,
-                ['ctrl-v'] = actions.buf_vsplit,
-                ['ctrl-s'] = actions.buf_split,
-                ['alt-a'] = create_harpoon_buffer_action(), -- Recursive reference
-              },
-            }))
-          end)
-          return result
-        end,
-        reload = false,
-        no_exit = true,
-        resume = true,
-      }
-    end
 
     fzf.setup({
       winopts = {
@@ -313,13 +170,11 @@ return {
         file_icons = true,
         color_icons = true,
         find_command = 'fd',
-        fn_transform = harpoon_transform,
       },
       buffers = {
         git_icons = true,
         file_icons = true,
         color_icons = true,
-        fn_transform = harpoon_transform,
       },
       grep = {
         resume = true,
@@ -338,24 +193,12 @@ return {
           ['alt-v'] = actions.file_vsplit,
           ['alt-s'] = actions.file_split,
           ['alt-c'] = function(selected) add_files_to_quickfix(selected) end,
-          ['alt-a'] = {
-            fn = toggle_harpoon,
-            reload = true,
-            no_exit = true,
-            resume = true,
-          },
         },
         buffers = {
           ['default'] = actions.buf_edit,
           ['alt-t'] = actions.buf_tabedit,
           ['ctrl-v'] = actions.buf_vsplit,
           ['ctrl-s'] = actions.buf_split,
-          ['alt-a'] = {
-            fn = toggle_harpoon,
-            reload = true,
-            no_exit = true,
-            resume = true,
-          },
         },
       },
     })
@@ -372,11 +215,6 @@ return {
         },
         silent = true,
       }
-
-      -- Add harpoon indicator for file and buffer pickers
-      if title:find('Files') or title:find('Recent') or title:find('Buffers') then
-        config.fn_transform = harpoon_transform
-      end
 
       if extra_opts then config = vim.tbl_deep_extend('force', config, extra_opts) end
       return config
@@ -559,7 +397,6 @@ return {
               ['alt-t'] = actions.buf_tabedit,
               ['ctrl-v'] = actions.buf_vsplit,
               ['ctrl-s'] = actions.buf_split,
-              ['alt-a'] = create_harpoon_buffer_action(),
             },
           }))
         end,
@@ -623,6 +460,270 @@ return {
         function() fzf.files(picker_opts('Yank History', '󰆐')) end,
         'Yank history',
       },
+      {
+        '<leader>sn',
+        function()
+          local function get_messages()
+            local messages = {}
+
+            -- Method 1: Try noice message manager
+            local manager_ok, manager = pcall(require, 'noice.message.manager')
+            if manager_ok and manager.get then
+              local manager_messages = manager.get({})
+              if manager_messages and #manager_messages > 0 then
+                for _, msg in ipairs(manager_messages) do
+                  table.insert(messages, msg)
+                end
+              end
+            end
+
+            -- Method 2: Try noice API directly
+            local noice_ok, noice = pcall(require, 'noice')
+            if noice_ok and noice.get_messages then
+              local noice_messages = noice.get_messages()
+              if noice_messages and #noice_messages > 0 then
+                for _, msg in ipairs(noice_messages) do
+                  table.insert(messages, msg)
+                end
+              end
+            end
+
+            -- Method 3: Try accessing noice config
+            if #messages == 0 and noice_ok then
+              local config_ok, config = pcall(require, 'noice.config')
+              if config_ok and config.messages then
+                for _, msg in ipairs(config.messages) do
+                  table.insert(messages, msg)
+                end
+              end
+            end
+
+            -- Method 4: Try notify history as fallback
+            if #messages == 0 and _G.notification_utils then
+              local history = _G.notification_utils.get_history()
+              if history and #history > 0 then
+                for _, entry in ipairs(history) do
+                  table.insert(messages, {
+                    content = entry.message,
+                    level = entry.level,
+                    time = entry.timestamp,
+                    opts = entry.opts,
+                  })
+                end
+              end
+            end
+
+            return messages
+          end
+
+          local messages = get_messages()
+
+          if not messages or #messages == 0 then
+            vim.notify('No messages found', vim.log.levels.INFO)
+            return
+          end
+
+          -- Convert messages to display format
+          local items = {}
+          for i, msg in ipairs(messages) do
+            local content = ''
+
+            -- Enhanced content parsing
+            if msg.content then
+              if type(msg.content) == 'table' then
+                -- Handle nested tables and different content structures
+                local parts = {}
+                for _, part in ipairs(msg.content) do
+                  if type(part) == 'table' then
+                    if part.text then
+                      table.insert(parts, part.text)
+                    elseif part.content then
+                      table.insert(parts, tostring(part.content))
+                    else
+                      table.insert(parts, vim.inspect(part))
+                    end
+                  else
+                    table.insert(parts, tostring(part))
+                  end
+                end
+                content = table.concat(parts, ' ')
+              else
+                content = tostring(msg.content)
+              end
+            elseif msg.message then
+              content = tostring(msg.message)
+            end
+
+            if content and content ~= '' then
+              -- Add severity prefix for better identification
+              local prefix = ''
+              if msg.level then
+                local level_map = {
+                  [vim.log.levels.ERROR] = '󰅚 ERROR',
+                  [vim.log.levels.WARN] = '󰀪 WARN',
+                  [vim.log.levels.INFO] = '󰋽 INFO',
+                  [vim.log.levels.DEBUG] = '󰃤 DEBUG',
+                }
+                prefix = level_map[msg.level] or '󰋽 INFO'
+              else
+                prefix = '󰋽 INFO'
+              end
+
+              local display_text = prefix .. ': ' .. content
+              table.insert(items, {
+                text = display_text,
+                original = content,
+                level = msg.level,
+                time = msg.time,
+                index = i,
+              })
+            end
+          end
+
+          if #items == 0 then
+            vim.notify('No displayable messages found', vim.log.levels.INFO)
+            return
+          end
+
+          fzf.fzf_exec(function(cb)
+            for _, item in ipairs(items) do
+              cb(item.text)
+            end
+          end, {
+            prompt = '󰍶 Noice Messages (' .. #items .. '): ',
+            previewer = {
+              type = 'cmd',
+              fn = function(entry)
+                -- Find the original item for preview
+                local selected_item = nil
+                for _, item in ipairs(items) do
+                  if item.text == entry then
+                    selected_item = item
+                    break
+                  end
+                end
+
+                if selected_item then
+                  -- Format the preview content
+                  local level_name = 'unknown'
+                  if selected_item.level then
+                    for name, level in pairs(vim.log.levels) do
+                      if level == selected_item.level then
+                        level_name = name:lower()
+                        break
+                      end
+                    end
+                  end
+
+                  local preview_lines = {
+                    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                    '📋 MESSAGE DETAILS',
+                    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                    '',
+                    '🔸 Level: ' .. level_name,
+                    '🔸 Time: ' .. (selected_item.time or 'unknown'),
+                    '🔸 Index: ' .. (selected_item.index or 'unknown'),
+                    '',
+                    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                    '📄 FULL MESSAGE',
+                    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                    '',
+                  }
+
+                  -- Split the message into lines for better formatting
+                  local message_lines = vim.split(selected_item.original, '\n')
+                  for _, line in ipairs(message_lines) do
+                    table.insert(preview_lines, line)
+                  end
+
+                  table.insert(preview_lines, '')
+                  table.insert(
+                    preview_lines,
+                    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+                  )
+                  table.insert(preview_lines, 'Press Enter to view details | Ctrl-Y to copy message')
+                  table.insert(
+                    preview_lines,
+                    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+                  )
+
+                  return table.concat(preview_lines, '\n')
+                end
+
+                return 'No preview available'
+              end,
+            },
+            winopts = {
+              title = '󰍶 Noice Messages',
+              preview = {
+                layout = 'vertical',
+                vertical = 'down:50%',
+                wrap = true,
+              },
+            },
+            actions = {
+              ['default'] = function(selected)
+                if not selected[1] then return end
+
+                -- Find the original item
+                local selected_item = nil
+                for _, item in ipairs(items) do
+                  if item.text == selected[1] then
+                    selected_item = item
+                    break
+                  end
+                end
+
+                if selected_item then
+                  -- Show message details
+                  local level_name = 'unknown'
+                  if selected_item.level then
+                    for name, level in pairs(vim.log.levels) do
+                      if level == selected_item.level then
+                        level_name = name
+                        break
+                      end
+                    end
+                  end
+
+                  local details = {
+                    'Message: ' .. selected_item.original,
+                    'Level: ' .. level_name,
+                    'Time: ' .. (selected_item.time or 'unknown'),
+                  }
+                  vim.notify(table.concat(details, '\n'), vim.log.levels.INFO, {
+                    title = 'Message Details',
+                  })
+                end
+              end,
+              ['ctrl-y'] = function(selected)
+                if not selected[1] then return end
+
+                -- Find the original item and copy to clipboard
+                local selected_item = nil
+                for _, item in ipairs(items) do
+                  if item.text == selected[1] then
+                    selected_item = item
+                    break
+                  end
+                end
+
+                if selected_item then
+                  vim.fn.setreg('+', selected_item.original)
+                  vim.fn.setreg('"', selected_item.original)
+                  vim.notify('Message copied to clipboard', vim.log.levels.INFO, {
+                    title = 'Copy Success',
+                  })
+                end
+              end,
+            },
+            fzf_opts = {
+              ['--header'] = 'Enter: View Details | Ctrl-Y: Copy Message | Ctrl-/: Toggle Preview',
+            },
+          })
+        end,
+        'Noice Messages',
+      },
     }
 
     for _, keymap in ipairs(keymaps) do
@@ -643,40 +744,6 @@ return {
         desc = 'Find files in Neovim config',
       }
     )
-
-    -- Obsidian integration
-    _G.fzf_select_book = function(books, callback)
-      local items = vim.deepcopy(books)
-      table.insert(items, '+ New Book...')
-
-      fzf.fzf_exec(function(cb)
-        for _, item in ipairs(items) do
-          cb(item)
-        end
-      end, {
-        prompt = '󱉟 Select or Create Book: ',
-        actions = {
-          ['default'] = function(selected)
-            if not selected[1] then return end
-            local choice = selected[1]
-
-            if choice == '+ New Book...' then
-              local obsidian = require('utils.obsidian')
-              obsidian.ui.create_new_book(callback)
-            else
-              local obsidian = require('utils.obsidian')
-              obsidian.ui.add_chapter_to_existing_book(choice, callback)
-            end
-          end,
-        },
-        winopts = {
-          title = '󱉟 Obsidian Books',
-          preview = {
-            hidden = 'hidden',
-          },
-        },
-      })
-    end
 
     -- Terminal mode mapping for Escape
     vim.api.nvim_create_autocmd('FileType', {

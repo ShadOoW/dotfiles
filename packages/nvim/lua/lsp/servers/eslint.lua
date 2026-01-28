@@ -18,7 +18,8 @@ return {
       useFlatConfig = false,
     },
     format = true,
-    nodePath = '',
+    -- Fix ESLint library detection
+    nodePath = vim.fn.stdpath('data') .. '/mason/packages/eslint-lsp/node_modules',
     onIgnoredFiles = 'off',
     packageManager = 'npm',
     problems = {
@@ -64,4 +65,6 @@ return {
     )(fname)
   end,
   single_file_support = true,
+  -- Only start when ESLint config is found
+  autostart = false,
 }

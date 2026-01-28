@@ -342,3 +342,84 @@ vim.api.nvim_create_user_command('SessionOpenMason', function()
 end, {
   desc = 'Manually open Mason (for testing session behavior)',
 })
+
+-- ===== LSP Debug Commands =====
+
+vim.api.nvim_create_user_command('LspDebug', function()
+  local buf = vim.api.nvim_get_current_buf()
+  local clients = vim.lsp.get_clients({
+    bufnr = buf,
+  })
+
+  print('=== LSP Debug Information ===')
+  print('Buffer: ' .. vim.api.nvim_buf_get_name(buf))
+  print('Filetype: ' .. vim.bo[buf].filetype)
+  print('Working Directory: ' .. vim.fn.getcwd())
+  print('')
+
+  if #clients == 0 then
+    print('No LSP clients attached to current buffer')
+  else
+    print('Attached clients:')
+    for _, client in ipairs(clients) do
+      print('  • ' .. client.name .. ' (ID: ' .. client.id .. ')')
+      print('    Root: ' .. (client.config.root_dir or 'N/A'))
+      print('    Autostart: ' .. tostring(client.config.autostart))
+      print('    Cmd: ' .. (client.config.cmd and table.concat(client.config.cmd, ' ') or 'N/A'))
+    end
+  end
+
+  print('')
+  print('Deno project check:')
+  local deno_files = { 'deno.json', 'deno.jsonc', 'deps.ts', 'import_map.json' }
+  local is_deno_project = false
+  for _, file in ipairs(deno_files) do
+    local file_path = vim.fn.getcwd() .. '/' .. file
+    if vim.fn.filereadable(file_path) == 1 then
+      print('  ✓ Found: ' .. file)
+      is_deno_project = true
+    end
+  end
+  if not is_deno_project then print('  ✗ No Deno project files found') end
+
+  print('')
+  print('All LSP clients:')
+  local all_clients = vim.lsp.get_clients()
+  for _, client in ipairs(all_clients) do
+    local attached = vim.tbl_contains(clients, client) and ' [ATTACHED]' or ''
+    print('  • ' .. client.name .. ' (ID: ' .. client.id .. ')' .. attached)
+  end
+end, {
+  desc = 'Debug LSP client information and conflicts',
+})
+
+-- Command to force restart LSP for current buffer
+vim.api.nvim_create_user_command('LspRestartBuffer', function()
+  local buf = vim.api.nvim_get_current_buf()
+  local clients = vim.lsp.get_clients({
+    bufnr = buf,
+  })
+
+  if #clients == 0 then
+    notify.warn('LSP', 'No clients attached to current buffer')
+    return
+  end
+
+  local client_names = {}
+  for _, client in ipairs(clients) do
+    table.insert(client_names, client.name)
+    vim.lsp.stop_client(client.id, true)
+  end
+
+  notify.info('LSP', 'Stopped clients: ' .. table.concat(client_names, ', '))
+
+  -- Restart LSP after a short delay
+  vim.defer_fn(function()
+    vim.cmd('LspStart')
+    notify.success('LSP', 'Clients restarted for current buffer')
+  end, 1000)
+end, {
+  desc = 'Restart LSP clients for current buffer only',
+})
+
+-- Deno support removed

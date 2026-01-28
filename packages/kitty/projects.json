@@ -1,0 +1,19 @@
+{
+  "projects": {
+    "dotfiles": {
+      "path": "/home/shad/.config/dotfiles",
+      "startup_command": "nvim .",
+      "description": "System dotfiles configuration"
+    },
+    "nvim": {
+      "path": "/home/shad/.config/dotfiles/packages/nvim",
+      "startup_command": "nvim init.lua",
+      "description": "Neovim configuration"
+    },
+    "kitty": {
+      "path": "/home/shad/.config/dotfiles/packages/kitty",
+      "startup_command": "nvim kitty.conf",
+      "description": "Kitty terminal configuration"
+    }
+  }
+} 

@@ -47,4 +47,3 @@ else
     eval "$requested_cmd" &
     exit 0
 fi
-

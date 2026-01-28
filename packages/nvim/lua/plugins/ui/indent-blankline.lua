@@ -83,7 +83,6 @@ return {
           'noice',
           'alpha',
           'dashboard',
-          'toggleterm',
           'Trouble',
           'lir',
           'Outline',

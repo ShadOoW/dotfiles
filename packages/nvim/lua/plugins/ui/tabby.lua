@@ -53,9 +53,18 @@ return {
       fg = c.bg,
     })
 
+    -- Tabline background (no underline - separator line is handled by winbar)
     vim.api.nvim_set_hl(0, 'TabbyTabLine', {
       bg = c.bg_dark,
       fg = c.fg_dark,
+    })
+
+    -- Top gap separator: used by the empty winbar row to draw a line
+    vim.api.nvim_set_hl(0, 'TabbyTopGap', {
+      bg = c.bg_dark,
+      fg = c.fg_dark,
+      underline = true,
+      sp = '#3b4261',
     })
 
     vim.api.nvim_set_hl(0, 'TabbyModified', {

@@ -80,6 +80,11 @@ return {
       -- Disable default matchparen since we're using matchup
       vim.g.loaded_matchparen = 1
 
+      -- Prevent matchdelete errors by using safer cleanup
+      -- This helps avoid E119 errors when buffers are deleted quickly
+      vim.g.matchup_matchparen_nomode = 'i' -- Disable in insert mode to reduce conflicts
+      vim.g.matchup_matchparen_timeout = 100 -- Shorter timeout to reduce race conditions
+
       -- Custom highlight for matching pairs
       vim.api.nvim_set_hl(0, 'MatchParen', {
         bg = '#414868',
@@ -98,6 +103,14 @@ return {
       vim.g.matchup_matchparen_enabled = 1
       vim.g.matchup_motion_enabled = 1
       vim.g.matchup_text_obj_enabled = 1
+      
+      -- Cleanup matches when buffer is deleted to prevent errors
+      vim.api.nvim_create_autocmd('BufDelete', {
+        callback = function()
+          -- Safely clear matches for deleted buffer
+          pcall(vim.fn.clearmatches)
+        end,
+      })
     end,
   },
 }

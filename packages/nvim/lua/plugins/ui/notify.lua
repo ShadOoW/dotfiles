@@ -1,170 +1,369 @@
--- nvim-notify configuration
--- Provides compact, non-intrusive notification indicators with modern UX
+-- Enhanced notification backend using nvim-notify
+-- Provides beautiful, customizable notifications with Tokyo Night styling
 return {
   'rcarriga/nvim-notify',
-  lazy = false,
-  priority = 800, -- Load after colorscheme but before noice
+  event = 'VeryLazy',
   config = function()
     local notify = require('notify')
 
+    -- Configure notify with Tokyo Night inspired styling
     notify.setup({
-      -- Background color for transparency calculations
-      background_colour = '#1a1b26', -- Tokyo Night background
-
       -- Animation settings
-      fps = 120,
-      level = 2,
+      stages = 'fade_in_slide_out',
+      timeout = 3000,
+      max_height = function() return math.floor(vim.o.lines * 0.75) end,
+      max_width = function() return math.floor(vim.o.columns * 0.75) end,
       minimum_width = 50,
+
+      -- Layout and positioning
+      background_colour = '#1e1e2e',
+      fps = 60,
+      level = 2,
+
+      -- Rendering options
       render = 'wrapped-compact',
-      stages = 'static',
-      timeout = 2000,
+
+      -- Top-down notification stacking
       top_down = true,
 
       -- Icons for different log levels
       icons = {
-        ERROR = '',
-        WARN = '',
-        INFO = '',
-        DEBUG = '',
-        TRACE = '',
+        ERROR = ' ',
+        WARN = ' ',
+        INFO = ' ',
+        DEBUG = ' ',
+        TRACE = ' ',
       },
 
-      -- Window configuration
-      max_height = function() return math.min(10, math.floor(vim.o.lines * 0.3)) end,
-      max_width = function()
-        -- Wider width - 80 characters or 40% of screen width
-        local max_width_chars = 80
-        local max_width_percent = math.floor(vim.o.columns * 0.4)
-        return math.min(max_width_chars, max_width_percent)
-      end,
+      -- Time format
+      time_formats = {
+        notification = '%T',
+        notification_history = '%FT%T',
+      },
+
+      -- Notification window styling
       on_open = function(win)
         vim.api.nvim_win_set_config(win, {
           zindex = 100,
         })
-        -- Set window options for better readability
-        vim.wo[win].wrap = true
-        vim.wo[win].linebreak = true -- Break on words
-        vim.wo[win].breakindent = true -- Preserve indentation when wrapping
-        vim.wo[win].conceallevel = 2
-        vim.wo[win].foldenable = false
-        vim.wo[win].winhl = 'Normal:NotifyCompact'
+
+        -- Set window-specific highlight groups
+        vim.api.nvim_win_set_option(win, 'winhl', 'Normal:NotifyBackground,FloatBorder:NotifyBorder')
       end,
 
-      -- Mouse behavior
-      on_close = function(win, timer)
-        -- Only close if not focused
-        if timer and vim.api.nvim_win_get_config(win).focusable then
-          local focused = vim.api.nvim_get_current_win() == win
-          if not focused then vim.api.nvim_win_close(win, true) end
-        end
-      end,
+      -- Custom highlight groups
+      highlight = {
+        error = 'NotifyERROR',
+        warn = 'NotifyWARN',
+        info = 'NotifyINFO',
+        debug = 'NotifyDEBUG',
+        trace = 'NotifyTRACE',
+      },
     })
 
-    -- Override vim.notify to truncate long messages
-    local original_notify = notify
-    vim.notify = function(msg, level, opts)
-      opts = opts or {}
+    -- Set up Tokyo Night inspired highlight groups
+    local function setup_highlights()
+      -- Base notification colors
+      vim.api.nvim_set_hl(0, 'NotifyBackground', {
+        fg = '#cdd6f4',
+        bg = '#1e1e2e',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyBorder', {
+        fg = '#89b4fa',
+        bg = 'NONE',
+      })
 
-      -- Convert message to string and clean it
-      if type(msg) == 'table' then msg = table.concat(msg, ' ') end
-      msg = tostring(msg or '')
+      -- Level-specific colors
+      vim.api.nvim_set_hl(0, 'NotifyERROR', {
+        fg = '#f38ba8',
+        bg = '#1e1e2e',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyWARN', {
+        fg = '#f9e2af',
+        bg = '#1e1e2e',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyINFO', {
+        fg = '#89b4fa',
+        bg = '#1e1e2e',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyDEBUG', {
+        fg = '#6c7086',
+        bg = '#1e1e2e',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyTRACE', {
+        fg = '#6c7086',
+        bg = '#1e1e2e',
+      })
 
-      -- Aggressive truncation for brief indicators
-      local max_chars = 80
-      if #msg > max_chars then msg = msg:sub(1, max_chars - 3) .. '...' end
+      -- Border colors for different levels
+      vim.api.nvim_set_hl(0, 'NotifyERRORBorder', {
+        fg = '#f38ba8',
+        bg = 'NONE',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyWARNBorder', {
+        fg = '#f9e2af',
+        bg = 'NONE',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyINFOBorder', {
+        fg = '#89b4fa',
+        bg = 'NONE',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyDEBUGBorder', {
+        fg = '#6c7086',
+        bg = 'NONE',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyTRACEBorder', {
+        fg = '#6c7086',
+        bg = 'NONE',
+      })
 
-      -- Remove excessive whitespace and newlines
-      msg = msg:gsub('%s*\n%s*', ' '):gsub('%s+', ' '):gsub('^%s*(.-)%s*$', '%1')
+      -- Title colors
+      vim.api.nvim_set_hl(0, 'NotifyERRORTitle', {
+        fg = '#f38ba8',
+        bg = '#1e1e2e',
+        bold = true,
+      })
+      vim.api.nvim_set_hl(0, 'NotifyWARNTitle', {
+        fg = '#f9e2af',
+        bg = '#1e1e2e',
+        bold = true,
+      })
+      vim.api.nvim_set_hl(0, 'NotifyINFOTitle', {
+        fg = '#89b4fa',
+        bg = '#1e1e2e',
+        bold = true,
+      })
+      vim.api.nvim_set_hl(0, 'NotifyDEBUGTitle', {
+        fg = '#6c7086',
+        bg = '#1e1e2e',
+        bold = true,
+      })
+      vim.api.nvim_set_hl(0, 'NotifyTRACETitle', {
+        fg = '#6c7086',
+        bg = '#1e1e2e',
+        bold = true,
+      })
 
-      -- Store full message in history for panel viewing
-      local full_msg = opts.original_msg or msg
-      if not opts.original_msg then opts.original_msg = full_msg end
+      -- Icon colors
+      vim.api.nvim_set_hl(0, 'NotifyERRORIcon', {
+        fg = '#f38ba8',
+        bg = '#1e1e2e',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyWARNIcon', {
+        fg = '#f9e2af',
+        bg = '#1e1e2e',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyINFOIcon', {
+        fg = '#89b4fa',
+        bg = '#1e1e2e',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyDEBUGIcon', {
+        fg = '#6c7086',
+        bg = '#1e1e2e',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyTRACEIcon', {
+        fg = '#6c7086',
+        bg = '#1e1e2e',
+      })
 
-      return original_notify(msg, level, opts)
+      -- Body text colors
+      vim.api.nvim_set_hl(0, 'NotifyERRORBody', {
+        fg = '#cdd6f4',
+        bg = '#1e1e2e',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyWARNBody', {
+        fg = '#cdd6f4',
+        bg = '#1e1e2e',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyINFOBody', {
+        fg = '#cdd6f4',
+        bg = '#1e1e2e',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyDEBUGBody', {
+        fg = '#bac2de',
+        bg = '#1e1e2e',
+      })
+      vim.api.nvim_set_hl(0, 'NotifyTRACEBody', {
+        fg = '#bac2de',
+        bg = '#1e1e2e',
+      })
     end
 
-    -- Tokyo Night color integration with compact styling
-    vim.api.nvim_set_hl(0, 'NotifyBackground', {
-      bg = '#1a1b26',
+    -- Apply highlights immediately and on colorscheme change
+    setup_highlights()
+    vim.api.nvim_create_autocmd('ColorScheme', {
+      callback = setup_highlights,
     })
 
-    -- Compact notification styling
-    vim.api.nvim_set_hl(0, 'NotifyCompact', {
-      bg = '#1a1b26',
-      fg = '#c0caf5',
+    -- Set nvim-notify as the default notification handler
+    vim.notify = notify
+
+    -- Create utility functions for notification management
+    _G.notification_utils = {
+      -- Get notification history with filtering
+      get_history = function(filters)
+        filters = filters or {}
+        local history = notify.history()
+
+        if filters.level then
+          history = vim.tbl_filter(function(notif) return notif.level == filters.level end, history)
+        end
+
+        if filters.since then
+          local since_time = os.time() - filters.since
+          history = vim.tbl_filter(function(notif) return notif.time and notif.time >= since_time end, history)
+        end
+
+        return history
+      end,
+
+      -- Count notifications by severity
+      count_by_severity = function(since_seconds)
+        since_seconds = since_seconds or 300 -- Default 5 minutes
+        local history = notify.history()
+        local counts = {
+          error = 0,
+          warn = 0,
+          info = 0,
+          debug = 0,
+          trace = 0,
+        }
+        local current_time = os.time()
+
+        -- Create reverse lookup for log levels
+        local level_names = {}
+        for name, level in pairs(vim.log.levels) do
+          level_names[level] = name:lower()
+        end
+
+        for _, notif in ipairs(history) do
+          if notif.time and notif.level and not notif.dismissed then
+            local age = current_time - notif.time
+            if age <= since_seconds then
+              local level_name = level_names[notif.level]
+              if level_name and counts[level_name] then counts[level_name] = counts[level_name] + 1 end
+            end
+          end
+        end
+
+        return counts
+      end,
+
+      -- Dismiss notifications by criteria
+      dismiss_by_criteria = function(criteria)
+        criteria = criteria or {}
+        local history = notify.history()
+
+        for _, notif in ipairs(history) do
+          local should_dismiss = true
+
+          if criteria.level and notif.level ~= criteria.level then should_dismiss = false end
+
+          if criteria.title and notif.title ~= criteria.title then should_dismiss = false end
+
+          if criteria.older_than then
+            local age = os.time() - (notif.time or 0)
+            if age < criteria.older_than then should_dismiss = false end
+          end
+
+          if should_dismiss then
+            notify.dismiss({
+              silent = true,
+              pending = true,
+            })
+            break
+          end
+        end
+      end,
+
+      -- Clear old notifications automatically
+      auto_clear_old = function(max_age)
+        max_age = max_age or 600 -- Default 10 minutes
+        _G.notification_utils.dismiss_by_criteria({
+          older_than = max_age,
+        })
+      end,
+    }
+
+    -- Setup auto-clear timer for old notifications
+    local auto_clear_timer = vim.loop.new_timer()
+    auto_clear_timer:start(60000, 60000, vim.schedule_wrap(function() _G.notification_utils.auto_clear_old() end))
+
+    -- Create autocmd to emit custom event for lualine integration
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'NotifyBackground',
+      callback = function()
+        vim.schedule(function() vim.cmd('redrawstatus') end)
+      end,
     })
 
-    -- Error colors - more subtle
-    vim.api.nvim_set_hl(0, 'NotifyERRORBorder', {
-      fg = '#f7768e',
-    })
-    vim.api.nvim_set_hl(0, 'NotifyERRORIcon', {
-      fg = '#f7768e',
-    })
-    vim.api.nvim_set_hl(0, 'NotifyERRORTitle', {
-      fg = '#f7768e',
-      bold = false, -- Less bold for compact look
-    })
-    vim.api.nvim_set_hl(0, 'NotifyERRORBody', {
-      fg = '#c0caf5',
-    })
+    -- Setup notification management keybindings
+    local keymap = require('utils.keymap')
 
-    -- Warning colors
-    vim.api.nvim_set_hl(0, 'NotifyWARNBorder', {
-      fg = '#e0af68',
-    })
-    vim.api.nvim_set_hl(0, 'NotifyWARNIcon', {
-      fg = '#e0af68',
-    })
-    vim.api.nvim_set_hl(0, 'NotifyWARNTitle', {
-      fg = '#e0af68',
-      bold = false,
-    })
-    vim.api.nvim_set_hl(0, 'NotifyWARNBody', {
-      fg = '#c0caf5',
-    })
+    -- Notification dismiss and cleanup (notify-specific)
+    keymap.n(
+      '<leader>nd',
+      function()
+        require('notify').dismiss({
+          silent = true,
+          pending = true,
+        })
+      end,
+      'Dismiss All Notifications'
+    )
 
-    -- Info colors
-    vim.api.nvim_set_hl(0, 'NotifyINFOBorder', {
-      fg = '#7aa2f7',
-    })
-    vim.api.nvim_set_hl(0, 'NotifyINFOIcon', {
-      fg = '#7aa2f7',
-    })
-    vim.api.nvim_set_hl(0, 'NotifyINFOTitle', {
-      fg = '#7aa2f7',
-      bold = false,
-    })
-    vim.api.nvim_set_hl(0, 'NotifyINFOBody', {
-      fg = '#c0caf5',
-    })
+    -- Custom notification management commands (utility-specific)
+    keymap.n('<leader>nf', function()
+      if _G.notification_utils then
+        -- Show only errors and warnings
+        local counts = _G.notification_utils.count_by_severity(300)
+        local error_count = counts.error or 0
+        local warn_count = counts.warn or 0
 
-    -- Debug/Trace colors
-    vim.api.nvim_set_hl(0, 'NotifyDEBUGBorder', {
-      fg = '#565f89',
-    })
-    vim.api.nvim_set_hl(0, 'NotifyDEBUGIcon', {
-      fg = '#565f89',
-    })
-    vim.api.nvim_set_hl(0, 'NotifyDEBUGTitle', {
-      fg = '#565f89',
-      bold = false,
-    })
-    vim.api.nvim_set_hl(0, 'NotifyDEBUGBody', {
-      fg = '#c0caf5',
-    })
-    vim.api.nvim_set_hl(0, 'NotifyTRACEBorder', {
-      fg = '#565f89',
-    })
-    vim.api.nvim_set_hl(0, 'NotifyTRACEIcon', {
-      fg = '#565f89',
-    })
-    vim.api.nvim_set_hl(0, 'NotifyTRACETitle', {
-      fg = '#565f89',
-      bold = false,
-    })
-    vim.api.nvim_set_hl(0, 'NotifyTRACEBody', {
-      fg = '#c0caf5',
-    })
+        if error_count > 0 or warn_count > 0 then
+          local msg = string.format('Notifications: %d errors, %d warnings', error_count, warn_count)
+          vim.notify(msg, vim.log.levels.INFO)
+        else
+          vim.notify('No important notifications', vim.log.levels.INFO)
+        end
+      else
+        vim.notify('Notification utilities not available', vim.log.levels.WARN)
+      end
+    end, 'Show Notification Filter Summary')
+
+    -- Clear old notifications
+    keymap.n('<leader>no', function()
+      if _G.notification_utils then
+        _G.notification_utils.auto_clear_old(300) -- Clear notifications older than 5 minutes
+        vim.notify('Cleared old notifications', vim.log.levels.INFO)
+      else
+        vim.notify('Notification utilities not available', vim.log.levels.WARN)
+      end
+    end, 'Clear Old Notifications')
+
+    -- Show notification statistics
+    keymap.n('<leader>ns', function()
+      if _G.notification_utils then
+        local counts = _G.notification_utils.count_by_severity(300)
+        local total = 0
+        local breakdown = {}
+
+        for level, count in pairs(counts) do
+          if count > 0 then
+            total = total + count
+            table.insert(breakdown, string.format('%s: %d', level, count))
+          end
+        end
+
+        if total > 0 then
+          local msg = string.format('Total: %d notifications (%s)', total, table.concat(breakdown, ', '))
+          vim.notify(msg, vim.log.levels.INFO)
+        else
+          vim.notify('No recent notifications', vim.log.levels.INFO)
+        end
+      else
+        vim.notify('Notification utilities not available', vim.log.levels.WARN)
+      end
+    end, 'Show Notification Statistics')
   end,
 }

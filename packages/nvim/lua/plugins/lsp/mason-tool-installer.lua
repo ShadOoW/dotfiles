@@ -30,6 +30,10 @@ return {
         'bash-language-server', -- Bash
         'dockerfile-language-server', -- Docker
         'docker-compose-language-service', -- Docker
+        'rust-analyzer', -- Rust Language Server
+        'ols', -- Odin Language Server
+        -- Mobile Development
+        'dart-language-server', -- Dart/Flutter LSP
         -- Linters
         -- Web Development
         'eslint_d', -- Fast ESLint
@@ -69,6 +73,7 @@ return {
         'tree-sitter-cli', -- Tree-sitter CLI
         'grammarly-languageserver', -- Grammarly integration
         'ltex-ls', -- LaTeX/Markdown grammar checker
+        'odinfmt', -- Odin formatter
       },
       auto_update = true,
       run_on_start = true,
