@@ -1,12 +1,9 @@
--- Autocommands
 local notify = require('utils.notify')
 
--- Create an augroup for panel management
 local panel_group = vim.api.nvim_create_augroup('panel-management', {
     clear = true
 })
 
--- Generic panel closing with 'q' for non-file buffers
 vim.api.nvim_create_autocmd('FileType', {
     group = panel_group,
     pattern = '*',

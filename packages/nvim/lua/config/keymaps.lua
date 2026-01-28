@@ -1,18 +1,9 @@
--- Keymaps configuration
 local keymap = require('utils.keymap')
 local notify = require('utils.notify')
 
--- ═══════════════════════════════════════════════════════════════════════════════
--- COMPREHENSIVE COMMAND-LINE WINDOW DISABLING
--- ═══════════════════════════════════════════════════════════════════════════════
--- Disable command-line window completely using multiple approaches
--- This prevents the annoying q: buffer that interferes with normal workflow
-
--- Method 1: Disable keybindings - ONLY in normal mode to avoid command-line delays
--- The 'c' mode mapping for 'q:' was causing delays when typing 'q' in command line
+-- Disable the command-line window (q:, q/, q?)
 local cmd_keys = { 'q:', 'q/', 'q?' }
 
--- Only disable in normal, visual, and related modes - NOT in command-line mode
 local safe_modes = { 'n', 'v', 'x', 'o', 'i', 't' }
 
 for _, mode in ipairs(safe_modes) do
@@ -25,28 +16,22 @@ for _, mode in ipairs(safe_modes) do
   end
 end
 
--- Method 2: Disable cedit (command-line editing key)
-vim.opt.cedit = '' -- Completely disable command-line window activation
+vim.opt.cedit = ''
 
--- Method 3: Create autocmd to prevent command-line window opening
 vim.api.nvim_create_autocmd('CmdwinEnter', {
   group = vim.api.nvim_create_augroup('disable-cmdwin', {
     clear = true,
   }),
   desc = 'Prevent command-line window from opening',
   callback = function()
-    -- Immediately close if somehow opened
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-c>', true, false, true), 'n', false)
     notify.warn('Keymaps', 'Command-line window disabled')
     return true
   end,
 })
 
--- Clear highlights on search when pressing <Esc> in normal mode
---  See `:help hlsearch`
 keymap.n('<Esc>', '<cmd>nohlsearch<CR>', 'Clear search highlights')
 
--- Unified split commands (matching tmux)
 keymap.n('<C-M-v>', '<cmd>vsplit<CR>', 'Split window vertically (unified)')
 keymap.n('<C-M-s>', '<cmd>split<CR>', 'Split window horizontally (unified)')
 
