@@ -161,8 +161,9 @@ return {
       },
       files = {
         resume = true,
-        fd_opts = '--color=never --type f --hidden --follow --exclude .git --exclude node_modules --exclude venv --exclude .venv',
-        find_opts = '-type f -not -path \'*/.git/*\' -not -path \'*/node_modules/*\' -not -path \'*/venv/*\' -not -path \'*/.venv/*\'',
+        fd_opts = '--color=never --type f --hidden --follow -E .git -E node_modules -E venv -E .venv -E __pycache__',
+        find_opts = '-type f -not -path \'*/.git/*\' -not -path \'*/node_modules/*\' -not -path \'*/venv/*\' -not -path \'*/.venv/*\' -not -path \'*/__pycache__/*\'',
+        file_ignore_patterns = { '^venv/', '^%.venv/', '^__pycache__/', '/venv/', '/%.venv/', '/__pycache__/' },
         git_icons = true,
         file_icons = true,
         color_icons = true,
@@ -219,7 +220,15 @@ return {
 
     -- Keymaps
     local keymaps = {
-      { '<leader>sf', function() fzf.files(picker_opts('Find Files', '󰈞')) end, 'Find files' },
+      {
+        '<leader>sf',
+        function()
+          fzf.files(picker_opts('Find Files', '󰈞', {
+            file_ignore_patterns = { '^venv/', '^%.venv/', '^__pycache__/', '/venv/', '/%.venv/', '/__pycache__/' },
+          }))
+        end,
+        'Find files',
+      },
       {
         '<leader>sF',
         function()
