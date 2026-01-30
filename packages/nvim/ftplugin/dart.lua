@@ -18,7 +18,7 @@ vim.opt_local.autoindent = true
 
 -- Enable spell checking in comments
 vim.opt_local.spell = true
-vim.opt_local.spelllang = {'en_us'}
+vim.opt_local.spelllang = { 'en_us' }
 
 -- Text width for Dart (Dart style guide recommends 80)
 vim.opt_local.textwidth = 80

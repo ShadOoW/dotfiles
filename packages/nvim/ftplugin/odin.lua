@@ -18,4 +18,4 @@ vim.opt_local.autoindent = true
 
 -- Enable spell checking in comments
 vim.opt_local.spell = true
-vim.opt_local.spelllang = {'en_us'}
+vim.opt_local.spelllang = { 'en_us' }

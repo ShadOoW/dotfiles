@@ -103,7 +103,7 @@ return {
       vim.g.matchup_matchparen_enabled = 1
       vim.g.matchup_motion_enabled = 1
       vim.g.matchup_text_obj_enabled = 1
-      
+
       -- Cleanup matches when buffer is deleted to prevent errors
       vim.api.nvim_create_autocmd('BufDelete', {
         callback = function()

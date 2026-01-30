@@ -43,7 +43,6 @@ return {
       return vim.fn.fnamemodify(cleaned, ':p')
     end
 
-
     -- Helper function to add files to quickfix list and open trouble
     local function add_files_to_quickfix(files)
       if not files or #files == 0 then
@@ -65,7 +64,6 @@ return {
       vim.schedule(function() require('trouble').toggle('quickfix') end)
     end
 
-
     local function picker_opts(title, icon, extra_opts)
       local config = {
         prompt = icon and (icon .. ' ' .. title .. ': ') or (title .. ': '),
@@ -82,7 +80,6 @@ return {
       if extra_opts then config = vim.tbl_deep_extend('force', config, extra_opts) end
       return config
     end
-
 
     fzf.setup({
       winopts = {

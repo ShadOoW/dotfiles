@@ -63,6 +63,7 @@ return {
         'shfmt', -- Shell script formatter
         'black', -- Python formatter
         'isort', -- Python import sorter
+        'ruff', -- Python linter (replaces flake8)
         -- CSS/SCSS
         'stylelint-lsp', -- CSS/SCSS formatter
         -- SQL

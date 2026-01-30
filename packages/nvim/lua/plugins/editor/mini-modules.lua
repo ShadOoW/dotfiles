@@ -3,10 +3,6 @@ return {
   'echasnovski/mini.nvim',
   version = false,
   config = function()
-    -- Core Editing Features
-    -- Autopairs for brackets, quotes, etc.
-    require('mini.pairs').setup({})
-
     -- Split or join arguments, lists, tables, etc.
     require('mini.splitjoin').setup({})
 

@@ -59,6 +59,8 @@ keymap.n('<leader>fQ', function()
   notify.info('Buffer Management', 'Closed ' .. closed_count .. ' buffers')
 end, 'Close all buffers except current')
 keymap.n('<leader>fw', '<cmd>write<CR>', 'Write file')
+keymap.n('<C-s>', '<cmd>write<CR>', 'Save buffer')
+keymap.i('<C-s>', '<C-o><cmd>write<CR>', 'Save buffer')
 
 -- Buffer navigation with leader+arrow keys
 keymap.n('<leader><Right>', '<cmd>bnext<CR>', 'Next buffer')
@@ -73,6 +75,10 @@ keymap.n('<leader>gD', vim.lsp.buf.declaration, 'Goto Declaration')
 keymap.n('<leader>gt', function() require('fzf-lua').lsp_typedefs() end, 'List Type Definitions')
 keymap.n('<leader>gr', '<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol')
 keymap.n('<leader>gh', '<cmd>lua vim.lsp.buf.hover()<cr>', 'Hover documentation')
+
+-- Delete from cursor to end of line (Ctrl+K; normal and insert)
+keymap.n('<C-k>', 'd$', 'Delete to end of line')
+keymap.i('<C-k>', '<C-o>d$', 'Delete to end of line')
 
 -- Indentation in visual mode
 keymap.v('<', '<gv', 'Outdent line')
@@ -125,7 +131,7 @@ keymap.n('<leader>eR', function()
 end, 'Reload all buffers from disk')
 
 keymap.n('<leader>er', '<cmd>:e!<CR>', 'Reload file from disk (:e!)')
-keymap.n('<leader>ea', '<cmd>:%bd<CR>', 'Close all buffer (:%bd)')
+keymap.n('<leader>ec', '<cmd>:%bd<CR>', 'Close all buffer (:%bd)')
 
 -- Session and Project Management
 keymap.n('<leader>ep', function()

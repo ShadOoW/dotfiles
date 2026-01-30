@@ -174,7 +174,6 @@ return {
         stdin = true,
       },
 
-
       -- Odin formatting (handled by OLS LSP server)
       -- odinfmt = {
       --     command = 'odinfmt',
