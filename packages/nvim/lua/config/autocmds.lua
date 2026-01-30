@@ -49,6 +49,21 @@ vim.api.nvim_create_autocmd('FileType', {
   desc = 'Set up panel closing behavior',
 })
 
+-- Set custom buffer name for Buffer list panel (opened via <leader>bq)
+-- Use FileType so filetype is guaranteed to be set (BufWinEnter can fire before)
+vim.api.nvim_create_autocmd('FileType', {
+  group = panel_group,
+  pattern = 'trouble',
+  callback = function(args)
+    if _G.buffer_list_panel then
+      vim.b[args.buf].custom_buffer_name = ' Buffer list'
+      _G.buffer_list_panel = nil
+      vim.schedule(function() vim.cmd('redrawtabline') end)
+    end
+  end,
+  desc = 'Set Buffer list panel name in tabline',
+})
+
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
 --  See `:help vim.highlight.on_yank()`

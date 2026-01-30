@@ -67,9 +67,10 @@ return {
         fg = '#cdd6f4',
         bg = '#1e1e2e',
       })
+      local bg_dark = '#16161e'
       vim.api.nvim_set_hl(0, 'NotifyBorder', {
         fg = '#89b4fa',
-        bg = 'NONE',
+        bg = bg_dark,
       })
 
       -- Level-specific colors
@@ -94,26 +95,26 @@ return {
         bg = '#1e1e2e',
       })
 
-      -- Border colors for different levels
+      -- Border colors for different levels (solid backgrounds)
       vim.api.nvim_set_hl(0, 'NotifyERRORBorder', {
         fg = '#f38ba8',
-        bg = 'NONE',
+        bg = bg_dark,
       })
       vim.api.nvim_set_hl(0, 'NotifyWARNBorder', {
         fg = '#f9e2af',
-        bg = 'NONE',
+        bg = bg_dark,
       })
       vim.api.nvim_set_hl(0, 'NotifyINFOBorder', {
         fg = '#89b4fa',
-        bg = 'NONE',
+        bg = bg_dark,
       })
       vim.api.nvim_set_hl(0, 'NotifyDEBUGBorder', {
         fg = '#6c7086',
-        bg = 'NONE',
+        bg = bg_dark,
       })
       vim.api.nvim_set_hl(0, 'NotifyTRACEBorder', {
         fg = '#6c7086',
-        bg = 'NONE',
+        bg = bg_dark,
       })
 
       -- Title colors

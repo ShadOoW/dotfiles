@@ -307,6 +307,7 @@ return {
           number = false,
           relativenumber = false,
           signcolumn = 'no',
+          winbar = '',
           winhighlight = 'Normal:NoiceSplit,FloatBorder:NoiceSplitBorder',
         },
         close = {
@@ -418,27 +419,28 @@ return {
       end
     end
 
-    -- Setup custom highlight groups with Tokyo Night colors
+    -- Setup custom highlight groups with Tokyo Night colors (solid backgrounds)
+    local bg_dark = '#16161e'
     local function setup_highlights()
       vim.api.nvim_set_hl(0, 'NoiceFormatProgressDone', {
         fg = '#a6e3a1',
-        bg = 'NONE',
+        bg = bg_dark,
       })
       vim.api.nvim_set_hl(0, 'NoiceFormatProgressTodo', {
         fg = '#f9e2af',
-        bg = 'NONE',
+        bg = bg_dark,
       })
       vim.api.nvim_set_hl(0, 'NoiceLspProgressClient', {
         fg = '#89b4fa',
-        bg = 'NONE',
+        bg = bg_dark,
       })
       vim.api.nvim_set_hl(0, 'NoiceLspProgressTitle', {
         fg = '#cdd6f4',
-        bg = 'NONE',
+        bg = bg_dark,
       })
       vim.api.nvim_set_hl(0, 'NoiceLspProgressSpinner', {
         fg = '#f9e2af',
-        bg = 'NONE',
+        bg = bg_dark,
       })
       vim.api.nvim_set_hl(0, 'NoiceMini', {
         fg = '#89b4fa',
@@ -450,7 +452,7 @@ return {
       })
       vim.api.nvim_set_hl(0, 'NoiceCmdlinePopupBorder', {
         fg = '#89b4fa',
-        bg = 'NONE',
+        bg = bg_dark,
       })
       vim.api.nvim_set_hl(0, 'NoicePopup', {
         fg = '#cdd6f4',
@@ -458,7 +460,7 @@ return {
       })
       vim.api.nvim_set_hl(0, 'NoicePopupBorder', {
         fg = '#89b4fa',
-        bg = 'NONE',
+        bg = bg_dark,
       })
       vim.api.nvim_set_hl(0, 'NoiceSplit', {
         fg = '#cdd6f4',
@@ -466,7 +468,7 @@ return {
       })
       vim.api.nvim_set_hl(0, 'NoiceSplitBorder', {
         fg = '#89b4fa',
-        bg = 'NONE',
+        bg = bg_dark,
       })
       vim.api.nvim_set_hl(0, 'NoiceLastLine', {
         fg = 'NONE',
@@ -529,12 +531,23 @@ return {
       end,
     })
 
-    -- BufWinEnter: attach scroll, highlight last line
+    -- BufWinEnter: attach scroll, highlight last line, remove winbar from noice split
     vim.api.nvim_create_autocmd('BufWinEnter', {
       group = notify_group,
       callback = function(args)
         maybe_attach_scroll(args.buf)
-        if vim.bo[args.buf].filetype == 'noice' then schedule_scroll() end
+        if vim.bo[args.buf].filetype == 'noice' then
+          schedule_scroll()
+          -- Force winbar off for noice split (inherited winbar reserves empty top line)
+          local win = vim.api.nvim_get_current_win()
+          local config = vim.api.nvim_win_get_config(win)
+          if config and (config.relative == '' or config.relative == nil) then
+            pcall(vim.api.nvim_win_set_option, win, 'winbar', '')
+            vim.defer_fn(function()
+              if vim.api.nvim_win_is_valid(win) then pcall(vim.api.nvim_win_set_option, win, 'winbar', '') end
+            end, 50)
+          end
+        end
       end,
     })
     vim.api.nvim_create_autocmd('BufEnter', {

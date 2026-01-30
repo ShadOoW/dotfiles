@@ -198,19 +198,11 @@ vim.filetype.add({
   },
 })
 
--- Customize cursor appearance
-vim.api.nvim_set_hl(0, 'Cursor', {
-  blend = 50,
-}) -- Make cursor 50% transparent
-vim.api.nvim_set_hl(0, 'lCursor', {
-  blend = 50,
-}) -- Make lCursor 50% transparent
-vim.api.nvim_set_hl(0, 'CursorLine', {
-  blend = 20,
-}) -- Make cursor line slightly transparent
-vim.api.nvim_set_hl(0, 'CursorColumn', {
-  blend = 20,
-}) -- Make cursor column slightly transparent
+-- Customize cursor appearance (solid for readability)
+vim.api.nvim_set_hl(0, 'Cursor', { blend = 0 })
+vim.api.nvim_set_hl(0, 'lCursor', { blend = 0 })
+vim.api.nvim_set_hl(0, 'CursorLine', { blend = 0 })
+vim.api.nvim_set_hl(0, 'CursorColumn', { blend = 0 })
 
 vim.opt.guicursor = {
   'n-v:ver25-Cursor/lCursor', -- vertical bar in normal and visual mode (non-blinking)

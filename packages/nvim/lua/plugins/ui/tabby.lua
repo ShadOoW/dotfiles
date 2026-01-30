@@ -85,6 +85,12 @@ return {
 
       local buf_name = buf.name()
       local buf_type = buf.type()
+      local bufnr = buf.id
+      local filetype = bufnr and vim.bo[bufnr].filetype or ''
+
+      -- Check for custom buffer name (e.g. Buffer list panel)
+      local custom_name = bufnr and vim.b[bufnr].custom_buffer_name
+      if custom_name and custom_name ~= '' then return custom_name end
 
       -- Handle special buffer types
       if buf_type == 'nofile' or buf_type == 'terminal' then
@@ -112,7 +118,18 @@ return {
         -- Handle terminal buffers
         if buf_name:match('^term://') then return ' Terminal' end
 
-        -- Handle other special buffers
+        -- Handle special buffers by filetype (for unnamed nofile buffers like noice)
+        local filetype_names = {
+          noice = ' Messages',
+          notify = ' Notifications',
+          outputpanel = ' Output',
+          trouble = ' Diagnostics',
+          lazy = ' Lazy',
+          mason = ' Mason',
+        }
+        if filetype_names[filetype] then return filetype_names[filetype] end
+
+        -- Handle other special buffers by name pattern
         local special_names = {
           ['NvimTree'] = ' Files',
           ['neo-tree'] = ' Files',

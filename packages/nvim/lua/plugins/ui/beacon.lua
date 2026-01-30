@@ -9,7 +9,7 @@ return {
       fade = true,
       speed = 3, -- Faster animation
       width = 60,
-      winblend = 50, -- Less transparent for better visibility
+      winblend = 0, -- Fully opaque for readability
       cursor_events = { 'CursorMoved', 'CursorMovedI' }, -- Include insert mode
       window_events = { 'WinEnter', 'FocusGained', 'BufEnter' },
       highlight = {

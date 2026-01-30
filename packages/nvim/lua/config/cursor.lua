@@ -17,37 +17,32 @@ function M.setup()
   local function set_cursor_highlights()
     -- Normal mode cursor - tokyo night blue
     vim.api.nvim_set_hl(0, 'Cursor', {
-      fg = '#1a1b26', -- tokyo night background
-      bg = '#7aa2f7', -- tokyo night blue to match normal mode statusline
-      blend = 15,
+      fg = '#1a1b26',
+      bg = '#7aa2f7', -- tokyo night blue
     })
 
-    -- Insert mode cursor - tokyo night green (matches statusline insert)
+    -- Insert mode cursor - tokyo night green
     vim.api.nvim_set_hl(0, 'lCursor', {
       fg = '#1a1b26',
-      bg = '#9ece6a', -- tokyo night green - matches insert mode statusline
-      blend = 10,
+      bg = '#9ece6a', -- tokyo night green
     })
 
-    -- Visual mode cursor - tokyo night purple (matches statusline visual)
+    -- Visual mode cursor - tokyo night purple
     vim.api.nvim_set_hl(0, 'vCursor', {
       fg = '#1a1b26',
-      bg = '#bb9af7', -- tokyo night purple - matches visual mode statusline
-      blend = 10,
+      bg = '#bb9af7', -- tokyo night purple
     })
 
     -- Terminal cursor
     vim.api.nvim_set_hl(0, 'TermCursor', {
       fg = '#1a1b26',
       bg = '#f7768e', -- tokyo night red
-      blend = 15,
     })
 
-    -- No cursor (invisible)
+    -- Inactive terminal cursor (dimmed but visible)
     vim.api.nvim_set_hl(0, 'TermCursorNC', {
-      fg = 'NONE',
-      bg = 'NONE',
-      blend = 100, -- Fully transparent
+      fg = '#1a1b26',
+      bg = '#565f89', -- tokyo night muted
     })
   end
 

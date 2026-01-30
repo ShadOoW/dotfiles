@@ -101,6 +101,9 @@ return {
   end,
   opts = {
     modes = {
+      qflist = {
+        follow = false,
+      },
       preview_float = {
         mode = 'diagnostics',
         preview = {
