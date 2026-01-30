@@ -221,7 +221,7 @@ return {
         })
       end,
       {
-        desc = 'Format file/range',
+        desc = 'Format',
       }
     )
 
@@ -246,7 +246,7 @@ return {
         end
       end)
     end, {
-      desc = 'Format with specific formatter',
+      desc = 'Format (pick formatter)',
     })
 
     -- Toggle format on save

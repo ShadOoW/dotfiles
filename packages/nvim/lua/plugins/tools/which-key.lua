@@ -27,10 +27,6 @@ return {
           group = 'File',
         },
         {
-          '<leader>F',
-          group = 'File Operations',
-        },
-        {
           '<leader>s',
           group = 'Search',
         },

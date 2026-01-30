@@ -161,8 +161,8 @@ return {
       },
       files = {
         resume = true,
-        fd_opts = '--color=never --type f --hidden --follow --exclude .git --exclude node_modules',
-        find_opts = '-type f -not -path \'*/.git/*\' -not -path \'*/node_modules/*\'',
+        fd_opts = '--color=never --type f --hidden --follow --exclude .git --exclude node_modules --exclude venv --exclude .venv',
+        find_opts = '-type f -not -path \'*/.git/*\' -not -path \'*/node_modules/*\' -not -path \'*/venv/*\' -not -path \'*/.venv/*\'',
         git_icons = true,
         file_icons = true,
         color_icons = true,
@@ -175,7 +175,7 @@ return {
       },
       grep = {
         resume = true,
-        rg_opts = '--column --line-number --no-heading --color=always --smart-case --max-columns=4096 -g \'!.git\' -g \'!node_modules\'',
+        rg_opts = '--column --line-number --no-heading --color=always --smart-case --max-columns=4096 -g \'!.git\' -g \'!node_modules\' -g \'!venv\' -g \'!.venv\'',
         git_icons = true,
         file_icons = true,
         color_icons = true,
@@ -224,8 +224,8 @@ return {
         '<leader>sF',
         function()
           fzf.files(picker_opts('Find Files (All)', '󰈞', {
-            fd_opts = '--color=never --type f --no-ignore --hidden --follow',
-            find_opts = '-type f',
+            fd_opts = '--color=never --type f --no-ignore --hidden --follow --exclude venv --exclude .venv',
+            find_opts = '-type f -not -path \'*/venv/*\' -not -path \'*/.venv/*\'',
           }))
         end,
         'Find files (all/hidden)',
