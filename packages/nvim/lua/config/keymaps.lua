@@ -50,7 +50,7 @@ keymap.i('<C-s>', '<C-o><cmd>write<CR>', 'Save buffer')
 -- ═══════════════════════════════════════════════════════════════════════════════
 keymap.n('<leader><Left>', '<cmd>bprevious<CR>', 'Previous buffer')
 keymap.n('<leader><Right>', '<cmd>bnext<CR>', 'Next buffer')
-keymap.n('<leader>bd', function() require('mini.bufremove').delete(0, false) end, 'Buf: close')
+keymap.n('<leader>bd', function() require('mini.bufremove').delete(0, false) end, 'Close')
 keymap.n('<leader>ba', function()
   local cur = vim.api.nvim_get_current_buf()
   local n = 0
