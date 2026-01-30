@@ -27,7 +27,7 @@ return {
     })
 
     -- Add keymaps for output panel
-    vim.keymap.set('n', '<leader>fo', '<cmd>OutputPanel toggle<CR>', {
+    vim.keymap.set('n', '<leader>xo', '<cmd>OutputPanel<CR>', {
       desc = 'Toggle output panel',
     })
   end,

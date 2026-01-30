@@ -129,8 +129,6 @@ keymap.n('<leader>ep', function()
   if tmux.is_tmux() then tmux.setup_project_workflow() end
 end, 'Setup project workflow')
 
-keymap.n('<leader>xo', '<cmd>OutputPanel<CR>', 'Toggle output panel')
-
 -- Basic diagnostic keymaps
 keymap.n('<leader>xq', vim.diagnostic.setloclist, 'Open diagnostic quickfix list')
 
