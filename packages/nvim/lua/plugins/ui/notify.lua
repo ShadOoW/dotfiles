@@ -6,11 +6,10 @@ return {
   config = function()
     local notify = require('notify')
 
-    -- Configure notify with Tokyo Night inspired styling
+    -- Configure notify: passive (panel-first model; popups only for critical errors)
     notify.setup({
-      -- Animation settings
-      stages = 'fade_in_slide_out',
-      timeout = 3000,
+      stages = 'static',
+      timeout = false,
       max_height = function() return math.floor(vim.o.lines * 0.75) end,
       max_width = function() return math.floor(vim.o.columns * 0.75) end,
       minimum_width = 50,
@@ -296,74 +295,5 @@ return {
         vim.schedule(function() vim.cmd('redrawstatus') end)
       end,
     })
-
-    -- Setup notification management keybindings
-    local keymap = require('utils.keymap')
-
-    -- Notification dismiss and cleanup (notify-specific)
-    keymap.n(
-      '<leader>nd',
-      function()
-        require('notify').dismiss({
-          silent = true,
-          pending = true,
-        })
-      end,
-      'Dismiss All Notifications'
-    )
-
-    -- Custom notification management commands (utility-specific)
-    keymap.n('<leader>nf', function()
-      if _G.notification_utils then
-        -- Show only errors and warnings
-        local counts = _G.notification_utils.count_by_severity(300)
-        local error_count = counts.error or 0
-        local warn_count = counts.warn or 0
-
-        if error_count > 0 or warn_count > 0 then
-          local msg = string.format('Notifications: %d errors, %d warnings', error_count, warn_count)
-          vim.notify(msg, vim.log.levels.INFO)
-        else
-          vim.notify('No important notifications', vim.log.levels.INFO)
-        end
-      else
-        vim.notify('Notification utilities not available', vim.log.levels.WARN)
-      end
-    end, 'Show Notification Filter Summary')
-
-    -- Clear old notifications
-    keymap.n('<leader>no', function()
-      if _G.notification_utils then
-        _G.notification_utils.auto_clear_old(300) -- Clear notifications older than 5 minutes
-        vim.notify('Cleared old notifications', vim.log.levels.INFO)
-      else
-        vim.notify('Notification utilities not available', vim.log.levels.WARN)
-      end
-    end, 'Clear Old Notifications')
-
-    -- Show notification statistics
-    keymap.n('<leader>ns', function()
-      if _G.notification_utils then
-        local counts = _G.notification_utils.count_by_severity(300)
-        local total = 0
-        local breakdown = {}
-
-        for level, count in pairs(counts) do
-          if count > 0 then
-            total = total + count
-            table.insert(breakdown, string.format('%s: %d', level, count))
-          end
-        end
-
-        if total > 0 then
-          local msg = string.format('Total: %d notifications (%s)', total, table.concat(breakdown, ', '))
-          vim.notify(msg, vim.log.levels.INFO)
-        else
-          vim.notify('No recent notifications', vim.log.levels.INFO)
-        end
-      else
-        vim.notify('Notification utilities not available', vim.log.levels.WARN)
-      end
-    end, 'Show Notification Statistics')
   end,
 }

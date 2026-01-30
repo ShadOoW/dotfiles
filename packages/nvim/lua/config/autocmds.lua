@@ -378,34 +378,12 @@ vim.api.nvim_create_autocmd('User', {
   desc = 'Clean up problematic windows and conditionally open Lazy/Mason after session restore',
 })
 
--- Handle all vim errors as notifications instead of center screen
+-- Clear vim errors on cmdline leave (Noice already displays msg_show.emsg in panel)
 vim.api.nvim_create_autocmd('CmdlineLeave', {
   group = vim.api.nvim_create_augroup('error-notifications', {
     clear = true,
   }),
   callback = function()
-    local msg = vim.v.errmsg
-    if msg and msg ~= '' then
-      -- Filter out known harmless errors that don't need notification
-      local ignored_errors = {
-        'E119: Not enough arguments for function: matchdelete', -- vim-matchup internal error
-        'E803: ID not found:', -- Match ID not found (harmless)
-      }
-
-      local should_ignore = false
-      for _, pattern in ipairs(ignored_errors) do
-        if msg:match(pattern) then
-          should_ignore = true
-          break
-        end
-      end
-
-      if not should_ignore then
-        -- Convert error messages to notifications
-        require('utils.notify').error('Vim Error', msg)
-      end
-
-      vim.v.errmsg = '' -- Clear the error message to prevent center screen display
-    end
+    if vim.v.errmsg and vim.v.errmsg ~= '' then vim.v.errmsg = '' end
   end,
 })

@@ -116,15 +116,6 @@ keymap.v('J', ':m \'>+1<CR>gv=gv', 'Move selection down')
 keymap.v('K', ':m \'<-2<CR>gv=gv', 'Move selection up')
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- Function Keys - Optimized for Development Workflow
--- ═══════════════════════════════════════════════════════════════════════════════
--- F1-F4: Buffer/Window Navigation (complements tmux F1-F4 for window switching)
-keymap.n('<F1>', '<cmd>bfirst<CR>', 'First buffer')
-keymap.n('<F2>', '<cmd>bprevious<CR>', 'Previous buffer')
-keymap.n('<F3>', '<cmd>bnext<CR>', 'Next buffer')
-keymap.n('<F4>', '<cmd>blast<CR>', 'Last buffer')
-
--- ═══════════════════════════════════════════════════════════════════════════════
 -- Tmux Integration
 -- ═══════════════════════════════════════════════════════════════════════════════
 

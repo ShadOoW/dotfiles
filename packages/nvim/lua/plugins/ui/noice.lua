@@ -28,12 +28,12 @@ return {
         enabled = true,
         format = 'lsp_progress',
         format_done = 'lsp_progress_done',
-        throttle = 1000 / 30, -- frequency to update lsp progress message
+        throttle = 1000 / 30,
         view = 'mini',
       },
       message = {
         enabled = true,
-        view = 'notify',
+        view = 'mini',
         opts = {},
       },
       documentation = {
@@ -58,37 +58,89 @@ return {
       inc_rename = false, -- enables an input dialog for inc-rename.nvim
       lsp_doc_border = false, -- add a border to hover docs and signature help
     },
-    -- Message routing configuration
-    routes = { -- Route short informational messages to mini view
+    -- Message routing: mini only for LSP; notifications -> panel (opens/updates on new message)
+    routes = { -- Search noise: skip
       {
         filter = {
-          event = 'msg_show',
-          kind = '',
-          max_length = 60,
+          any = {
+            {
+              find = 'search hit',
+            },
+            {
+              find = 'Pattern not found',
+            },
+            {
+              find = 'Already at',
+            },
+          },
         },
-        view = 'mini',
-      }, -- Route errors and warnings to notify
-      {
-        filter = {
-          event = 'msg_show',
-          kind = { 'error', 'warning' },
+        opts = {
+          skip = true,
         },
-        view = 'notify',
-      }, -- Route confirmations to popup dialog
+      }, -- Yank/write: skip
       {
         filter = {
-          event = 'msg_show',
+          any = {
+            {
+              find = 'written',
+            },
+            {
+              find = 'yanked',
+            },
+            {
+              find = 'lines changed',
+            },
+          },
+        },
+        opts = {
+          skip = true,
+        },
+      }, -- Skip generic E37 (Neovim also emits E162 with buffer name; keep E162 only)
+      {
+        filter = {
+          find = 'E37: No write since last change',
+        },
+        opts = {
+          skip = true,
+        },
+      }, -- E162 (qall with unsaved + buffer name) -> panel
+      {
+        filter = {
+          any = {
+            {
+              find = 'No write since last change',
+            },
+            {
+              find = 'E162:',
+            },
+          },
+        },
+        view = 'notify_panel',
+      }, -- Errors, confirm, notify, msg_show -> panel
+      {
+        filter = {
+          kind = 'error',
+        },
+        view = 'notify_panel',
+      },
+      {
+        filter = {
           kind = 'confirm',
         },
-        view = 'popup',
-      }, -- Route long messages to split view
+        view = 'notify_panel',
+      },
+      {
+        filter = {
+          event = 'notify',
+        },
+        view = 'notify_panel',
+      },
       {
         filter = {
           event = 'msg_show',
-          min_length = 100,
         },
-        view = 'split',
-      }, -- Route cmdline messages appropriately
+        view = 'notify_panel',
+      }, -- Cmdline
       {
         filter = {
           event = 'cmdline',
@@ -137,13 +189,13 @@ return {
         input = {},
       },
     },
-    -- Messages configuration
+    -- Messages: panel for notifications; mini only for LSP (in lsp config)
     messages = {
       enabled = true,
-      view = 'notify',
-      view_error = 'notify',
-      view_warn = 'notify',
-      view_history = 'messages',
+      view = 'notify_panel',
+      view_error = 'notify_panel',
+      view_warn = 'notify_panel',
+      view_history = 'notify_panel',
       view_search = 'virtualtext',
     },
     -- Popup menu configuration
@@ -152,10 +204,27 @@ return {
       backend = 'nui',
       kind_icons = {},
     },
-    -- Notification configuration
+    -- Notify: panel (opens/updates on new notification)
     notify = {
       enabled = true,
-      view = 'notify',
+      view = 'notify_panel',
+    },
+    -- Commands: history and errors use panel
+    commands = {
+      history = {
+        view = 'notify_panel',
+        opts = {
+          enter = false,
+          format = 'details',
+        },
+      },
+      errors = {
+        view = 'notify_panel',
+        opts = {
+          enter = false,
+          format = 'details',
+        },
+      },
     },
     -- View configurations
     views = {
@@ -226,6 +295,24 @@ return {
           winhighlight = 'Normal:Normal',
         },
       },
+      notify_panel = {
+        view = 'split',
+        position = 'bottom',
+        size = '20%',
+        enter = false,
+        format = 'details',
+        scrollbar = false,
+        win_options = {
+          wrap = true,
+          number = false,
+          relativenumber = false,
+          signcolumn = 'no',
+          winhighlight = 'Normal:NoiceSplit,FloatBorder:NoiceSplitBorder',
+        },
+        close = {
+          keys = { 'q' },
+        },
+      },
       mini = {
         position = {
           row = -2,
@@ -264,6 +351,72 @@ return {
   },
   config = function(_, opts)
     require('noice').setup(opts)
+
+    -- Scroll noice split panel to bottom when content changes (debounced, zb-based)
+    local SCROLL_DEBOUNCE_MS = 80
+    local scroll_timer = nil
+    local attached_bufs = {}
+    local last_line_ns = vim.api.nvim_create_namespace('noice_last_line')
+
+    local function scroll_noice_panel()
+      for _, win in ipairs(vim.api.nvim_list_wins()) do
+        if vim.api.nvim_win_is_valid(win) then
+          local buf = vim.api.nvim_win_get_buf(win)
+          if vim.bo[buf].filetype == 'noice' then
+            local config = vim.api.nvim_win_get_config(win)
+            if config and (config.relative == '' or config.relative == nil) then
+              local line_count = vim.api.nvim_buf_line_count(buf)
+              if line_count >= 1 then
+                pcall(vim.api.nvim_win_call, win, function()
+                  vim.api.nvim_win_set_cursor(win, { line_count, 0 })
+                  vim.cmd('noautocmd silent! normal! zb')
+                end)
+                vim.api.nvim_buf_clear_namespace(buf, last_line_ns, 0, -1)
+                vim.api.nvim_buf_add_highlight(buf, last_line_ns, 'NoiceLastLine', line_count - 1, 0, -1)
+              end
+              break
+            end
+          end
+        end
+      end
+    end
+
+    local uv = vim.uv or vim.loop
+    local function schedule_scroll()
+      if scroll_timer then pcall(function()
+        scroll_timer:stop()
+        scroll_timer:close()
+      end) end
+      scroll_timer = uv.new_timer()
+      scroll_timer:start(
+        SCROLL_DEBOUNCE_MS,
+        0,
+        vim.schedule_wrap(function()
+          scroll_timer:stop()
+          scroll_timer:close()
+          scroll_timer = nil
+          scroll_noice_panel()
+        end)
+      )
+    end
+
+    -- Attach to noice split buffers; on_lines fires when content changes
+    local function maybe_attach_scroll(buf)
+      if not buf or vim.bo[buf].filetype ~= 'noice' or attached_bufs[buf] then return end
+      for _, win in ipairs(vim.api.nvim_list_wins()) do
+        if vim.api.nvim_win_get_buf(win) == buf and vim.api.nvim_win_is_valid(win) then
+          local config = vim.api.nvim_win_get_config(win)
+          if config and (config.relative == '' or config.relative == nil) then
+            attached_bufs[buf] = true
+            vim.api.nvim_buf_attach(buf, false, {
+              on_lines = schedule_scroll,
+              on_detach = function() attached_bufs[buf] = nil end,
+            })
+            break
+          end
+        end
+      end
+    end
 
     -- Setup custom highlight groups with Tokyo Night colors
     local function setup_highlights()
@@ -315,6 +468,10 @@ return {
         fg = '#89b4fa',
         bg = 'NONE',
       })
+      vim.api.nvim_set_hl(0, 'NoiceLastLine', {
+        fg = 'NONE',
+        bg = '#313244',
+      })
     end
 
     -- Apply highlights immediately and on colorscheme change
@@ -323,83 +480,42 @@ return {
       callback = setup_highlights,
     })
 
-    -- Override vim.notify for better formatting and truncation
-    local notify = require('notify')
+    -- Truncate long messages; scroll panel when vim.notify is called
     local original_notify = vim.notify
-
-    ---@param msg string
-    ---@param level number|nil
-    ---@param opts table|nil
     vim.notify = function(msg, level, opts)
       opts = opts or {}
-
-      -- Truncate very long messages
       if type(msg) == 'string' and #msg > 500 then msg = msg:sub(1, 497) .. '...' end
-
-      -- Add timestamp for better tracking
       opts.title = opts.title or 'Neovim'
-
-      -- Filter out noisy messages at the notify level
-      -- E486 patterns - comprehensive coverage for all "Pattern not found" variations
-      local noisy_patterns = {
-        'written$',
-        'yanked',
-        'lines? changed',
-        'substitutions? on',
-        'recording',
-        'search hit',
-        'Already at', -- E486 comprehensive patterns (catch all variations)
-        'E486:', -- Standard E486 error format
-        'E486 ', -- E486 with space
-        'E486$', -- E486 at end of line
-        '^E486', -- E486 at start of line
-        'Pattern not found', -- Direct pattern not found
-        'pattern not found', -- Lowercase version
-        'PATTERN NOT FOUND', -- Uppercase version
-        'search hit BOTTOM', -- Search wrap messages
-        'search hit TOP', -- Search wrap messages
-        'No previous search pattern', -- No previous pattern
-        'No previous substitute pattern', -- No previous substitute
-        '^/%w+$', -- Single word search patterns that fail
-        '^%?%w+$', -- Single word reverse search patterns that fail
-        '^%d+ lines? changed', -- Line change variations
-        '^%d+ substitutions? on', -- Substitution variations
-        '^%d+ more lines?', -- More lines messages
-        '^%d+ fewer lines?', -- Fewer lines messages
-        '^search hit', -- Search hit messages
-        '^Already at', -- Already at messages
-        '^recording @', -- Recording macro messages
-        '^recording', -- Recording messages
-        '^W%d+:', -- Warning messages we don't want
-        '^%s*$', -- Empty messages
-      }
-
-      -- Convert message to string and check patterns
-      local msg_str = tostring(msg)
-      for _, pattern in ipairs(noisy_patterns) do
-        if msg_str:match(pattern) then
-          return -- Skip noisy messages
-        end
-      end
-
-      -- Call original notify
       original_notify(msg, level, opts)
+      schedule_scroll()
     end
 
     -- Setup noice-specific keybindings
     local keymap = require('utils.keymap')
 
-    -- Noice command and history management
-    keymap.n('<leader>nh', function() require('noice').cmd('history') end, 'Notification History')
-
-    keymap.n('<leader>nl', function() require('noice').cmd('last') end, 'Show Last Message')
-
-    keymap.n('<leader>nc', function() require('noice').cmd('dismiss') end, 'Clear Messages')
-
-    -- Noice enable/disable
-    keymap.n('<leader>ne', function() require('noice').cmd('enable') end, 'Enable Noice')
-
-    keymap.n('<leader>nD', function() require('noice').cmd('disable') end, 'Disable Noice')
+    -- Notification panel keybindings (defer scroll so it runs after noice's zt)
+    local function toggle_notification_panel()
+      local noice_win = nil
+      for _, win in ipairs(vim.api.nvim_list_wins()) do
+        if vim.api.nvim_win_is_valid(win) then
+          local buf = vim.api.nvim_win_get_buf(win)
+          if vim.bo[buf].filetype == 'noice' then
+            local config = vim.api.nvim_win_get_config(win)
+            if config and (config.relative == '' or config.relative == nil) then
+              noice_win = win
+              break
+            end
+          end
+        end
+      end
+      if noice_win then
+        vim.api.nvim_win_close(noice_win, true)
+      else
+        require('noice').cmd('history')
+        vim.defer_fn(scroll_noice_panel, 150)
+      end
+    end
+    keymap.n('<F1>', toggle_notification_panel, 'Toggle notification panel')
 
     -- Auto-refresh lualine when notifications change
     local notify_group = vim.api.nvim_create_augroup('NoiceNotifyUpdate', {
@@ -410,6 +526,21 @@ return {
       group = notify_group,
       callback = function()
         vim.schedule(function() vim.cmd('redrawstatus') end)
+      end,
+    })
+
+    -- BufWinEnter: attach scroll, highlight last line
+    vim.api.nvim_create_autocmd('BufWinEnter', {
+      group = notify_group,
+      callback = function(args)
+        maybe_attach_scroll(args.buf)
+        if vim.bo[args.buf].filetype == 'noice' then schedule_scroll() end
+      end,
+    })
+    vim.api.nvim_create_autocmd('BufEnter', {
+      group = notify_group,
+      callback = function(args)
+        if vim.bo[args.buf].filetype == 'noice' then schedule_scroll() end
       end,
     })
   end,
