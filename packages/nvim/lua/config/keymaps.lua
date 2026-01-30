@@ -55,8 +55,17 @@ keymap.n('<leader>ba', function()
   local cur = vim.api.nvim_get_current_buf()
   local n = 0
   for _, b in ipairs(vim.api.nvim_list_bufs()) do
-    if b ~= cur and vim.api.nvim_buf_is_loaded(b) and pcall(require('mini.bufremove').delete, b, false) then
-      n = n + 1
+    if b ~= cur and vim.api.nvim_buf_is_loaded(b) then
+      local buftype = vim.bo[b].buftype
+      local ok
+      if buftype == 'terminal' then
+        ok = pcall(vim.api.nvim_buf_delete, b, {
+          force = true,
+        })
+      else
+        ok = pcall(require('mini.bufremove').delete, b, false)
+      end
+      if ok then n = n + 1 end
     end
   end
   if n > 0 then notify.info('Buffers', 'Closed ' .. n) end
