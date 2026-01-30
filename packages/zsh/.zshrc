@@ -73,14 +73,6 @@ function run_ls() {
   zle accept-line
 }
 
-cpr() {
-  local cmd="$*"
-  {
-    echo "$ $cmd"
-    eval "$cmd"
-  } | wl-copy
-}
-
 # Create zle widgets
 zle -N cd_up
 zle -N cd_back
