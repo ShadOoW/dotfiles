@@ -250,7 +250,7 @@ return {
     })
 
     -- Toggle format on save
-    vim.keymap.set('n', '<leader>tf', function()
+    vim.keymap.set('n', '<leader>ef', function()
       if vim.g.disable_autoformat or vim.b.disable_autoformat then
         vim.g.disable_autoformat = false
         vim.b.disable_autoformat = false

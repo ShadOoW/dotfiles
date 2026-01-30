@@ -24,16 +24,8 @@ return {
     })
 
     -- Custom keymaps
-    vim.keymap.set('n', '<leader>tj', function() require('treesj').toggle() end, {
+    vim.keymap.set('n', '<leader>ct', function() require('treesj').toggle() end, {
       desc = 'TreeSJ Toggle Split/Join',
-    })
-
-    vim.keymap.set('n', '<leader>ts', function() require('treesj').split() end, {
-      desc = 'TreeSJ Split',
-    })
-
-    vim.keymap.set('n', '<leader>tk', function() require('treesj').join() end, {
-      desc = 'TreeSJ Join',
     })
   end,
 }

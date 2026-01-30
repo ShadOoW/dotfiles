@@ -23,6 +23,10 @@ return {
           group = 'Window',
         },
         {
+          '<leader>c',
+          group = 'Code',
+        },
+        {
           '<leader>f',
           group = 'File',
         },
