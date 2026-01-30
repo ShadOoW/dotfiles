@@ -80,44 +80,6 @@ return {
       only_in_normal_buffers = true,
     })
 
-    -- File explorer
-    local files_win_config = nil
-    require('mini.files').setup({
-      -- Customize windows
-      windows = {
-        preview = true,
-        width_focus = 30,
-        width_preview = 40,
-      },
-      -- Customize content
-      content = {
-        -- Predicate for which files to show
-        filter = nil,
-        -- Prefix to show before item
-        prefix = nil,
-        -- Show only last component of path
-        show_prefix = false,
-      },
-      mappings = {
-        go_in_plus = '<CR>',
-        go_out = '<BS>',
-        show_help = 'g?',
-        synchronize = '=', -- THIS IS KEY! Use this to save changes to disk
-        trim_left = '<',
-        trim_right = '>',
-        close = 'q',
-      },
-      options = {
-        -- Don't use netrw (prevents neo-tree from opening)
-        use_as_default_explorer = false,
-      },
-    })
-
-    -- Simple keymaps for mini.files
-    vim.keymap.set('n', '|', function() require('mini.files').open() end, {
-      desc = 'Open MiniFiles with current buffer',
-    })
-
     -- Movement & Navigation
     -- Jump to any visible location with two-character input
     require('mini.jump2d').setup({

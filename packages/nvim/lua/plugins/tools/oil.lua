@@ -1,33 +1,27 @@
 -- Oil.nvim - Edit your filesystem like a buffer
--- Modern file management that complements mini.files
 return {
   'stevearc/oil.nvim',
   dependencies = { 'nvim-tree/nvim-web-devicons' },
   cmd = 'Oil',
   keys = {
     {
-      '<leader>fo',
-      '<cmd>Oil<cr>',
-      desc = 'Open oil file explorer',
-    },
-    {
-      '<leader>fO',
-      function() require('oil').open(vim.fn.getcwd()) end,
-      desc = 'Open oil in cwd',
+      '|',
+      function() require('oil').open_float() end,
+      desc = 'Open oil file explorer (float)',
     },
   },
   config = function()
     local oil = require('oil')
 
     oil.setup({
-      -- Oil will take over directory buffers (e.g. `vim .` or `:e src/`)
-      default_file_explorer = false, -- Keep mini.files as default
+      -- Oil takes over directory buffers (e.g. `vim .` or `:e src/`)
+      default_file_explorer = true,
 
       -- Send deleted files to the trash instead of permanently deleting them (:help oil-trash)
       delete_to_trash = true,
 
-      -- Skip the confirmation popup for simple operations (:help oil.skip_confirm_for_simple_edits)
-      skip_confirm_for_simple_edits = false,
+      -- Skip confirmation for simple ops (single create/move, ≤5 creates)
+      skip_confirm_for_simple_edits = true,
 
       -- Selecting a new/moved/renamed file or directory will prompt you to save changes first
       -- (:help prompt_save_on_select_new_entry)
@@ -88,7 +82,7 @@ return {
         ['q'] = 'actions.close',
         ['<C-l>'] = 'actions.refresh',
         ['<BS>'] = 'actions.parent',
-        ['-'] = 'actions.open_cwd',
+        ['-'] = 'actions.parent',
         ['_'] = 'actions.open_cwd',
         ['`'] = 'actions.cd',
         ['~'] = {
@@ -154,27 +148,21 @@ return {
         override = function(conf) return conf end,
       },
 
-      -- Configuration for the actions floating preview window
-      preview = {
-        -- Width dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
-        -- min_width and max_width can be a single value or a list of mixed integer/float types.
+      -- Action confirmation window (create/delete/move preview)
+      confirmation = {
         max_width = 0.9,
-        -- min_width = {40, 0.4} means "if window is more than 40 columns, use 40% of window width"
         min_width = { 40, 0.4 },
-        -- optionally define an integer/float for the exact width of the preview window
-        width = nil,
-        -- Height dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
-        -- min_height and max_height can be a single value or a list of mixed integer/float types.
         max_height = 0.9,
         min_height = { 5, 0.1 },
-        -- optionally define an integer/float for the exact height of the preview window
-        height = nil,
         border = 'rounded',
         win_options = {
           winblend = 0,
         },
-        -- Whether the preview window is automatically updated when the cursor is moved
+      },
+      -- File preview when cursor is on a file
+      preview_win = {
         update_on_cursor_moved = true,
+        preview_method = 'fast_scratch',
       },
 
       -- Configuration for the floating progress window
@@ -201,11 +189,6 @@ return {
       keymaps_help = {
         border = 'rounded',
       },
-    })
-
-    -- Utility function to open oil in floating window
-    vim.keymap.set('n', '<leader>fO', function() require('oil').open_float() end, {
-      desc = 'Open oil in floating window',
     })
   end,
 }

@@ -41,30 +41,48 @@ keymap.n('<C-S-l>', '<C-w>L', 'Move window to the right')
 keymap.n('<C-S-j>', '<C-w>J', 'Move window to the bottom')
 keymap.n('<C-S-k>', '<C-w>K', 'Move window to the top')
 
--- File operations keymaps
-keymap.n('<leader>fq', function() require('mini.bufremove').delete(0, false) end, 'Close file (preserve split)')
-keymap.n('<leader>fQ', function()
-  -- Close all buffers except current one
-  local current_buf = vim.api.nvim_get_current_buf()
-  local buffers = vim.api.nvim_list_bufs()
-  local closed_count = 0
-
-  for _, buf in ipairs(buffers) do
-    if buf ~= current_buf and vim.api.nvim_buf_is_loaded(buf) then
-      local success = pcall(require('mini.bufremove').delete, buf, false)
-      if success then closed_count = closed_count + 1 end
-    end
-  end
-
-  notify.info('Buffer Management', 'Closed ' .. closed_count .. ' buffers')
-end, 'Close all buffers except current')
-keymap.n('<leader>fw', '<cmd>write<CR>', 'Write file')
+-- Save
 keymap.n('<C-s>', '<cmd>write<CR>', 'Save buffer')
 keymap.i('<C-s>', '<C-o><cmd>write<CR>', 'Save buffer')
 
--- Buffer navigation with leader+arrow keys
-keymap.n('<leader><Right>', '<cmd>bnext<CR>', 'Next buffer')
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Buffers - <leader>b
+-- ═══════════════════════════════════════════════════════════════════════════════
 keymap.n('<leader><Left>', '<cmd>bprevious<CR>', 'Previous buffer')
+keymap.n('<leader><Right>', '<cmd>bnext<CR>', 'Next buffer')
+keymap.n('<leader>bd', function() require('mini.bufremove').delete(0, false) end, 'Buf: close')
+keymap.n('<leader>ba', function()
+  local cur = vim.api.nvim_get_current_buf()
+  local n = 0
+  for _, b in ipairs(vim.api.nvim_list_bufs()) do
+    if b ~= cur and vim.api.nvim_buf_is_loaded(b) and pcall(require('mini.bufremove').delete, b, false) then
+      n = n + 1
+    end
+  end
+  if n > 0 then notify.info('Buffers', 'Closed ' .. n) end
+end, 'Close all except current')
+keymap.n('<leader>bD', '<cmd>CloseDeletedBuffers<CR>', 'Close deleted')
+keymap.n('<leader>br', '<cmd>e!<CR>', 'Reload current')
+keymap.n('<leader>bR', function()
+  vim.cmd('checktime')
+  notify.info('Buffers', 'Reloaded from disk')
+end, 'Reload all')
+keymap.n('<leader>bA', '<cmd>%bd<CR>', 'Close all')
+keymap.n('<leader>bq', function()
+  local qf = {}
+  for _, b in
+    ipairs(vim.fn.getbufinfo({
+      buflisted = 1,
+    }))
+  do
+    if b.name and b.name ~= '' then table.insert(qf, {
+      filename = b.name,
+      lnum = b.lnum or 1,
+    }) end
+  end
+  vim.fn.setqflist(qf)
+  require('trouble').open('quickfix')
+end, 'List in qf')
 
 -- LSP Goto keymaps
 keymap.n('<leader>ga', vim.lsp.buf.code_action, 'Code Action')
@@ -97,41 +115,12 @@ keymap.n('<F2>', '<cmd>bprevious<CR>', 'Previous buffer')
 keymap.n('<F3>', '<cmd>bnext<CR>', 'Next buffer')
 keymap.n('<F4>', '<cmd>blast<CR>', 'Last buffer')
 
--- F5-F8: File Operations & Quick Actions
-keymap.n('<F5>', '<cmd>write<CR>', 'Save file')
-keymap.n('<F6>', function()
-  -- Open mini.files in current file directory
-  local minifiles = require('mini.files')
-  local current_file = vim.api.nvim_buf_get_name(0)
-  if current_file ~= '' and vim.fn.filereadable(current_file) == 1 then
-    minifiles.open(current_file)
-    minifiles.reveal_cwd()
-  else
-    minifiles.open()
-  end
-end, 'Open file explorer')
-
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Tmux Integration
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- ═══════════════════════════════════════════════════════════════════════════════
--- Admin Category - <leader>A
--- ═══════════════════════════════════════════════════════════════════════════════
--- Tmux:       Aa=list_panes, Ar=reload_buffers, As=focus_sync
--- Session:    Ap=project_workflow, Ao=output_panel
--- ═══════════════════════════════════════════════════════════════════════════════
-
--- Tmux Integration
+-- ea=list_panes, ep=project_workflow
 keymap.n('<leader>ea', '<cmd>TmuxPanes<cr>', 'List nvim panes in tmux session')
-
-keymap.n('<leader>eR', function()
-  vim.cmd('checktime')
-  notify.info('Buffer Management', 'Checked all buffers for external changes')
-end, 'Reload all buffers from disk')
-
-keymap.n('<leader>er', '<cmd>:e!<CR>', 'Reload file from disk (:e!)')
-keymap.n('<leader>ec', '<cmd>:%bd<CR>', 'Close all buffer (:%bd)')
 
 -- Session and Project Management
 keymap.n('<leader>ep', function()
@@ -144,26 +133,6 @@ keymap.n('<leader>xo', '<cmd>OutputPanel<CR>', 'Toggle output panel')
 
 -- Basic diagnostic keymaps
 keymap.n('<leader>xq', vim.diagnostic.setloclist, 'Open diagnostic quickfix list')
-
--- Add all open buffers to quickfix list
-vim.keymap.set('n', '<leader>sba', function()
-  local buffers = vim.fn.getbufinfo({
-    buflisted = 1,
-  })
-  local qf_list = {}
-  for _, buf in ipairs(buffers) do
-    if buf.name and buf.name ~= '' then
-      table.insert(qf_list, {
-        filename = buf.name,
-        lnum = buf.lnum or 1,
-      })
-    end
-  end
-  vim.fn.setqflist(qf_list)
-  require('trouble').open('quickfix')
-end, {
-  desc = 'Add all buffers to quickfix',
-})
 
 -- Quick diagnostic navigation (IntelliJ-style)
 keymap.n('[d', vim.diagnostic.goto_prev, 'Previous diagnostic')

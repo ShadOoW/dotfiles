@@ -11,6 +11,28 @@ vim.api.nvim_create_user_command('Bd', function(opts) require('mini.bufremove').
   desc = 'Delete buffer without closing split (using mini.bufremove)',
 })
 
+-- Close buffers for files that no longer exist on disk
+vim.api.nvim_create_user_command('CloseDeletedBuffers', function()
+  local notify = require('utils.notify')
+  local count = 0
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_valid(bufnr) then
+      local path = vim.api.nvim_buf_get_name(bufnr)
+      if path ~= '' and vim.bo[bufnr].buftype == '' and not path:match('^oil%-') then
+        if vim.fn.getftype(path) == '' then
+          pcall(vim.api.nvim_buf_delete, bufnr, {
+            force = true,
+          })
+          count = count + 1
+        end
+      end
+    end
+  end
+  if count > 0 then notify.info('Buffers', string.format('Closed %d buffer(s) for deleted files', count)) end
+end, {
+  desc = 'Close buffers for files that no longer exist on disk',
+})
+
 -- Quit command that preserves splits
 vim.api.nvim_create_user_command('Q', function(opts)
   local buf = vim.api.nvim_get_current_buf()

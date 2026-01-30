@@ -323,26 +323,6 @@ vim.api.nvim_create_autocmd('FileType', {
   desc = 'Configure HTML files for superhtml and HTML5 compliance',
 })
 
--- Mini.files enhanced keybindings
-local minifiles_group = vim.api.nvim_create_augroup('minifiles-enhanced', {
-  clear = true,
-})
-
-vim.api.nvim_create_autocmd('User', {
-  group = minifiles_group,
-  pattern = 'MiniFilesBufferCreate',
-  callback = function(args)
-    local buf_id = args.data.buf_id
-
-    -- Add custom keybindings for this buffer
-    vim.keymap.set('n', '<C-s>', function() require('mini.files').synchronize() end, {
-      buffer = buf_id,
-      desc = 'Synchronize changes (save/create files)',
-    })
-  end,
-  desc = 'Set up mini.files buffer keybindings',
-})
-
 -- Ensure files always end with a newline when saving
 vim.api.nvim_create_autocmd('BufWritePre', {
   pattern = '*',

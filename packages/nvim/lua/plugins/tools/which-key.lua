@@ -39,6 +39,10 @@ return {
           group = 'Session',
         },
         {
+          '<leader>b',
+          group = 'Buffers',
+        },
+        {
           '<leader>e',
           group = 'Editor',
         },
