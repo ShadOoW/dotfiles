@@ -133,8 +133,9 @@ return {
       -- a regular search with `/` or `?`
       search = {
         -- when `true`, flash will be activated during regular search by default.
-        -- You can always toggle when searching with `require("flash").toggle()`
-        enabled = true,
+        -- Disabled: labels intercept keystrokes during / and ? search, preventing typing full patterns.
+        -- Use g/ for Flash search with labels.
+        enabled = false,
         highlight = {
           backdrop = false,
         },
