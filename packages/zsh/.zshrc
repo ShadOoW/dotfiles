@@ -112,6 +112,7 @@ RPROMPT='%B%F{green}${vcs_info_msg_0_}%f'
 # Function to watch directory as a tree
 export PATH="$HOME/.local/bin:$PATH"
 export PRETTIERD_DEFAULT_CONFIG="$HOME/.config/prettierd/.prettierrc"
+export PATH="$HOME/.config/signal-sync:$PATH"
 
 source /home/shad/.config/broot/launcher/bash/br
 export JAVA_HOME=/usr/lib/jvm/java-23-openjdk

@@ -21,3 +21,8 @@ background-color=#777777ff
 background-color=#000000BB
 default-timeout=2000
 group-by=category
+
+[app-name=signal-sync]
+background-color=#2d5a27ff
+default-timeout=8000
+group-by=app-name

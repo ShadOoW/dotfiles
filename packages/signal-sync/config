@@ -1,0 +1,4 @@
+SIGNAL_NUMBER=$(echo "KzIxMjY1NDY1NDU4Ng==" | base64 -d)
+SIGNAL_DATA_DIR="/mnt/share/signal-sync"
+SIGNAL_APP_NAME="signal-sync"
+SIGNAL_DAEMON_ARGS="--http=127.0.0.1:8080"
