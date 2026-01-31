@@ -350,19 +350,23 @@ return {
                 return ' Trouble'
               end
 
-              -- Priority 3: Check for other custom buffer variables
+              -- Priority 3: Oil buffers (buftype can be acwrite or nofile)
+              if filetype == 'oil' then return ' Files' end
+
+              -- Priority 4: Check for other custom buffer variables
               local custom_name = vim.b[bufnr].custom_buffer_name
               if custom_name and custom_name ~= '' then return custom_name end
 
-              -- Priority 4: Handle special buffer types
+              -- Priority 5: Handle special buffer types
               if buf_type == 'nofile' or buf_type == 'terminal' then
                 -- Handle terminal buffers
                 if buf_name:match('^term://') then return '  Terminal' end
 
                 -- Handle other special buffers based on filetype
                 local filetype_names = {
-                  notify = ' Notifications',
                   noice = ' Messages',
+                  notify = ' Notifications',
+                  oil = ' Files',
                   outputpanel = ' Output',
                 }
 

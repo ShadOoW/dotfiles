@@ -92,6 +92,9 @@ return {
       local custom_name = bufnr and vim.b[bufnr].custom_buffer_name
       if custom_name and custom_name ~= '' then return custom_name end
 
+      -- Oil buffers (buftype can be acwrite or nofile)
+      if filetype == 'oil' then return ' Files' end
+
       -- Handle special buffer types
       if buf_type == 'nofile' or buf_type == 'terminal' then
         -- Check for trouble buffers (fallback if title not set)
@@ -120,12 +123,13 @@ return {
 
         -- Handle special buffers by filetype (for unnamed nofile buffers like noice)
         local filetype_names = {
-          noice = ' Messages',
-          notify = ' Notifications',
-          outputpanel = ' Output',
-          trouble = ' Diagnostics',
           lazy = ' Lazy',
           mason = ' Mason',
+          noice = ' Messages',
+          notify = ' Notifications',
+          oil = ' Files',
+          outputpanel = ' Output',
+          trouble = ' Diagnostics',
         }
         if filetype_names[filetype] then return filetype_names[filetype] end
 

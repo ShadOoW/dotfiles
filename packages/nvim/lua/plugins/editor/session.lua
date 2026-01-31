@@ -3,7 +3,9 @@
 -- Automatically saves/restores sessions per project directory with no manual intervention
 return {
   'folke/persistence.nvim',
-  event = 'BufReadPre',
+  -- Oil loaded on demand when opening dir with no session (not a dep so we load before Oil)
+  priority = 10, -- Load before Oil (default 1000) so session restore runs first
+  event = { 'BufReadPre', 'VimEnter' }, -- VimEnter needed: nvim . doesn't trigger BufReadPre
   opts = {
     -- Session options to save/restore (matches vim sessionoptions exactly)
     options = {
@@ -178,28 +180,25 @@ return {
       return false
     end
 
+    local function try_restore_or_open_oil()
+      local persistence = require('persistence')
+      local session_file = persistence.current()
+      if vim.fn.filereadable(session_file) == 0 then session_file = persistence.current({ branch = false }) end
+      if session_file ~= '' and vim.fn.filereadable(session_file) == 1 then
+        local success = pcall(persistence.load)
+        if success then require('utils.notify').success('Persistence', 'Session restored') end
+      else
+        local ok, oil = pcall(require, 'oil')
+        if ok and oil then oil.open(vim.fn.getcwd()) end
+      end
+    end
+
     -- Auto-restore session when starting with 'nvim .'
-    vim.api.nvim_create_autocmd('VimEnter', {
-      group = vim.api.nvim_create_augroup('PersistenceAutoRestore', {
-        clear = true,
-      }),
-      callback = function()
-        local argv = vim.fn.argv()
-        local argc = vim.fn.argc()
-
-        -- Only auto-restore for 'nvim .' and no special buffers
-        local should_restore = argc == 1 and argv[1] == '.' and not vim.env.NVIM and not vim.g.started_with_stdin
-
-        if should_restore then
-          vim.defer_fn(function()
-            local success = pcall(function() require('persistence').load() end)
-
-            if success then require('utils.notify').success('Persistence', 'Session restored') end
-          end, 50)
-        end
-      end,
-      nested = true,
-    })
+    -- Run immediately when we load on VimEnter (autocmd would fire too late - we register during the event)
+    local argv = vim.fn.argv()
+    local argc = vim.fn.argc()
+    local should_restore = argc == 1 and argv[1] == '.' and not vim.env.NVIM and not vim.g.started_with_stdin
+    if should_restore then try_restore_or_open_oil() end
 
     -- Auto-save session on exit
     vim.api.nvim_create_autocmd('VimLeavePre', {
