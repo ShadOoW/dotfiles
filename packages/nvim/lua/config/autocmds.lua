@@ -353,6 +353,18 @@ vim.api.nvim_create_autocmd('BufWritePre', {
 vim.api.nvim_create_autocmd('User', {
   pattern = 'PersistenceLoadPost',
   callback = function()
+    -- Delete initial folder buffer from nvim . (persists after session restore)
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+      if vim.api.nvim_buf_is_valid(buf) then
+        local bufname = vim.api.nvim_buf_get_name(buf)
+        local buftype = vim.bo[buf].buftype
+        local filetype = vim.bo[buf].filetype
+        if bufname ~= '' and vim.fn.isdirectory(bufname) == 1 and filetype == '' and buftype == '' then
+          pcall(vim.api.nvim_buf_delete, buf, { force = true })
+        end
+      end
+    end
+
     -- First, close any problematic windows that might have been restored
     for _, win in ipairs(vim.api.nvim_list_wins()) do
       local buf = vim.api.nvim_win_get_buf(win)

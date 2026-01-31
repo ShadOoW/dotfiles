@@ -49,6 +49,7 @@ HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 setopt appendhistory
+setopt extended_history  # Store timestamps for Atuin import compatibility
 setopt histignorealldups  # Don't save duplicate entries in history
 setopt sharehistory       # Share history between all sessions
 setopt incappendhistory   # Immediately append to history file
@@ -110,8 +111,8 @@ RPROMPT='%B%F{green}${vcs_info_msg_0_}%f'
 
 # Function to watch directory as a tree
 export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
 export PRETTIERD_DEFAULT_CONFIG="$HOME/.config/prettierd/.prettierrc"
 
 source /home/shad/.config/broot/launcher/bash/br
 export JAVA_HOME=/usr/lib/jvm/java-23-openjdk
+eval "$(atuin init zsh --disable-up-arrow)"

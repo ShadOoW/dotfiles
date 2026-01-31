@@ -3,6 +3,7 @@ set -e
 
 # ZSH and related packages
 pacman_packages=(
+    atuin
     lsd
     fzf
     zsh
@@ -38,6 +39,11 @@ fi
 # Check if fnm is installed
 if ! command -v fnm >/dev/null; then
     log "warning" "FNM installation may have failed. If not available, install manually:"
+fi
+
+# Check if atuin is installed
+if ! command -v atuin >/dev/null; then
+    log "warning" "Atuin installation may have failed. If not available, install manually."
 fi
 
 log "info" "Note: This script only installs ZSH and plugins. It does not modify .zshrc or change the default shell"

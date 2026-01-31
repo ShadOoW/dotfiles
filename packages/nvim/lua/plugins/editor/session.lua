@@ -104,13 +104,19 @@ return {
             })
             local bufname = vim.api.nvim_buf_get_name(buf)
 
-            -- Remove any restored trouble/panel buffers or Lazy/Mason windows
+            -- Remove any restored trouble/panel buffers, Lazy/Mason windows,
+            -- or the initial folder buffer from nvim . (directory path, no filetype)
+            local is_initial_folder_buf = bufname ~= ''
+              and vim.fn.isdirectory(bufname) == 1
+              and filetype == ''
+              and buftype == ''
             if
               filetype == 'trouble'
               or filetype == 'exclusive-panel'
               or filetype == 'lazy'
               or filetype == 'mason'
               or (bufname == '' and buftype == 'nofile' and filetype == '')
+              or is_initial_folder_buf
             then
               pcall(vim.api.nvim_buf_delete, buf, {
                 force = true,
@@ -189,7 +195,15 @@ return {
         if success then require('utils.notify').success('Persistence', 'Session restored') end
       else
         local ok, oil = pcall(require, 'oil')
-        if ok and oil then oil.open(vim.fn.getcwd()) end
+        if ok and oil then
+          local initial_bufnr = vim.api.nvim_get_current_buf()
+          oil.open(vim.fn.getcwd(), {}, function()
+            -- oil.open() uses :edit which abandons the initial buffer - delete it
+            if vim.api.nvim_buf_is_valid(initial_bufnr) and vim.api.nvim_get_current_buf() ~= initial_bufnr then
+              pcall(vim.api.nvim_buf_delete, initial_bufnr, { force = true })
+            end
+          end)
+        end
       end
     end
 

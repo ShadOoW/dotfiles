@@ -23,6 +23,7 @@ fi
 
 # Target directories for stowing
 declare -A TARGET_DIRS=(
+    ["atuin"]="$HOME/.config/atuin"
     ["zsh", "rtorrent"]="$HOME"
     ["browsers", "mimeapps", "user-dirs"]="$HOME/.config"
     ["udev"]="/etc/udev/rules.d"
