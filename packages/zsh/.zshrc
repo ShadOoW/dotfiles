@@ -115,4 +115,16 @@ export PRETTIERD_DEFAULT_CONFIG="$HOME/.config/prettierd/.prettierrc"
 
 source /home/shad/.config/broot/launcher/bash/br
 export JAVA_HOME=/usr/lib/jvm/java-23-openjdk
-eval "$(atuin init zsh --disable-up-arrow)"
+
+# Atuin: Alt+Down = global search, Alt+Up = directory-scoped search
+export ATUIN_NOBIND='true'
+eval "$(atuin init zsh)"
+bindkey '^[[1;3B' atuin-search      # Alt+Down for global search
+bindkey '^[[1;3A' atuin-up-search    # Alt+Up for directory mode
+
+# Skip Atuin recording when ATUIN_SKIP is set (Cursor/VSCode user settings)
+functions[_atuin_preexec_orig]=${functions[_atuin_preexec]}
+_atuin_preexec() {
+  [[ -n "${ATUIN_SKIP:-}" ]] && return
+  _atuin_preexec_orig "$@"
+}
