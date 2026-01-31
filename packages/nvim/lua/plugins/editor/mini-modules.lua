@@ -42,17 +42,17 @@ return {
 
       -- Module mappings. Use `''` (empty string) to disable one.
       mappings = {
-        -- Toggle comment (like `gcip` - toggle comment paragraph)
-        comment = 'gc',
+        -- Toggle comment (e.g. <leader>cip - toggle comment paragraph)
+        comment = '<leader>c',
 
         -- Toggle comment on current line
-        comment_line = 'gcc',
+        comment_line = '<leader>cc',
 
         -- Toggle comment on visual selection
-        comment_visual = 'gc',
+        comment_visual = '<leader>c',
 
-        -- Define 'comment' textobject (like `dgc` - delete whole comment block)
-        textobject = 'gc',
+        -- Define 'comment' textobject (e.g. d<leader>c - delete whole comment block)
+        textobject = '<leader>c',
       },
 
       -- Hook functions to be executed at certain stage of commenting

@@ -102,79 +102,6 @@ keymap.n('<leader>bq', function()
     },
   })
 end, 'Buffer list')
-keymap.n('<leader>bqa', function()
-  local buf_name = vim.api.nvim_buf_get_name(0)
-  if buf_name == '' then
-    notify.warn('Buffer list', 'Cannot add unnamed buffer')
-    return
-  end
-  local abs_path = vim.fn.fnamemodify(buf_name, ':p')
-  local lnum = vim.api.nvim_win_get_cursor(0)[1]
-  local qf = vim.fn.getqflist()
-  for _, item in ipairs(qf) do
-    if vim.fn.fnamemodify(item.filename or '', ':p') == abs_path then
-      notify.info('Buffer list', 'Buffer already in list')
-      return
-    end
-  end
-  vim.fn.setqflist({ { filename = abs_path, lnum = lnum } }, 'a')
-  if require('trouble').is_open('qflist') then require('trouble').refresh('qflist') end
-  notify.info('Buffer list', 'Added buffer')
-end, 'Add current buffer to list')
-keymap.n('<leader>bqr', function()
-  local item_to_remove = nil
-  local trouble = require('trouble')
-  local view_module = require('trouble.view')
-  local current_win = vim.api.nvim_get_current_win()
-
-  -- When in Trouble qflist panel: remove the selected item under cursor
-  if trouble.is_open('qflist') then
-    local views = view_module.get({ mode = 'qflist', open = true })
-    for _, entry in ipairs(views) do
-      if entry.view and entry.view.win and entry.view.win.win == current_win then
-        local loc = entry.view:at()
-        if loc and loc.item and loc.item.filename then
-          item_to_remove = vim.fn.fnamemodify(loc.item.filename, ':p')
-          break
-        end
-      end
-    end
-  end
-
-  -- When in a normal buffer: remove current buffer from list
-  if not item_to_remove then
-    local buf_name = vim.api.nvim_buf_get_name(0)
-    if buf_name == '' then
-      notify.warn('Buffer list', 'Cannot remove unnamed buffer')
-      return
-    end
-    item_to_remove = vim.fn.fnamemodify(buf_name, ':p')
-  end
-
-  -- getqflist() returns items with bufnr, not filename - resolve bufnr to path
-  local function item_path(item)
-    if item.filename and item.filename ~= '' then return vim.fn.fnamemodify(item.filename, ':p') end
-    if item.bufnr and vim.api.nvim_buf_is_valid(item.bufnr) then
-      return vim.fn.fnamemodify(vim.api.nvim_buf_get_name(item.bufnr), ':p')
-    end
-    return ''
-  end
-
-  local qf = vim.fn.getqflist()
-  local filtered = {}
-  for _, item in ipairs(qf) do
-    local path = item_path(item)
-    if path ~= '' and path ~= item_to_remove then
-      table.insert(filtered, {
-        filename = path,
-        lnum = item.lnum or 1,
-      })
-    end
-  end
-  vim.fn.setqflist(filtered, ' ')
-  if trouble.is_open('qflist') then trouble.refresh('qflist') end
-  notify.info('Buffer list', 'Removed from list')
-end, 'Remove selected buffer from list')
 
 -- F2: Toggle current buffer in/out of quickfix list, open panel if closed
 local function toggle_buffer_in_qflist()
@@ -208,12 +135,20 @@ local function toggle_buffer_in_qflist()
     local filtered = {}
     for _, item in ipairs(qf) do
       local path = item_path(item)
-      if path ~= '' and path ~= abs_path then table.insert(filtered, { filename = path, lnum = item.lnum or 1 }) end
+      if path ~= '' and path ~= abs_path then
+        table.insert(filtered, {
+          filename = path,
+          lnum = item.lnum or 1,
+        })
+      end
     end
     vim.fn.setqflist(filtered, ' ')
     notify.info('Buffer list', 'Removed from list')
   else
-    vim.fn.setqflist({ { filename = abs_path, lnum = lnum } }, 'a')
+    vim.fn.setqflist({ {
+      filename = abs_path,
+      lnum = lnum,
+    } }, 'a')
     notify.info('Buffer list', 'Added to list')
   end
 
@@ -222,7 +157,12 @@ local function toggle_buffer_in_qflist()
   else
     trouble.open({
       mode = 'qflist',
-      win = { position = 'right', size = { width = 40 } },
+      win = {
+        position = 'right',
+        size = {
+          width = 40,
+        },
+      },
     })
   end
 end
