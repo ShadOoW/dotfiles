@@ -85,6 +85,10 @@ return {
     vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
       group = lint_augroup,
       callback = function()
+        -- Skip linting for .env files to prevent ShellCheck warnings
+        local bufname = vim.api.nvim_buf_get_name(0)
+        if bufname:match('%.env$') or bufname:match('%.env%.') then return end
+
         if vim.bo.modifiable then lint.try_lint() end
       end,
     })
