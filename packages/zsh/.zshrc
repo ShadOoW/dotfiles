@@ -113,6 +113,8 @@ RPROMPT='%B%F{green}${vcs_info_msg_0_}%f'
 export PATH="$HOME/.local/bin:$PATH"
 export PRETTIERD_DEFAULT_CONFIG="$HOME/.config/prettierd/.prettierrc"
 export PATH="$HOME/.config/signal-sync:$PATH"
+export PASSWORD_STORE_DIR=/mnt/backup/pass
+export EDITOR=nvim
 
 source /home/shad/.config/broot/launcher/bash/br
 export JAVA_HOME=/usr/lib/jvm/java-23-openjdk
