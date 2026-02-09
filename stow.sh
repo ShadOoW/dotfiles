@@ -24,6 +24,7 @@ fi
 # Target directories for stowing
 declare -A TARGET_DIRS=(
     ["atuin"]="$HOME/.config/atuin"
+    ["cursor"]="$HOME/.cursor"
     ["signal-sync"]="$HOME/.config/signal-sync"
     ["zsh", "rtorrent"]="$HOME"
     ["browsers", "mimeapps", "user-dirs"]="$HOME/.config"
