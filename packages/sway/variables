@@ -4,7 +4,7 @@
 set {
     $mod Mod4
     $term kitty
-    $term_cwd $term --working-directory "$(~/.config/sway/scripts/swaycwd.sh 2>/dev/null || echo $HOME)"
+    $term_cwd ~/.config/sway/scripts/kitty-cwd.sh
     $menu ~/.config/rofi/open-close.sh "rofi -show run"
     $window ~/.config/rofi/open-close.sh "rofi -show window"
     $clipboard ~/.config/rofi/open-close.sh "cliphist list | rofi -dmenu -display-columns 2 | cliphist decode | wl-copy"

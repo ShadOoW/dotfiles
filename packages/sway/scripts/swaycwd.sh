@@ -107,9 +107,14 @@ fi
 # It assumes the shell is the deepest descendant in the process chain starting from PID.
 # pgrep -P "$PID" lists child processes. ">/dev/null" silences pgrep's stdout for the test.
 # The PID variable is updated to the last child found in each step.
-while pgrep -P "$PID" >/dev/null 2>/dev/null; do # Silenced pgrep's stderr for cleaner operation
+while pgrep -P "$PID" >/dev/null 2>/dev/null; do
   # Update PID to the last child process. Silenced pgrep's stderr here too.
-  PID=$(pgrep -P "$PID" 2>/dev/null | tail -n1)
+  NEW_PID=$(pgrep -P "$PID" 2>/dev/null | tail -n1)
+  # Guard against empty PID (race condition: process exited between check and read)
+  if [ -z "$NEW_PID" ]; then
+    break
+  fi
+  PID="$NEW_PID"
   log "Updated PID to: $PID"
 done
 
