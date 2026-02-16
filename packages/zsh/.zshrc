@@ -9,7 +9,7 @@ source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring
 
 # FZF plugins
 source /usr/share/zsh/plugins/fzf-tab-git/fzf-tab.zsh
-source /usr/share/zsh/plugins/zsh-fzf-plugin/fzf.plugin.zsh 
+source /usr/share/zsh/plugins/zsh-fzf-plugin/fzf.plugin.zsh
 
 # Fast Node Manager (FNM)
 eval "$(fnm env --use-on-cd --shell zsh)"
@@ -113,6 +113,7 @@ RPROMPT='%B%F{green}${vcs_info_msg_0_}%f'
 export PATH="$HOME/.local/bin:$PATH"
 export PRETTIERD_DEFAULT_CONFIG="$HOME/.config/prettierd/.prettierrc"
 export PATH="$HOME/.config/signal-sync:$PATH"
+export PATH="$HOME/go/bin:$PATH"
 export PASSWORD_STORE_DIR=/mnt/backup/pass
 export EDITOR=nvim
 
@@ -131,3 +132,4 @@ _atuin_preexec() {
   [[ -n "${ATUIN_SKIP:-}" ]] && return
   _atuin_preexec_orig "$@"
 }
+
