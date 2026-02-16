@@ -1,0 +1,59 @@
+{
+  "languageServers": {
+    "go": {
+      "command": "gopls",
+      "args": [],
+      "filetypes": ["go"]
+    },
+    "rust": {
+      "command": "rust-analyzer",
+      "args": [],
+      "filetypes": ["rust"]
+    },
+    "python": {
+      "command": "pyright",
+      "args": [],
+      "filetypes": ["python"]
+    },
+    "typescript": {
+      "command": "vscode-typescript-language-server",
+      "args": ["--stdio"],
+      "filetypes": ["typescript", "javascript"]
+    },
+    "json": {
+      "command": "json-lsp",
+      "args": [],
+      "filetypes": ["json"]
+    },
+    "yaml": {
+      "command": "yaml-language-server",
+      "args": ["--stdio"],
+      "filetypes": ["yaml"]
+    },
+    "bash": {
+      "command": "bash-language-server",
+      "args": ["start"],
+      "filetypes": ["sh", "bash", "zsh"]
+    },
+    "lua": {
+      "command": "lua-language-server",
+      "args": [],
+      "filetypes": ["lua"]
+    },
+    "markdown": {
+      "command": "marksman",
+      "args": [],
+      "filetypes": ["markdown"]
+    },
+    "html": {
+      "command": "vscode-html-language-server",
+      "args": ["--stdio"],
+      "filetypes": ["html"]
+    },
+    "css": {
+      "command": "vscode-css-language-server",
+      "args": ["--stdio"],
+      "filetypes": ["css", "scss", "less"]
+    }
+  }
+}

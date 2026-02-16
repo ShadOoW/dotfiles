@@ -25,6 +25,7 @@ fi
 declare -A TARGET_DIRS=(
     ["atuin"]="$HOME/.config/atuin"
     ["cursor"]="$HOME/.cursor"
+    ["crush"]="$HOME/.config/crush"
     ["signal-sync"]="$HOME/.config/signal-sync"
     ["zsh", "rtorrent"]="$HOME"
     ["browsers", "mimeapps", "user-dirs"]="$HOME/.config"
