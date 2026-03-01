@@ -33,6 +33,15 @@ aur_pkg=(
 
     # JSON (alternative)
     json-lsp
+
+    # Terraform
+    terraform-ls
+
+    # Dockerfile
+    dockerfile-language-server
+
+    # Vim
+    vim-language-server
 )
 
 # Source global functions
