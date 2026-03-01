@@ -6,12 +6,25 @@
 
 # Set up logging
 LOG_FILE="/tmp/swaycwd.log"
+LOCK_FILE="/tmp/swaycwd.lock"
+
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
 }
 
+# Prevent concurrent execution (race condition mitigation)
+if [ -f "$LOCK_FILE" ]; then
+    LOCK_AGE=$(($(date +%s) - $(stat -c %Y "$LOCK_FILE" 2>/dev/null || echo 0)))
+    if [ "$LOCK_AGE" -lt 1 ]; then
+        log "Concurrent execution detected, waiting..."
+        sleep 0.1
+    fi
+fi
+touch "$LOCK_FILE"
+trap 'rm -f "$LOCK_FILE"' EXIT
+
 # Clear previous log
-> "$LOG_FILE"
+: > "$LOG_FILE"
 
 # Grab the window/display tree
 TREE=$(swaymsg -t get_tree)
