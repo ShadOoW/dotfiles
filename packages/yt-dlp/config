@@ -1,0 +1,42 @@
+# Always select highest bitrate audio
+-f "bestaudio[abr>=128]/bestaudio/best"
+
+# Prefer original container when possible
+--audio-multistreams
+
+# Embed metadata
+--add-metadata
+--embed-metadata
+
+# Embed cover art
+--embed-thumbnail
+
+# Save metadata for archival
+--write-info-json
+
+# Save thumbnail separately as well
+--write-thumbnail
+
+# Use ffmpeg for postprocessing
+--ffmpeg-location /usr/bin/ffmpeg
+
+# Fix metadata fields
+--parse-metadata "%(uploader)s:%(artist)s"
+--parse-metadata "%(title)s:%(track)s"
+
+# Clean filenames
+--restrict-filenames
+
+# Avoid overwriting
+--no-overwrites
+
+# Continue partial downloads
+--continue
+
+# Retry on network errors
+--retries infinite
+--fragment-retries infinite
+
+# Output structure (simple)
+-o "/mnt/share/music/%(artist,uploader)s/%(track,title)s.%(ext)s"
+

@@ -24,6 +24,7 @@ fi
 # Target directories for stowing
 declare -A TARGET_DIRS=(
     ["atuin"]="$HOME/.config/atuin"
+    ["yt-dlp"]="$HOME/.config/yt-dlp"
     ["cursor"]="$HOME/.cursor"
     ["crush"]="$HOME/.config/crush"
     ["signal-sync"]="$HOME/.config/signal-sync"
@@ -108,7 +109,7 @@ if [[ -z "$USERNAME" ]]; then
 fi
 
 # Logging function if global.sh wasn't loaded
-if ! command -v log >/dev/null 2>&1; then
+if ! command -v log > /dev/null 2>&1; then
     log() {
         local level="$1"
         local msg="$2"
@@ -118,7 +119,7 @@ fi
 
 # Function to check if sudo is available
 check_sudo() {
-    if ! command -v sudo >/dev/null 2>&1; then
+    if ! command -v sudo > /dev/null 2>&1; then
         log "error" "sudo is required but not installed"
         exit 1
     fi
@@ -243,9 +244,9 @@ unstow_all_packages() {
             if [[ -d "$target_dir" ]]; then
                 log "info" "Cleaning up empty directories in $target_dir"
                 if [[ "$use_sudo" == "true" ]]; then
-                    sudo find "$target_dir" -type d -empty -delete 2>/dev/null || true
+                    sudo find "$target_dir" -type d -empty -delete 2> /dev/null || true
                 else
-                    find "$target_dir" -type d -empty -delete 2>/dev/null || true
+                    find "$target_dir" -type d -empty -delete 2> /dev/null || true
                 fi
             fi
         done
@@ -375,7 +376,7 @@ replace_username() {
     local modified_files=0
 
     # Find files containing the old username
-    local matched_files=$(grep -l -r "$old_username" "$STOW_DIR" 2>/dev/null || true)
+    local matched_files=$(grep -l -r "$old_username" "$STOW_DIR" 2> /dev/null || true)
 
     if [ -z "$matched_files" ]; then
         log "info" "No files containing '$old_username' were found"
@@ -469,4 +470,3 @@ main() {
 
 # Run the main function
 main
-

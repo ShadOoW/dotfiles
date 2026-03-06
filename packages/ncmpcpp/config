@@ -13,7 +13,7 @@ mpd_music_dir = "/mnt/share/music"
 
 # Start screen
 startup_screen = "browser"
-# Auto-seek to currently playing song 
+# Auto-seek to currently playing song
 jump_to_now_playing_song_at_start = "yes"
 
 # Interface settings
@@ -77,7 +77,7 @@ song_window_title_format = "Now Playing - {%a - }{%t}|{%f}"
 song_columns_list_format = "(50)[magenta]{t|f:Title} (0)[magenta]{a}"
 
 # Use special formatting for current song with leading indicator
-song_list_format = "{$r%n │ $9}{$8%t$9}|{$8%f$9} {$3$9}$R{$8%a - %b$9}"
+song_list_format = "{file}"
 current_item_prefix = "$(red)❯$(yellow)❯$(green)❯ $b"
 current_item_suffix = "$/b"
 
@@ -85,12 +85,10 @@ current_item_suffix = "$/b"
 alternative_header_first_line_format = "$b$(red)❯$(yellow)❯$(green)❯ {%t}|{%f} $(red)❮$(yellow)❮$(green)❮$/b"
 alternative_header_second_line_format = "{$b$8%a$/b$9}{ - $7%b$9}"
 
-# Key bindings for seeking
-def_key "S-right"
-  seek_forward
-
-def_key "S-left"
-  seek_backward
+# Seek and volume settings
+seek_time = 10
+volume_change_step = 5
+incremental_seeking = "yes"
 
 # Enable visualization if fifo is set up in mpd.conf
 visualizer_data_source = /tmp/mpd.fifo
@@ -112,3 +110,4 @@ playlist_disable_highlight_delay = 0
 
 # Encoding
 system_encoding = "utf-8"
+
