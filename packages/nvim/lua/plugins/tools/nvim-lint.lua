@@ -36,10 +36,10 @@ return {
       markdown = { 'markdownlint_cli2' },
 
       -- Web Development
-      javascript = { 'eslint_d' },
-      typescript = { 'eslint_d' },
-      javascriptreact = { 'eslint_d' },
-      typescriptreact = { 'eslint_d' },
+      javascript = { 'eslint' },
+      typescript = { 'eslint' },
+      javascriptreact = { 'eslint' },
+      typescriptreact = { 'eslint' },
       css = { 'stylelint' },
       scss = { 'stylelint' },
       less = { 'stylelint' },
