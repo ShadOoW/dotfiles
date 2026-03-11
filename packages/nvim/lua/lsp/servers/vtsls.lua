@@ -148,6 +148,7 @@ return {
   single_file_support = true,
   root_dir = function(fname)
     local util = require('lspconfig.util')
+    fname = tostring(fname)
     return util.root_pattern('tsconfig.json', 'package.json', 'jsconfig.json', '.git')(fname)
       or util.path.dirname(fname)
   end,
