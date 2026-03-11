@@ -176,49 +176,9 @@ return {
       },
     },
 
-    -- Enhanced refactoring support
-    refactor = {
-      highlight_definitions = {
-        enable = true,
-      },
-      highlight_current_scope = {
-        enable = false,
-      },
-      navigation = {
-        enable = true,
-        keymaps = {
-          goto_definition = '<leader>gnd',
-          list_definitions = '<leader>gnD',
-          list_definitions_toc = '<leader>gO',
-          goto_next_usage = '<leader>g*',
-          goto_previous_usage = '<leader>g#',
-        },
-      },
-    },
-
     -- Enhanced matching
     matchup = {
       enable = true,
-    },
-
-    -- Playground for testing
-    playground = {
-      enable = true,
-      disable = {},
-      updatetime = 25,
-      persist_queries = false,
-      keybindings = {
-        toggle_query_editor = 'o',
-        toggle_hl_groups = 'i',
-        toggle_injected_languages = 't',
-        toggle_anonymous_nodes = 'a',
-        toggle_language_display = 'I',
-        focus_language = 'f',
-        unfocus_language = 'F',
-        update = 'R',
-        goto_node = '<cr>',
-        show_help = '?',
-      },
     },
   },
 
