@@ -67,7 +67,33 @@ install_package_pacman() {
     fi
 }
 
-# Install multiple packages with pacman
+# Packages that require debug overwrite flag (add any *arr packages here)
+# These packages share .NET runtime code causing debug file hash collisions
+readonly ARR_CONFLICT_PACKAGES=(
+    "lidarr"
+    "prowlarr"
+    "radarr"
+    "sonarr"
+    "readarr"
+    "bazarr"
+    "whisparr"
+    "sponsorblockarr"
+)
+
+# Check if any package in the list requires the overwrite flag
+_needs_arr_overwrite() {
+    local packages=("$@")
+    for pkg in "${packages[@]}"; do
+        for arr_pkg in "${ARR_CONFLICT_PACKAGES[@]}"; do
+            if [[ "$pkg" == "$arr_pkg" ]]; then
+                return 0
+            fi
+        done
+    done
+    return 1
+}
+
+# Install multiple packages with pacman (supports arr conflict handling)
 install_packages_pacman() {
     local packages=("$@")
     local to_install=()
@@ -85,9 +111,17 @@ install_packages_pacman() {
         return 0
     fi
 
+    # Build install command
+    local cmd=(sudo pacman -S --noconfirm)
+    if _needs_arr_overwrite "${to_install[@]}"; then
+        log "info" "Adding debug overwrite flag for *arr packages"
+        cmd+=(--overwrite '/usr/lib/debug/.build-id/*')
+    fi
+    cmd+=("${to_install[@]}")
+
     # Install packages
     log "info" "Installing packages: ${C_ACCENT}${to_install[*]}${RESET}"
-    if sudo pacman -S --noconfirm "${to_install[@]}" &>/dev/null; then
+    if "${cmd[@]}" &>/dev/null; then
         log "success" "All packages installed successfully"
         return 0
     else
@@ -96,33 +130,7 @@ install_packages_pacman() {
     fi
 }
 
-# Install a package using AUR helper
-install_package_aur() {
-    local pkg="$1"
-    local aur_helper
-
-    aur_helper=$(get_aur_helper)
-    if [ "$aur_helper" = "none" ]; then
-        log "error" "No AUR helper found (yay or paru required)"
-        return 1
-    fi
-
-    if is_installed "$pkg"; then
-        log "info" "Package ${C_ACCENT}${pkg}${RESET} is already installed"
-        return 0
-    fi
-
-    log "info" "Installing ${C_ACCENT}${pkg}${RESET} from AUR"
-    if $aur_helper -S --noconfirm "$pkg" &>/dev/null; then
-        log "success" "Installed ${C_ACCENT}${pkg}${RESET}"
-        return 0
-    else
-        log "error" "Failed to install ${C_ACCENT}${pkg}${RESET}"
-        return 1
-    fi
-}
-
-# Install multiple packages using AUR helper
+# Install multiple packages using AUR helper (supports arr conflict handling)
 install_packages_aur() {
     local packages=("$@")
     local aur_helper
@@ -133,9 +141,36 @@ install_packages_aur() {
         return 1
     fi
 
+    # Install all packages in one command (better for dependency resolution)
+    local to_install=()
     for pkg in "${packages[@]}"; do
-        install_package_aur "$pkg"
+        if ! is_installed "$pkg"; then
+            to_install+=("$pkg")
+        fi
     done
+
+    if [ ${#to_install[@]} -eq 0 ]; then
+        log "info" "All packages are already installed"
+        return 0
+    fi
+
+    # Build install command
+    local cmd
+    read -ra cmd <<< "$aur_helper -S --noconfirm"
+    if _needs_arr_overwrite "${to_install[@]}"; then
+        log "info" "Adding debug overwrite flag for *arr packages"
+        cmd+=(--overwrite '/usr/lib/debug/.build-id/*')
+    fi
+    cmd+=("${to_install[@]}")
+
+    log "info" "Installing packages: ${C_ACCENT}${to_install[*]}${RESET}"
+    if "${cmd[@]}" &>/dev/null; then
+        log "success" "All packages installed successfully"
+        return 0
+    else
+        log "error" "Failed to install some packages"
+        return 1
+    fi
 }
 
 # Uninstall a package
