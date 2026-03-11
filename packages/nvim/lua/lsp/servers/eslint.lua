@@ -15,11 +15,9 @@ return {
       mode = 'all',
     },
     experimental = {
-      useFlatConfig = false,
+      useFlatConfig = true,
     },
     format = true,
-    -- Fix ESLint library detection
-    nodePath = vim.fn.stdpath('data') .. '/mason/packages/eslint-lsp/node_modules',
     onIgnoredFiles = 'off',
     packageManager = 'npm',
     problems = {
@@ -31,7 +29,7 @@ return {
     useESLintClass = false,
     validate = 'on',
     workingDirectory = {
-      mode = 'location',
+      mode = 'workspace',
     },
   },
   init_options = {
@@ -51,7 +49,9 @@ return {
     'astro',
   },
   root_dir = function(fname)
-    return require('lspconfig.util').root_pattern(
+    fname = tostring(fname)
+    local util = require('lspconfig.util')
+    local root = util.root_pattern(
       '.eslintrc',
       '.eslintrc.js',
       '.eslintrc.cjs',
@@ -63,8 +63,9 @@ return {
       'eslint.config.cjs',
       'package.json'
     )(fname)
+    return root or util.path.dirname(fname)
   end,
   single_file_support = true,
-  -- Only start when ESLint config is found
-  autostart = false,
+  -- Start automatically to enable LSP formatting
+  autostart = true,
 }

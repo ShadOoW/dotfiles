@@ -7,26 +7,42 @@ return {
       -- Disable with a global or buffer-local variable
       if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then return end
 
-      -- Use LSP formatting for Odin files (OLS handles formatting with ols.json config)
       local filetype = vim.bo[bufnr].filetype
+      -- Use LSP formatting for Odin files
       if filetype == 'odin' then return {
-        timeout_ms = 500,
+        timeout_ms = 5000,
         lsp_format = 'prefer',
       } end
 
+      -- For JS/TS, use direct npx eslint after save
+      if vim.tbl_contains({ 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'vue', 'svelte' }, filetype) then
+        local filename = vim.api.nvim_buf_get_name(bufnr)
+        if filename and filename ~= '' then
+          local dir = vim.fn.fnamemodify(filename, ':p:h')
+          -- Run eslint after a small delay to let save complete
+          vim.defer_fn(function()
+            vim.fn.system(string.format('cd %s && npx eslint --fix %s 2>/dev/null', vim.fn.shellescape(dir), vim.fn.shellescape(filename)))
+            vim.cmd('silent! edit!')
+          end, 100)
+        end
+        return  -- Skip conform's own formatting
+      end
+
+      -- Default: use formatters
       return {
-        timeout_ms = 500,
+        timeout_ms = 15000,
         lsp_format = 'fallback',
+        async = false,
       }
     end,
     formatters_by_ft = {
-      -- Web Development - JavaScript/TypeScript (prettierd only)
-      javascript = { 'prettierd' },
-      javascriptreact = { 'prettierd' },
-      typescript = { 'prettierd' },
-      typescriptreact = { 'prettierd' },
-      vue = { 'prettierd' },
-      svelte = { 'prettierd' },
+      -- Web Development - JavaScript/TypeScript (eslint - uses project config)
+      javascript = { 'eslint' },
+      javascriptreact = { 'eslint' },
+      typescript = { 'eslint' },
+      typescriptreact = { 'eslint' },
+      vue = { 'eslint' },
+      svelte = { 'eslint' },
 
       -- Web Development - HTML/CSS (prettierd only)
       html = { 'prettierd' },
@@ -89,20 +105,25 @@ return {
       prettierd = {
         env = {
           PRETTIERD_DEFAULT_CONFIG = vim.fn.expand('~/.config/prettierd/.prettierrc.json'),
-          -- Set NODE_PATH to include the node_modules from our custom prettier installation
           NODE_PATH = vim.fn.expand('~/.config/prettierd/node_modules'),
-          -- Set PRETTIERD_LOCAL_PRETTIER_ONLY to use local prettier installation
-          PRETTIERD_LOCAL_PRETTIER_ONLY = '1',
         },
-        -- Specify the prettier module path for prettierd to use
-        cwd = function() return vim.fn.expand('~/.config/prettierd') end,
       },
 
-      -- Biome for fast JS/TS formatting (alternative to prettierd)
+      -- Biome for fast JS/TS formatting (alternative)
       biome = {
         command = 'biome',
         args = { 'format', '--stdin-file-path', '$FILENAME' },
         stdin = true,
+      },
+
+      -- ESLint via npx (uses project config automatically)
+      eslint = {
+        command = 'npx',
+        args = { 'eslint', '--fix', '$FILENAME' },
+        stdin = false,
+        cwd = function(ctx)
+          return ctx.dirname
+        end,
       },
 
       -- Tailwind class sorting
@@ -214,16 +235,25 @@ return {
       { 'n', 'v' },
       '<leader>ff',
       function()
-        conform.format({
-          async = true,
-          lsp_format = 'fallback',
-          timeout_ms = 2000,
-        })
+        local filename = vim.fn.expand('%:p')
+        local dir = vim.fn.expand('%:p:h')
+        local cmd = string.format('cd %s && npx eslint --fix %s 2>&1', vim.fn.shellescape(dir), vim.fn.shellescape(filename))
+        vim.fn.system(cmd)
+        vim.cmd('edit!')  -- reload file
+        vim.cmd('echo "Formatted with eslint"')
       end,
       {
-        desc = 'Format',
+        desc = 'Format with eslint',
       }
     )
+
+    -- Debug: run eslint directly and show output
+    vim.keymap.set('n', '<leader>fe', function()
+      local filename = vim.fn.expand('%:p')  -- absolute path
+      local cmd = string.format('cd %s && npx eslint %s 2>&1', vim.fn.shellescape(vim.fn.expand('%:p:h')), vim.fn.shellescape(filename))
+      local output = vim.fn.system(cmd)
+      vim.notify(output, vim.log.levels.INFO, { title = 'ESLint Output' })
+    end, { desc = 'Run eslint and show output' })
 
     -- Format with specific formatter
     vim.keymap.set({ 'n', 'v' }, '<leader>fF', function()
