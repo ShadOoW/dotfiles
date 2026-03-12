@@ -14,16 +14,27 @@ return {
         lsp_format = 'prefer',
       } end
 
-      -- For JS/TS, use direct npx eslint after save
+      -- For JS/TS, use direct npx eslint after save (async, non-blocking)
       if vim.tbl_contains({ 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'vue', 'svelte' }, filetype) then
         local filename = vim.api.nvim_buf_get_name(bufnr)
         if filename and filename ~= '' then
           local dir = vim.fn.fnamemodify(filename, ':p:h')
-          -- Run eslint after a small delay to let save complete
-          vim.defer_fn(function()
-            vim.fn.system(string.format('cd %s && npx eslint --fix %s 2>/dev/null', vim.fn.shellescape(dir), vim.fn.shellescape(filename)))
-            vim.cmd('silent! edit!')
-          end, 100)
+          local bufnr = bufnr
+          -- Run eslint asynchronously and show output
+          local job = vim.fn.jobstart(string.format('cd %s && npx eslint --fix %s 2>&1; echo exit:$?', vim.fn.shellescape(dir), vim.fn.shellescape(filename)), {
+            on_stdout = function(_, data)
+              vim.schedule(function()
+                vim.notify(table.concat(data, '\n'), vim.log.levels.INFO, { title = 'ESLint' })
+              end)
+            end,
+            on_exit = function()
+              vim.schedule(function()
+                vim.cmd('silent! edit!')
+                vim.diagnostic.reset(nil, bufnr)
+                pcall(require('lint').try_lint)
+              end)
+            end
+          })
         end
         return  -- Skip conform's own formatting
       end
@@ -237,10 +248,17 @@ return {
       function()
         local filename = vim.fn.expand('%:p')
         local dir = vim.fn.expand('%:p:h')
-        local cmd = string.format('cd %s && npx eslint --fix %s 2>&1', vim.fn.shellescape(dir), vim.fn.shellescape(filename))
-        vim.fn.system(cmd)
-        vim.cmd('edit!')  -- reload file
-        vim.cmd('echo "Formatted with eslint"')
+        local bufnr = vim.api.nvim_get_current_buf()
+        vim.fn.jobstart(string.format('cd %s && npx eslint --fix %s 2>&1', vim.fn.shellescape(dir), vim.fn.shellescape(filename)), {
+          on_exit = function()
+            vim.schedule(function()
+              vim.cmd('silent! edit!')
+              vim.diagnostic.reset(nil, bufnr)
+              pcall(require('lint').try_lint)
+              vim.cmd('echo "Formatted with eslint"')
+            end)
+          end
+        })
       end,
       {
         desc = 'Format with eslint',
