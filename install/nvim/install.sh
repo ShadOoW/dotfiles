@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-pacman_pkg=(
+aur_pkg=(
     neovim
     nvim-lazy
     luarocks
@@ -19,6 +19,9 @@ pacman_pkg=(
     shellcheck
     eslint_d
     prettierd
+
+    # Git multi-repo tools
+    multi-git-status
 )
 
 # Source global functions
@@ -30,7 +33,7 @@ fi
 
 # Install base packages
 log "info" "Installing base packages"
-install_packages_aur "${pacman_pkg[@]}" || exit 1
+install_packages_aur "${aur_pkg[@]}" || exit 1
 
 # Create Neovim temporary directories
 NVIM_DIRS=(

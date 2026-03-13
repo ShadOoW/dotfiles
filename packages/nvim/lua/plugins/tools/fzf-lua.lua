@@ -7,6 +7,7 @@ return {
     local fzf = require('fzf-lua')
     local actions = require('fzf-lua.actions')
     local notify = require('utils.notify')
+    local git_multi = require('utils.git-multi')
 
     -- Helper function to clean file paths from fzf results
     local function clean_file_path(file)
@@ -340,8 +341,14 @@ return {
       { '<leader>sGf', function() fzf.git_files(picker_opts('Git Files', '󰊢')) end, 'Git files' },
       {
         '<leader>ss',
-        function() fzf.git_status(picker_opts('Git Status', '󰊢')) end,
-        'Git status',
+        function() git_multi.git_status_multi() end,
+        'Git status (multi-repo)',
+        opts = { desc = 'Git status (multi-repo) <Enter>=edit <C-d>=diffview <C-t>=tab' },
+      },
+      {
+        '<leader>sS',
+        function() git_multi.git_status_multi({ skip_clean = true }) end,
+        'Git status (modified only)',
       },
       {
         '<leader>sGc',
