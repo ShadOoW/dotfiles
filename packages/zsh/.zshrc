@@ -118,7 +118,7 @@ export PASSWORD_STORE_DIR=/mnt/backup/pass
 export EDITOR=nvim
 
 source /home/shad/.config/broot/launcher/bash/br
-export JAVA_HOME=/usr/lib/jvm/java-23-openjdk
+export JAVA_HOME=/usr/lib/jvm/java-25-openjdk
 
 # Atuin: Alt+Down = global search, Alt+Up = directory-scoped search
 export ATUIN_NOBIND='true'
