@@ -53,7 +53,7 @@ return {
     -- Presets for common use cases
     presets = {
       bottom_search = true, -- use a classic bottom cmdline for search
-      command_palette = true, -- position the cmdline and popupmenu together
+      command_palette = false, -- position the cmdline and popupmenu together
       long_message_to_split = true, -- long messages will be sent to a split
       inc_rename = false, -- enables an input dialog for inc-rename.nvim
       lsp_doc_border = false, -- add a border to hover docs and signature help
@@ -116,12 +116,6 @@ return {
           },
         },
         view = 'notify_panel',
-      }, -- Confirm dialog -> popup (must be before msg_show catch-all)
-      {
-        filter = {
-          kind = 'confirm',
-        },
-        view = 'confirm',
       }, -- Errors, notify, msg_show -> panel
       {
         filter = {
@@ -198,11 +192,9 @@ return {
       view_history = 'notify_panel',
       view_search = 'virtualtext',
     },
-    -- Popup menu configuration
+    -- Popup menu configuration (disable to avoid conflicts)
     popupmenu = {
-      enabled = true,
-      backend = 'nui',
-      kind_icons = {},
+      enabled = false,
     },
     -- Notify: panel (opens/updates on new notification)
     notify = {
@@ -228,23 +220,6 @@ return {
     },
     -- View configurations
     views = {
-      cmdline_popup = {
-        position = {
-          row = 5,
-          col = '50%',
-        },
-        size = {
-          width = 60,
-          height = 'auto',
-        },
-        border = {
-          style = 'rounded',
-          padding = { 0, 1 },
-        },
-        win_options = {
-          winhighlight = 'Normal:Normal,FloatBorder:DiagnosticInfo',
-        },
-      },
       popupmenu = {
         relative = 'editor',
         position = {
@@ -286,22 +261,6 @@ return {
         },
         win_options = {
           winhighlight = 'Normal:Normal,FloatBorder:DiagnosticInfo',
-        },
-      },
-      confirm = {
-        backend = 'popup',
-        border = {
-          style = 'rounded',
-          padding = { 1, 2 },
-        },
-        position = '50%',
-        size = {
-          width = 80,
-          height = 'auto',
-        },
-        win_options = {
-          winhighlight = 'Normal:Normal,FloatBorder:DiagnosticInfo',
-          wrap = true,
         },
       },
       split = {
