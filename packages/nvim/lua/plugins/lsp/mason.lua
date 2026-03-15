@@ -19,7 +19,7 @@ return {
         'vtsls', -- TypeScript/JavaScript (Volar)
         'cssls', -- CSS
         'eslint', -- ESLint
-        'tailwindcss', -- Tailwind CSS
+        -- 'tailwindcss', -- Tailwind CSS (removed - not needed)
         'astro', -- Astro
         'jsonls', -- JSON
         'yamlls', -- YAML
@@ -36,7 +36,10 @@ return {
       },
       automatic_installation = true,
       -- Don't auto-setup servers - we configure them manually in servers.lua
-      handlers = {},
+      handlers = {
+        -- Explicitly disable tailwindcss
+        tailwindcss = function() end,
+      },
     })
   end,
 }

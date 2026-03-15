@@ -35,8 +35,10 @@ return {
     'astro',
   },
   root_dir = function(fname)
-    local util = require('lspconfig.util')
-    local root = util.root_pattern(
+    -- Handle case where fname is not provided
+    if not fname or type(fname) ~= 'string' then return nil end
+    -- Use vim.fs.find to look for eslint config files
+    local found = vim.fs.find({
       '.eslintrc',
       '.eslintrc.js',
       '.eslintrc.cjs',
@@ -46,8 +48,9 @@ return {
       'eslint.config.js',
       'eslint.config.mjs',
       'eslint.config.cjs',
-      'package.json'
-    )(fname)
+      'package.json',
+    }, { upward = true, path = vim.fs.dirname(fname) })[1]
+    return found and vim.fs.dirname(found)
   end,
   single_file_support = false,
   workspace_required = true,

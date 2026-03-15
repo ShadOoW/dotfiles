@@ -9,7 +9,7 @@ return {
         'css-lsp', -- CSS
         'vtsls', -- Modern TypeScript/JavaScript
         'eslint-lsp', -- ESLint
-        'tailwindcss-language-server', -- Tailwind CSS
+        -- 'tailwindcss-language-server', -- Tailwind CSS (removed)
         'astro-language-server', -- Astro
         'unocss-language-server', -- UnoCSS
         'svelte-language-server', -- Svelte

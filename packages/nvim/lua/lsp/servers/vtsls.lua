@@ -145,11 +145,16 @@ return {
   },
   single_file_support = true,
   root_dir = function(fname)
-    local util = require('lspconfig.util')
-    local root = util.root_pattern('tsconfig.json', 'package.json', 'jsconfig.json', '.git')(fname)
-    if root then return root end
+    -- Handle case where fname is not provided
+    if not fname or type(fname) ~= 'string' then return nil end
+    -- Use vim.fs.find to look for project markers
+    local root = vim.fs.find({ 'tsconfig.json', 'package.json', 'jsconfig.json', '.git' }, {
+      upward = true,
+      path = vim.fs.dirname(fname),
+    })[1]
+    if root then return vim.fs.dirname(root) end
     -- Fallback to file directory for better single-file support
-    local dir = util.path.dirname(fname)
+    local dir = vim.fs.dirname(fname)
     if dir and dir ~= '' then return dir end
     return vim.uv.cwd() or vim.fn.getcwd()
   end,
