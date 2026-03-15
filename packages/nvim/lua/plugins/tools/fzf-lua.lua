@@ -278,11 +278,6 @@ return {
       },
       {
         '<leader>s/',
-        function() fzf.blines(picker_opts('Current Buffer Lines', '󰍉')) end,
-        'Current buffer lines',
-      },
-      {
-        '<leader>s?',
         function() fzf.grep_curbuf(picker_opts('Grep Current Buffer', '')) end,
         'Grep current buffer',
       },

@@ -1,6 +1,7 @@
 -- Modern VTSLS (Vue TypeScript Language Server) configuration
 -- VTSLS is the successor to ts_ls with better performance and Vue support
 return {
+  cmd = { vim.fn.stdpath('data') .. '/mason/bin/vtsls', '--stdio' },
   settings = {
     vtsls = {
       experimental = {
@@ -120,19 +121,16 @@ return {
   filetypes = {
     'javascript',
     'javascriptreact',
-    'javascript.jsx',
     'typescript',
     'typescriptreact',
-    'typescript.tsx',
-    'vue', -- Vue support built-in
+    'vue',
   },
   -- Ensure vtsls has higher priority for JavaScript/TypeScript files
-  autostart = true,
   init_options = {
     hostInfo = 'neovim',
     maxTsServerMemory = 8192,
     typescript = {
-      tsdk = vim.fn.stdpath('data') .. '/mason/packages/vtsls/node_modules/typescript/lib',
+      tsdk = vim.fn.stdpath('data') .. '/mason/packages/vtsls/node_modules/@vtsls/language-server/node_modules/typescript/lib',
     },
     preferences = {
       disableSuggestions = false,
@@ -148,8 +146,11 @@ return {
   single_file_support = true,
   root_dir = function(fname)
     local util = require('lspconfig.util')
-    fname = tostring(fname)
-    return util.root_pattern('tsconfig.json', 'package.json', 'jsconfig.json', '.git')(fname)
-      or util.path.dirname(fname)
+    local root = util.root_pattern('tsconfig.json', 'package.json', 'jsconfig.json', '.git')(fname)
+    if root then return root end
+    -- Fallback to file directory for better single-file support
+    local dir = util.path.dirname(fname)
+    if dir and dir ~= '' then return dir end
+    return vim.uv.cwd() or vim.fn.getcwd()
   end,
 }

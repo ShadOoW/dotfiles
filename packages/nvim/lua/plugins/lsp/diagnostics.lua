@@ -12,9 +12,9 @@ return {
   event = { 'BufReadPost', 'BufNewFile' },
   config = function()
     -- Ensure required modules are available
-    local ok_null_ls, null_ls = pcall(require, 'null-ls')
+    local ok_null_ls, null_ls = pcall(require, 'none-ls')
     if not ok_null_ls then
-      notify.warn('Diagnostics', 'null-ls not available')
+      notify.warn('Diagnostics', 'none-ls not available')
       return
     end
 
@@ -35,11 +35,11 @@ return {
       auto_refresh_trouble = true,
       auto_save_analysis = true,
 
-      -- Workspace analysis settings
+      -- Workspace analysis settings (Disabled: extremely local resource heavy and redundant with LSP)
       workspace_analysis = {
-        enabled = true,
-        on_project_open = true,
-        on_file_save = true,
+        enabled = false,
+        on_project_open = false,
+        on_file_save = false,
         background_jobs = 6,
         file_patterns = {
           '*.ts',
@@ -271,42 +271,44 @@ return {
           args = { 'eslint', '.', '--format', 'json' },
           cwd = project_root,
           on_exit = function(job, return_val)
-            local output = table.concat(job:result(), '\n')
-            local diagnostics_by_file = {}
+            vim.schedule(function()
+              local output = table.concat(job:result(), '\n')
+              local diagnostics_by_file = {}
 
-            if output ~= '' then
-              local ok, results = pcall(vim.json.decode, output)
-              if ok and type(results) == 'table' then
-                for _, result in ipairs(results) do
-                  if result.messages and #result.messages > 0 then
-                    local filepath = result.filePath
-                    diagnostics_by_file[filepath] = {}
+              if output ~= '' then
+                local ok, results = pcall(vim.json.decode, output)
+                if ok and type(results) == 'table' then
+                  for _, result in ipairs(results) do
+                    if result.messages and #result.messages > 0 then
+                      local filepath = result.filePath
+                      diagnostics_by_file[filepath] = {}
 
-                    for _, msg in ipairs(result.messages) do
-                      table.insert(diagnostics_by_file[filepath], {
-                        lnum = (msg.line or 1) - 1,
-                        col = (msg.column or 1) - 1,
-                        message = string.format('[%s] %s', msg.ruleId or 'eslint', msg.message),
-                        severity = msg.severity == 2 and vim.diagnostic.severity.ERROR or vim.diagnostic.severity.WARN,
-                        source = 'eslint',
-                      })
+                      for _, msg in ipairs(result.messages) do
+                        table.insert(diagnostics_by_file[filepath], {
+                          lnum = (msg.line or 1) - 1,
+                          col = (msg.column or 1) - 1,
+                          message = string.format('[%s] %s', msg.ruleId or 'eslint', msg.message),
+                          severity = msg.severity == 2 and vim.diagnostic.severity.ERROR or vim.diagnostic.severity.WARN,
+                          source = 'eslint',
+                        })
+                      end
                     end
                   end
                 end
               end
-            end
 
-            -- Apply diagnostics to buffers
-            for filepath, diags in pairs(diagnostics_by_file) do
-              local buf = vim.fn.bufnr(filepath)
-              if buf ~= -1 then
-                vim.diagnostic.set(diagnostic_namespaces.external_eslint, buf, diags)
-                update_diagnostics_store('external', buf, diags)
+              -- Apply diagnostics to buffers
+              for filepath, diags in pairs(diagnostics_by_file) do
+                local buf = vim.fn.bufnr(filepath)
+                if buf ~= -1 then
+                  vim.diagnostic.set(diagnostic_namespaces.external_eslint, buf, diags)
+                  update_diagnostics_store('external', buf, diags)
+                end
               end
-            end
 
-            progress.active_jobs = progress.active_jobs - 1
-            if progress.active_jobs <= 0 then hide_progress() end
+              progress.active_jobs = progress.active_jobs - 1
+              if progress.active_jobs <= 0 then hide_progress() end
+            end)
           end,
         })
         :start()
@@ -386,20 +388,12 @@ return {
       end)
     end
 
-    -- Setup null-ls with enhanced configuration
+    -- Setup none-ls with enhanced configuration
     null_ls.setup({
-      sources = { -- TypeScript / JavaScript diagnostics using none-ls-extras
-        require('none-ls.diagnostics.eslint').with({
-          condition = function(utils)
-            return utils.root_has_file({
-              '.eslintrc.js',
-              '.eslintrc.json',
-              '.eslintrc.yml',
-              '.eslintrc.yaml',
-              'eslint.config.js',
-            })
-          end,
-        }), -- Python
+      sources = {
+        -- Only use none-ls for things not covered by main LSP servers
+        -- (Removed redundant ESLint source)
+        -- Python
         null_ls.builtins.diagnostics.mypy.with({
           condition = function(utils) return utils.root_has_file({ 'mypy.ini', '.mypy.ini', 'pyproject.toml' }) end,
         }), -- Lua
@@ -407,7 +401,7 @@ return {
           condition = function(utils) return utils.root_has_file({ 'selene.toml' }) end,
         }), -- Formatting sources
         null_ls.builtins.formatting.prettier.with({
-          filetypes = { 'javascript', 'typescript', 'json', 'yaml', 'html', 'css' },
+          filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'json', 'yaml', 'html', 'css' },
         }),
         null_ls.builtins.formatting.stylua,
         null_ls.builtins.formatting.black,

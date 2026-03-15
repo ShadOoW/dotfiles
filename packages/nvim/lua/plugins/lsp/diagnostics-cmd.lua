@@ -238,7 +238,7 @@ return {
       table.insert(status, string.format('Trouble.nvim: %s', ok_trouble and 'Available' or 'Not available'))
 
       -- Check none-ls
-      local ok_null_ls = pcall(require, 'null-ls')
+      local ok_null_ls = pcall(require, 'none-ls')
       table.insert(status, string.format('None-ls: %s', ok_null_ls and 'Available' or 'Not available'))
 
       notify.info('Problems', table.concat(status, '\n'))

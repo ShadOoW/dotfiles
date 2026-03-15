@@ -14,10 +14,6 @@ return {
       enable = false,
       mode = 'all',
     },
-    experimental = {
-      useFlatConfig = true,
-    },
-    format = true,
     onIgnoredFiles = 'off',
     packageManager = 'npm',
     problems = {
@@ -28,28 +24,17 @@ return {
     run = 'onType',
     useESLintClass = false,
     validate = 'on',
-    workingDirectory = {
-      mode = 'workspace',
-    },
-  },
-  init_options = {
-    typescript = {
-      tsdk = vim.fn.stdpath('data') .. '/mason/packages/vtsls/node_modules/typescript/lib',
-    },
   },
   filetypes = {
     'javascript',
     'javascriptreact',
-    'javascript.jsx',
     'typescript',
     'typescriptreact',
-    'typescript.tsx',
     'vue',
     'svelte',
     'astro',
   },
   root_dir = function(fname)
-    fname = tostring(fname)
     local util = require('lspconfig.util')
     local root = util.root_pattern(
       '.eslintrc',
@@ -63,9 +48,7 @@ return {
       'eslint.config.cjs',
       'package.json'
     )(fname)
-    return root or util.path.dirname(fname)
   end,
-  single_file_support = true,
-  -- Start automatically to enable LSP formatting
-  autostart = true,
+  single_file_support = false,
+  workspace_required = true,
 }

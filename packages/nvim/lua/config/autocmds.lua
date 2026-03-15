@@ -49,6 +49,20 @@ vim.api.nvim_create_autocmd('FileType', {
   desc = 'Set up panel closing behavior',
 })
 
+-- Ensure TSX/JSX filetypes are properly detected
+vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
+  pattern = { '*.tsx', '*.jsx' },
+  callback = function(args)
+    local ext = vim.fn.expand('<afile>:e')
+    if ext == 'tsx' then
+      vim.bo.filetype = 'typescriptreact'
+    elseif ext == 'jsx' then
+      vim.bo.filetype = 'javascriptreact'
+    end
+  end,
+  desc = 'Detect TSX/JSX file types',
+})
+
 -- Set custom buffer name for Buffer list panel (opened via <leader>bq)
 -- Use FileType so filetype is guaranteed to be set (BufWinEnter can fire before)
 vim.api.nvim_create_autocmd('FileType', {

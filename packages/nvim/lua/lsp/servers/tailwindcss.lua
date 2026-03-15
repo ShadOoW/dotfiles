@@ -79,11 +79,10 @@ return {
       'postcss.config.js',
       'postcss.config.cjs',
       'postcss.config.mjs',
-      'postcss.config.ts',
-      'package.json',
-      'node_modules',
-      '.git'
+      'postcss.config.ts'
     )(fname)
   end,
+  single_file_support = false,
+  workspace_required = true,
   settings_file_pattern = 'tailwind%.config%.[jt]s',
 }

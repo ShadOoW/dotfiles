@@ -16,6 +16,7 @@ return {
     -- Configure Mason LSP
     require('mason-lspconfig').setup({
       ensure_installed = { -- Web Development
+        'vtsls', -- TypeScript/JavaScript (Volar)
         'cssls', -- CSS
         'eslint', -- ESLint
         'tailwindcss', -- Tailwind CSS
