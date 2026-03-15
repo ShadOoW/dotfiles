@@ -283,7 +283,7 @@ return {
 
       local formatter_names = vim.tbl_map(function(f) return f.name end, formatters)
       vim.ui.select(formatter_names, {
-        prompt = 'Select formatter:',
+        prompt = 'Select a formatter to use for this buffer:',
       }, function(choice)
         if choice then
           conform.format({

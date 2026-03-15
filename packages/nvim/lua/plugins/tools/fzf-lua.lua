@@ -226,6 +226,9 @@ return {
         function()
           fzf.files(picker_opts('Find Files', '󰈞', {
             file_ignore_patterns = { '^venv/', '^%.venv/', '^__pycache__/', '/venv/', '/%.venv/', '/__pycache__/' },
+            fzf_opts = {
+              ['--bind'] = 'ctrl-y:execute-silent(echo {+} | xclip -selection clipboard)',
+            },
           }))
         end,
         'Find files',

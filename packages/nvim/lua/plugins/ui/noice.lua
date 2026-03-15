@@ -116,16 +116,16 @@ return {
           },
         },
         view = 'notify_panel',
-      }, -- Errors, confirm, notify, msg_show -> panel
-      {
-        filter = {
-          kind = 'error',
-        },
-        view = 'notify_panel',
-      },
+      }, -- Confirm dialog -> popup (must be before msg_show catch-all)
       {
         filter = {
           kind = 'confirm',
+        },
+        view = 'confirm',
+      }, -- Errors, notify, msg_show -> panel
+      {
+        filter = {
+          kind = 'error',
         },
         view = 'notify_panel',
       },
@@ -286,6 +286,22 @@ return {
         },
         win_options = {
           winhighlight = 'Normal:Normal,FloatBorder:DiagnosticInfo',
+        },
+      },
+      confirm = {
+        backend = 'popup',
+        border = {
+          style = 'rounded',
+          padding = { 1, 2 },
+        },
+        position = '50%',
+        size = {
+          width = 80,
+          height = 'auto',
+        },
+        win_options = {
+          winhighlight = 'Normal:Normal,FloatBorder:DiagnosticInfo',
+          wrap = true,
         },
       },
       split = {

@@ -270,7 +270,7 @@ return {
       end
 
       vim.ui.select(choices, {
-        prompt = ' Select tab:',
+        prompt = 'Select a tab to switch to:',
         format_item = function(item) return item end,
       }, function(choice, idx)
         if choice and idx then vim.api.nvim_set_current_tabpage(tabs[idx]) end
@@ -318,7 +318,7 @@ return {
       local current_name = vim.fn.gettabvar(current_tab, 'tabby_name', '')
 
       vim.ui.input({
-        prompt = 'Tab name: ',
+        prompt = 'Enter new name for this tab: ',
         default = current_name,
       }, function(name)
         if name and name ~= '' then
