@@ -302,12 +302,12 @@ return {
         'Workspace symbols',
       },
       {
-        '<leader>se',
+        '<leader>sd',
         function() fzf.diagnostics_document(picker_opts('Buffer Diagnostics', '󰞏')) end,
         'Buffer diagnostics',
       },
       {
-        '<leader>sE',
+        '<leader>sD',
         function() fzf.diagnostics_workspace(picker_opts('Workspace Diagnostics', '󰞏')) end,
         'Workspace diagnostics',
       },
@@ -403,7 +403,6 @@ return {
         end,
         'Recent files in current project',
       },
-      { '<leader>sc', function() fzf.tags(picker_opts('CTags', '󰓻')) end, 'CTags' },
       {
         '<leader>sy',
         function()

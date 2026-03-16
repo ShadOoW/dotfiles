@@ -2,7 +2,6 @@
 return {
   require('plugins.tools.fzf-lua'),
   require('plugins.tools.guess-indent'),
-  require('plugins.tools.gutentags'),
   require('plugins.tools.oil'),
   require('plugins.tools.tmux-navigator'),
   require('plugins.tools.nvim-lint'),
