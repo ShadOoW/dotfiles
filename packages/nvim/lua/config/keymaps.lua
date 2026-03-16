@@ -169,16 +169,6 @@ end
 keymap.n('<F2>', toggle_buffer_in_qflist, 'Toggle buffer in quickfix list')
 keymap.i('<F2>', toggle_buffer_in_qflist, 'Toggle buffer in quickfix list')
 
--- LSP Goto keymaps
-keymap.n('<leader>ga', vim.lsp.buf.code_action, 'Code Action')
-keymap.n('<leader>gR', function() require('fzf-lua').lsp_references() end, 'List References')
-keymap.n('<leader>gi', function() require('fzf-lua').lsp_implementations() end, 'List Implementations')
-keymap.n('<leader>gd', function() require('fzf-lua').lsp_definitions() end, 'List Definitions')
-keymap.n('<leader>gD', vim.lsp.buf.declaration, 'Goto Declaration')
-keymap.n('<leader>gt', function() require('fzf-lua').lsp_typedefs() end, 'List Type Definitions')
-keymap.n('<leader>gr', '<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol')
-keymap.n('<leader>gh', '<cmd>lua vim.lsp.buf.hover()<cr>', 'Hover documentation')
-
 -- Delete from cursor to end of line (Ctrl+K; normal and insert)
 keymap.n('<C-k>', 'd$', 'Delete to end of line')
 keymap.i('<C-k>', '<C-o>d$', 'Delete to end of line')
@@ -345,16 +335,28 @@ end, 'Insert console.log for word under cursor')
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Navigation Category - g + Arrow Keys
 -- ═══════════════════════════════════════════════════════════════════════════════
--- Definition:     g<Down>=goto_definition
--- Jumplist:       g<Left>=jumplist_prev, g<Right>=jumplist_next
+-- Definition:     gd=goto_definition
+-- Type Def:      gt=goto_type_definition
+-- Jumplist:      gh=jumplist_prev, gl=jumplist_next
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- Go to definition
-keymap.n('g<Down>', function() vim.lsp.buf.definition() end, 'Go to definition')
+-- Jumplist navigation
+keymap.n('gh', '<C-o>', 'Previous cursor position (jumplist)')
+keymap.n('gl', '<C-i>', 'Next cursor position (jumplist)')
 
--- Navigate jumplist (cursor/buffer position history)
-keymap.n('g<Left>', '<C-o>', 'Previous cursor position (jumplist)')
-keymap.n('g<Right>', '<C-i>', 'Next cursor position (jumplist)')
+-- LSP Navigation with g + special keys
+keymap.n('gd', function() vim.lsp.buf.definition() end, 'Go to definition')
+keymap.n('gt', function() vim.lsp.buf.type_definition() end, 'Go to type definition')
+
+-- Code actions and rename
+keymap.n('<leader>ca', vim.lsp.buf.code_action, 'Code Action')
+keymap.n('<leader>cr', '<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol')
+
+-- FZF-Lua LSP pickers
+keymap.n('<leader>sa', function() require('fzf-lua').lsp_references() end, 'LSP References')
+keymap.n('<leader>si', function() require('fzf-lua').lsp_implementations() end, 'LSP Implementations')
+
+-- Delete from cursor to end of line
 
 -- Command-line abbreviations
 vim.cmd([[cnoreabbrev git Git]])

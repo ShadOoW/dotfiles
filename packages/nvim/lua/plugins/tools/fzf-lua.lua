@@ -292,31 +292,6 @@ return {
       { '<leader>sH', function() fzf.help_tags(picker_opts('Help Tags', '󰋗')) end, 'Help tags' },
       { '<leader>sr', function() fzf.resume() end, 'Resume last search' },
       {
-        '<leader>sGd',
-        function() fzf.lsp_definitions(picker_opts('LSP Definitions', '󰒊')) end,
-        'LSP definitions',
-      },
-      {
-        '<leader>sGD',
-        function() fzf.lsp_declarations(picker_opts('LSP Declarations', '󰒊')) end,
-        'LSP declarations',
-      },
-      {
-        '<leader>si',
-        function() fzf.lsp_implementations(picker_opts('LSP Implementations', '󰒊')) end,
-        'LSP implementations',
-      },
-      {
-        '<leader>st',
-        function() fzf.lsp_typedefs(picker_opts('LSP Type Definitions', '󰒊')) end,
-        'LSP type definitions',
-      },
-      {
-        '<leader>sR',
-        function() fzf.lsp_references(picker_opts('LSP References', '󰒊')) end,
-        'LSP references',
-      },
-      {
         '<leader>sS',
         function() fzf.lsp_document_symbols(picker_opts('Document Symbols', '󰒕')) end,
         'Document symbols',
@@ -340,8 +315,8 @@ return {
       {
         '<leader>ss',
         function() git_multi.git_status_multi() end,
-        'Git status (multi-repo)',
-        opts = { desc = 'Git status (multi-repo) <Enter>=edit <C-d>=diffview <C-t>=tab' },
+        'Git status',
+        opts = { desc = 'Git status <Enter>=edit <C-d>=diffview <C-t>=tab' },
       },
       {
         '<leader>sS',
