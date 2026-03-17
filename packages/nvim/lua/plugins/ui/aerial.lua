@@ -14,9 +14,9 @@ return {
 
       -- UI Configuration
       layout = {
-        max_width = { 40, 0.2 },
-        width = nil,
-        min_width = 10,
+        max_width = { 35, 0.2 },
+        width = 35,
+        min_width = 35,
         win_opts = {},
         default_direction = 'left',
         placement = 'window',

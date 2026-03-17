@@ -68,11 +68,6 @@ return {
         desc = 'Trouble - Location list',
       },
       {
-        '<leader>xw',
-        trouble_manager.keymap('diagnostics'),
-        desc = 'Trouble - Workspace problems',
-      },
-      {
         '<leader>xc',
         trouble_manager.keymap('qflist'),
         desc = 'Trouble - Quickfix list',

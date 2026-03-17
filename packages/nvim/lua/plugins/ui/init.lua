@@ -5,6 +5,7 @@ return {
   require('plugins.ui.lualine'),
   require('plugins.ui.mini-modules'),
   require('plugins.ui.noice'),
+  require('plugins.ui.aerial'),
   require('plugins.ui.tabby'),
   require('plugins.ui.trouble'),
   require('plugins.ui.output-panel'),

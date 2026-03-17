@@ -50,7 +50,7 @@ keymap.i('<C-s>', '<C-o><cmd>write<CR>', 'Save buffer')
 -- ═══════════════════════════════════════════════════════════════════════════════
 keymap.n('<leader><Left>', '<cmd>bprevious<CR>', 'Previous buffer')
 keymap.n('<leader><Right>', '<cmd>bnext<CR>', 'Next buffer')
-keymap.n('<leader>bd', function() require('mini.bufremove').delete(0, false) end, 'Close')
+keymap.n('<leader>bc', function() require('mini.bufremove').delete(0, false) end, 'Close')
 keymap.n('<leader>ba', function()
   local cur = vim.api.nvim_get_current_buf()
   local n = 0
@@ -62,7 +62,7 @@ keymap.n('<leader>ba', function()
   end
   if n > 0 then notify.info('Buffers', 'Closed ' .. n) end
 end, 'Close all file buffers except current')
-keymap.n('<leader>bD', '<cmd>CloseDeletedBuffers<CR>', 'Close deleted')
+keymap.n('<leader>bC', '<cmd>CloseDeletedBuffers<CR>', 'Close deleted')
 keymap.n('<leader>br', '<cmd>e!<CR>', 'Reload current')
 keymap.n('<leader>bR', function()
   vim.cmd('checktime')
@@ -197,6 +197,63 @@ end, 'Setup project workflow')
 
 -- Basic diagnostic keymaps
 keymap.n('<leader>xq', vim.diagnostic.setloclist, 'Open diagnostic quickfix list')
+
+-- TypeScript project-wide check
+local function tsc_check()
+  local project_root = vim.fn.getcwd()
+  local tsconfig = project_root .. '/tsconfig.json'
+
+  if vim.fn.filereadable(tsconfig) == 0 then
+    notify.warn('TypeScript', 'No tsconfig.json found')
+    return
+  end
+
+  notify.info('TypeScript', 'Running tsc --noEmit...')
+
+  local Job = require('plenary.job')
+  Job:new({
+    command = 'npx',
+    args = { 'tsc', '--noEmit', '--pretty', 'false' },
+    cwd = project_root,
+    on_exit = function(job, _)
+      local output = job:result()
+      local stderr = job:stderr_result()
+
+      if stderr and #stderr > 0 then vim.list_extend(output, stderr) end
+
+      local items = {}
+      for _, line in ipairs(output) do
+        local file, lnum, col, severity, code, message = line:match('(.+)%((%d+),(%d+)%): (%w+) (TS%d+): (.+)')
+        if file and lnum and col and message then
+          local filepath = vim.fn.fnamemodify(project_root .. '/' .. file, ':p')
+          table.insert(items, {
+            filename = filepath,
+            lnum = tonumber(lnum),
+            col = tonumber(col),
+            text = string.format('[%s] %s', code, message),
+            type = severity == 'error' and 'E' or 'W',
+          })
+        end
+      end
+
+      vim.schedule(function()
+        vim.fn.setqflist(items, 'r')
+        require('trouble').close()
+        vim.defer_fn(function()
+          require('trouble').open('qflist')
+        end, 10)
+
+        if #items > 0 then
+          notify.info('TypeScript', string.format('Found %d issues', #items))
+        else
+          notify.success('TypeScript', 'No errors found')
+        end
+      end)
+    end,
+  }):start()
+end
+
+keymap.n('<leader>xw', tsc_check, 'TypeScript project check')
 
 -- Quick diagnostic navigation (IntelliJ-style)
 keymap.n('[d', vim.diagnostic.goto_prev, 'Previous diagnostic')
