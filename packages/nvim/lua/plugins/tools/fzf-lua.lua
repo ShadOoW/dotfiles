@@ -82,6 +82,52 @@ return {
       return config
     end
 
+    -- Returns true when the current tab is hosting a DiffView session.
+    local diffview_fts = {
+      DiffviewFiles = true,
+      DiffviewFileHistory = true,
+    }
+    local function in_diffview()
+      for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+        local ft = vim.bo[vim.api.nvim_win_get_buf(win)].filetype
+        if diffview_fts[ft] then return true end
+      end
+      return false
+    end
+
+    -- Redirect the current window away from DiffView before an fzf open action.
+    -- Returns false if no redirect was needed, true if we redirected (or tabbed).
+    local function redirect_from_diffview(selected, opts, fallback_action)
+      if not in_diffview() then return false end
+      local target = nil
+      for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+        local buf = vim.api.nvim_win_get_buf(win)
+        local ft = vim.bo[buf].filetype
+        local cfg = vim.api.nvim_win_get_config(win)
+        if cfg.relative == '' and not diffview_fts[ft] and not vim.wo[win].diff then
+          target = win
+        end
+      end
+      if target then
+        vim.api.nvim_set_current_win(target)
+        return false -- caller should continue with its action
+      end
+      fallback_action(selected, opts)
+      return true -- handled via new tab
+    end
+
+    local function safe_file_edit(selected, opts)
+      if not redirect_from_diffview(selected, opts, actions.file_tabedit) then
+        actions.file_edit(selected, opts)
+      end
+    end
+
+    local function safe_buf_edit(selected, opts)
+      if not redirect_from_diffview(selected, opts, actions.buf_tabedit) then
+        actions.buf_edit(selected, opts)
+      end
+    end
+
     fzf.setup({
       winopts = {
         height = 0.98,
@@ -187,14 +233,14 @@ return {
       },
       actions = {
         files = {
-          ['default'] = actions.file_edit,
+          ['default'] = safe_file_edit,
           ['alt-t'] = actions.file_tabedit,
           ['alt-v'] = actions.file_vsplit,
           ['alt-s'] = actions.file_split,
           ['alt-c'] = function(selected) add_files_to_quickfix(selected) end,
         },
         buffers = {
-          ['default'] = actions.buf_edit,
+          ['default'] = safe_buf_edit,
           ['alt-t'] = actions.buf_tabedit,
           ['ctrl-v'] = actions.buf_vsplit,
           ['ctrl-s'] = actions.buf_split,
@@ -379,7 +425,7 @@ return {
               },
             },
             actions = {
-              ['default'] = actions.buf_edit,
+              ['default'] = safe_buf_edit,
               ['alt-t'] = actions.buf_tabedit,
               ['ctrl-v'] = actions.buf_vsplit,
               ['ctrl-s'] = actions.buf_split,

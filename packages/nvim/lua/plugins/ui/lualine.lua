@@ -86,6 +86,12 @@ return {
       return string.format(' %d', buffers)
     end
 
+    local function tab_count()
+      local n = #vim.api.nvim_list_tabpages()
+      if n <= 1 then return '' end
+      return string.format('󰓩 %d', n)
+    end
+
     -- Enhanced notification functions with severity filtering
     local function notification_error_count()
       -- Check if our notification utilities are available
@@ -236,6 +242,7 @@ return {
         },
         lualine_b = {
           buffer_count,
+          tab_count,
           {
             notification_error_count,
             color = {
@@ -368,6 +375,7 @@ return {
                   notify = ' Notifications',
                   oil = ' Files',
                   outputpanel = ' Output',
+                  toggleterm = '  Terminal',
                 }
 
                 if filetype_names[filetype] then return filetype_names[filetype] end

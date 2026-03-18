@@ -13,6 +13,9 @@ function M.register(config)
     close = config.close,
     is_open = config.is_open,
     title = config.title or config.ft,
+    -- If true, the panel takes focus when opened (e.g. terminal)
+    -- If false (default), focus returns to the previous window after opening
+    focus_panel = config.focus_panel or false,
   }
 end
 
@@ -25,25 +28,42 @@ local function close_others(except_ft)
 end
 
 -- Open a panel (closes all others first)
+-- By default restores focus to the calling window; set focus_panel=true in
+-- the registration to let the panel keep focus (e.g. terminal).
 function M.open(ft)
   local panel = M.panels[ft]
   if not panel then return end
 
+  local prev_win = vim.api.nvim_get_current_win()
   _opening = ft
   close_others(ft)
   pcall(panel.open)
   _opening = nil
+
+  if not panel.focus_panel then
+    vim.schedule(function()
+      if vim.api.nvim_win_is_valid(prev_win) then vim.api.nvim_set_current_win(prev_win) end
+    end)
+  end
 end
 
 -- Like open(), but uses a custom open function instead of the registered one.
 -- Useful for panels with multiple modes (e.g. trouble: diagnostics, loclist, …)
 function M.open_with(ft, open_fn)
-  if not M.panels[ft] then return end
+  local panel = M.panels[ft]
+  if not panel then return end
 
+  local prev_win = vim.api.nvim_get_current_win()
   _opening = ft
   close_others(ft)
   pcall(open_fn)
   _opening = nil
+
+  if not panel.focus_panel then
+    vim.schedule(function()
+      if vim.api.nvim_win_is_valid(prev_win) then vim.api.nvim_set_current_win(prev_win) end
+    end)
+  end
 end
 
 -- Toggle a panel

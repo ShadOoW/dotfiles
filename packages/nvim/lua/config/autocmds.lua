@@ -237,26 +237,14 @@ vim.api.nvim_create_autocmd('VimResized', {
   end,
 })
 
--- Focus events and empty winbar (top gap) for normal buffers
+-- Cursorline management: enable on the focused window, disable on leave
 vim.api.nvim_create_autocmd({ 'WinEnter', 'BufEnter' }, {
   group = window_group,
-  desc = 'Handle window focus and empty winbar for top gap',
+  desc = 'Enable cursorline on focused window',
   callback = function()
-    -- Guard against E36 (not enough room) when opening small popups (e.g. notification detail)
     local ok, err = pcall(function()
       if vim.api.nvim_win_get_height(0) < 2 or vim.api.nvim_win_get_width(0) < 2 then return end
       vim.wo.cursorline = true
-      local buftype = vim.bo.buftype
-      local ft = vim.bo.filetype
-      local skip_winbar = buftype == 'terminal'
-        or buftype == 'help'
-        or ft == 'qf'
-        or ft == 'trouble'
-        or ft == 'lazy'
-        or ft == 'mason'
-        or ft == 'notify'
-        or ft == 'noice'
-      vim.wo.winbar = (skip_winbar and '' or '%#TabbyTopGap# ')
     end)
     if not ok and err and not tostring(err):match('E36') then vim.notify(tostring(err), vim.log.levels.WARN) end
   end,

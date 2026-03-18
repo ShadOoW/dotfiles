@@ -26,6 +26,8 @@ return {
           '<leader>c',
           group = 'Code',
         },
+        { '<leader>cp', desc = 'Peek function definition' },
+        { '<leader>cP', desc = 'Peek class definition' },
         {
           '<leader>f',
           group = 'File',
@@ -48,7 +50,7 @@ return {
         },
         {
           '<leader>g',
-          group = 'LSP',
+          group = 'Git',
         },
         {
           '<leader>t',

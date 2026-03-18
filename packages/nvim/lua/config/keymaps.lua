@@ -32,6 +32,12 @@ vim.api.nvim_create_autocmd('CmdwinEnter', {
 
 keymap.n('<Esc>', '<cmd>nohlsearch<CR>', 'Clear search highlights')
 
+-- Keep search matches centered in the window
+keymap.n('n', 'nzzzv', 'Next match (centered)')
+keymap.n('N', 'Nzzzv', 'Previous match (centered)')
+keymap.n('*', '*zz', 'Search word under cursor forward (centered)')
+keymap.n('#', '#zz', 'Search word under cursor backward (centered)')
+
 keymap.n('<C-M-v>', '<cmd>vsplit<CR>', 'Split window vertically (unified)')
 keymap.n('<C-M-s>', '<cmd>split<CR>', 'Split window horizontally (unified)')
 
@@ -53,14 +59,20 @@ keymap.n('<leader><Right>', '<cmd>bnext<CR>', 'Next buffer')
 keymap.n('<leader>bc', function() require('mini.bufremove').delete(0, false) end, 'Close')
 keymap.n('<leader>ba', function()
   local cur = vim.api.nvim_get_current_buf()
-  local n = 0
-  for _, b in ipairs(vim.api.nvim_list_bufs()) do
-    if b ~= cur and vim.api.nvim_buf_is_valid(b) and vim.api.nvim_buf_is_loaded(b) and vim.bo[b].buftype == '' then
-      local ok = pcall(require('mini.bufremove').delete, b, false)
-      if ok then n = n + 1 end
+  local n, skipped = 0, 0
+  for _, info in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
+    local b = info.bufnr
+    if b ~= cur and vim.bo[b].buftype == '' then
+      if vim.bo[b].modified then
+        skipped = skipped + 1
+      else
+        pcall(require('mini.bufremove').delete, b, false)
+        n = n + 1
+      end
     end
   end
-  if n > 0 then notify.info('Buffers', 'Closed ' .. n) end
+  if n > 0 then notify.info('Buffers', 'Closed ' .. n .. ' buffer(s)') end
+  if skipped > 0 then notify.warn('Buffers', skipped .. ' modified buffer(s) not closed') end
 end, 'Close all file buffers except current')
 keymap.n('<leader>bC', '<cmd>CloseDeletedBuffers<CR>', 'Close deleted')
 keymap.n('<leader>br', '<cmd>e!<CR>', 'Reload current')
@@ -69,14 +81,20 @@ keymap.n('<leader>bR', function()
   notify.info('Buffers', 'Reloaded from disk')
 end, 'Reload all')
 keymap.n('<leader>bA', function()
-  local n = 0
-  for _, b in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_valid(b) and vim.api.nvim_buf_is_loaded(b) and vim.bo[b].buftype == '' then
-      local ok = pcall(require('mini.bufremove').delete, b, false)
-      if ok then n = n + 1 end
+  local n, skipped = 0, 0
+  for _, info in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
+    local b = info.bufnr
+    if vim.bo[b].buftype == '' then
+      if vim.bo[b].modified then
+        skipped = skipped + 1
+      else
+        pcall(require('mini.bufremove').delete, b, false)
+        n = n + 1
+      end
     end
   end
-  if n > 0 then notify.info('Buffers', 'Closed ' .. n) end
+  if n > 0 then notify.info('Buffers', 'Closed ' .. n .. ' buffer(s)') end
+  if skipped > 0 then notify.warn('Buffers', skipped .. ' modified buffer(s) not closed') end
 end, 'Close all file buffers')
 keymap.n('<leader>xb', function()
   local qf = {}
@@ -288,6 +306,44 @@ end, 'Move tab to position')
 -- Arrow key navigation for tabs
 keymap.n('<leader><Up>', '<cmd>tabnext<cr>', 'Next tab')
 keymap.n('<leader><Down>', '<cmd>tabprevious<cr>', 'Previous tab')
+
+-- Quick switch to tab N
+for i = 1, 9 do
+  keymap.n('<leader>' .. i, function()
+    local tabs = vim.api.nvim_list_tabpages()
+    if tabs[i] then vim.api.nvim_set_current_tabpage(tabs[i]) end
+  end, 'Go to tab ' .. i)
+end
+
+-- Tab picker
+keymap.n('<leader>tt', function()
+  local tabs = vim.api.nvim_list_tabpages()
+  if #tabs <= 1 then return end
+  local choices = {}
+  for i, tp in ipairs(tabs) do
+    local marker = vim.api.nvim_get_current_tabpage() == tp and ' ▶' or '  '
+    local win = vim.api.nvim_tabpage_get_win(tp)
+    local buf = vim.api.nvim_win_get_buf(win)
+    local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ':t')
+    if name == '' then name = '[No Name]' end
+    choices[i] = marker .. ' ' .. i .. ': ' .. name
+  end
+  vim.ui.select(choices, { prompt = 'Switch tab:' }, function(_, idx)
+    if idx then vim.api.nvim_set_current_tabpage(tabs[idx]) end
+  end)
+end, 'Tab picker')
+
+-- Rename current tab
+keymap.n('<leader>tR', function()
+  local tp = vim.api.nvim_get_current_tabpage()
+  local cur = vim.fn.gettabvar(tp, 'custom_tab_name', '')
+  vim.ui.input({ prompt = 'Rename tab: ', default = cur }, function(name)
+    if name then vim.api.nvim_tabpage_set_var(tp, 'custom_tab_name', name) end
+  end)
+end, 'Rename current tab')
+
+keymap.n('<leader>tm]', '<cmd>+tabmove<cr>', 'Move tab right')
+keymap.n('<leader>tm[', '<cmd>-tabmove<cr>', 'Move tab left')
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Navigation Category - g + Arrow Keys

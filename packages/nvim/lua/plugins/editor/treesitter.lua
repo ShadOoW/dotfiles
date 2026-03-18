@@ -159,8 +159,8 @@ return {
         enable = true,
         border = 'single',
         peek_definition_code = {
-          ['<leader>gp'] = '@function.outer',
-          ['<leader>gP'] = '@class.outer',
+          ['<leader>cp'] = '@function.outer',
+          ['<leader>cP'] = '@class.outer',
         },
       },
     },

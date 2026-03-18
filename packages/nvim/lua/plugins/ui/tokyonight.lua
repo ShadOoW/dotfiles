@@ -247,18 +247,28 @@ return {
           sp = c.hint,
         }
 
-        hl.GitSignsAdd = {
-          bg = c.bg_dark,
-          fg = c.git.add,
-        }
-        hl.GitSignsChange = {
-          bg = c.bg_dark,
-          fg = c.git.change,
-        }
-        hl.GitSignsDelete = {
-          bg = c.bg_dark,
-          fg = c.git.delete,
-        }
+        -- Gitsigns sign column (bar colors distinguish add vs change vs delete)
+        hl.GitSignsAdd    = { bg = c.bg_dark, fg = '#73daca' } -- teal-green
+        hl.GitSignsChange = { bg = c.bg_dark, fg = '#e0af68' } -- amber: modified in place
+        hl.GitSignsDelete = { bg = c.bg_dark, fg = '#f7768e' } -- red
+
+        -- Gitsigns line-number highlights (numhl)
+        hl.GitSignsAddNr    = { bg = c.bg_dark, fg = '#73daca', bold = true }
+        hl.GitSignsChangeNr = { bg = c.bg_dark, fg = '#e0af68', bold = true }
+        hl.GitSignsDeleteNr = { bg = c.bg_dark, fg = '#f7768e', bold = true }
+
+        -- Gitsigns line highlights (diff review mode: linehl=true)
+        -- Green = new content (add/change/changedelete), Red = removed content
+        -- Matches delta/fzf convention: new line is always green
+        hl.GitSignsAddLn          = { bg = '#1a3020' } -- green: new line
+        hl.GitSignsChangeLn       = { bg = '#1a3020' } -- green: current line is new content
+        hl.GitSignsDeleteLn       = { bg = '#2d1a1a' } -- red: removed line (virtual)
+        hl.GitSignsChangeDeleteLn = { bg = '#1a3020' } -- green: new content replacing deleted
+
+        -- Gitsigns word-diff inline highlights
+        hl.GitSignsAddInline    = { bg = '#1f4a2e', bold = true } -- stronger green for changed words
+        hl.GitSignsChangeInline = { bg = '#1a3060', bold = true } -- stronger blue for changed words
+        hl.GitSignsDeleteInline = { bg = '#4a1a1a', bold = true } -- stronger red for deleted words
       end,
     })
 
@@ -319,9 +329,19 @@ return {
         fg = '#e0af68',
         italic = true,
       })
-      vim.api.nvim_set_hl(0, 'GitSignsAdd', { bg = bg_dark })
-      vim.api.nvim_set_hl(0, 'GitSignsChange', { bg = bg_dark })
-      vim.api.nvim_set_hl(0, 'GitSignsDelete', { bg = bg_dark })
+      vim.api.nvim_set_hl(0, 'GitSignsAdd',    { bg = bg_dark, fg = '#73daca' })
+      vim.api.nvim_set_hl(0, 'GitSignsChange', { bg = bg_dark, fg = '#e0af68' })
+      vim.api.nvim_set_hl(0, 'GitSignsDelete', { bg = bg_dark, fg = '#f7768e' })
+      vim.api.nvim_set_hl(0, 'GitSignsAddNr',    { bg = bg_dark, fg = '#73daca', bold = true })
+      vim.api.nvim_set_hl(0, 'GitSignsChangeNr', { bg = bg_dark, fg = '#e0af68', bold = true })
+      vim.api.nvim_set_hl(0, 'GitSignsDeleteNr', { bg = bg_dark, fg = '#f7768e', bold = true })
+      vim.api.nvim_set_hl(0, 'GitSignsAddLn',          { bg = '#1a3020' })
+      vim.api.nvim_set_hl(0, 'GitSignsChangeLn',       { bg = '#1a3020' })
+      vim.api.nvim_set_hl(0, 'GitSignsDeleteLn',       { bg = '#2d1a1a' })
+      vim.api.nvim_set_hl(0, 'GitSignsChangeDeleteLn', { bg = '#1a3020' })
+      vim.api.nvim_set_hl(0, 'GitSignsAddInline',    { bg = '#1f4a2e', bold = true })
+      vim.api.nvim_set_hl(0, 'GitSignsChangeInline', { bg = '#1a3060', bold = true })
+      vim.api.nvim_set_hl(0, 'GitSignsDeleteInline', { bg = '#4a1a1a', bold = true })
     end)
   end,
 }

@@ -72,8 +72,8 @@ vim.opt.timeoutlen = 300
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 
--- Always show tabline, even with single tab
-vim.opt.showtabline = 2
+-- Hide native tabline — tab navigation is handled by the left sidebar (tab-sidebar.lua)
+vim.opt.showtabline = 0
 
 -- Sets how neovim will display certain whitespace characters in the editor.
 --  See `:help 'list'`
@@ -98,8 +98,6 @@ vim.opt.cursorline = true
 vim.opt.cursorlineopt = 'number,line'
 vim.opt.cursorcolumn = true -- highlight the current column
 
--- Empty winbar: reserve one line below tabline for a true top gap (no content)
-vim.opt.winbar = ' '
 
 -- Disable all scrolling animations
 vim.opt.lazyredraw = false
