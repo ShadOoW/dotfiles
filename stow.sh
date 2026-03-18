@@ -23,6 +23,7 @@ fi
 
 # Target directories for stowing
 declare -A TARGET_DIRS=(
+    ["claude"]="$HOME/.claude"
     ["atuin"]="$HOME/.config/atuin"
     ["yt-dlp"]="$HOME/.config/yt-dlp"
     ["cursor"]="$HOME/.cursor"
