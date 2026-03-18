@@ -1,128 +1,51 @@
--- Adds git related signs to the gutter, as well as utilities for managing changes
--- NOTE: gitsigns is already included in init.lua but contains only the base
--- config. This will add also the recommended keymaps.
 return {
   'lewis6991/gitsigns.nvim',
   opts = {
     signs = {
-      add = {
-        text = '+',
-      },
-      change = {
-        text = '~',
-      },
-      delete = {
-        text = '_',
-      },
-      topdelete = {
-        text = '‾',
-      },
-      changedelete = {
-        text = '~',
-      },
+      add = { text = '+' },
+      change = { text = '~' },
+      delete = { text = '_' },
+      topdelete = { text = '‾' },
+      changedelete = { text = '~' },
     },
     on_attach = function(bufnr)
       local gs = package.loaded.gitsigns
+      local function map(mode, key, fn, desc)
+        vim.keymap.set(mode, key, fn, { buffer = bufnr, desc = desc })
+      end
 
-      -- Navigation between hunks
-      vim.keymap.set('n', '<leader>hj', function()
+      -- Hunk navigation (expr = true so diff-mode uses ]c/[c)
+      vim.keymap.set('n', '<leader>gj', function()
         if vim.wo.diff then return ']c' end
         vim.schedule(function() gs.next_hunk() end)
         return '<Ignore>'
-      end, {
-        buffer = bufnr,
-        expr = true,
-        desc = 'Jump to next hunk',
-      })
+      end, { buffer = bufnr, expr = true, desc = 'Next hunk' })
 
-      vim.keymap.set('n', '<leader>hk', function()
+      vim.keymap.set('n', '<leader>gk', function()
         if vim.wo.diff then return '[c' end
         vim.schedule(function() gs.prev_hunk() end)
         return '<Ignore>'
-      end, {
-        buffer = bufnr,
-        expr = true,
-        desc = 'Jump to previous hunk',
-      })
+      end, { buffer = bufnr, expr = true, desc = 'Previous hunk' })
 
-      -- Actions
-      -- Stage hunk under cursor
-      vim.keymap.set({ 'n', 'v' }, '<leader>hs', gs.stage_hunk, {
-        buffer = bufnr,
-        desc = 'Stage Hunk Under Cursor',
-      })
+      -- Stage / reset
+      map({ 'n', 'v' }, '<leader>gs', gs.stage_hunk, 'Stage hunk')
+      map('n', '<leader>gS', gs.stage_buffer, 'Stage buffer')
+      map('n', '<leader>gu', gs.undo_stage_hunk, 'Undo stage hunk')
+      map({ 'n', 'v' }, '<leader>gr', gs.reset_hunk, 'Reset hunk')
+      map('n', '<leader>gR', gs.reset_buffer, 'Reset buffer')
 
-      -- Stage entire buffer
-      vim.keymap.set('n', '<leader>hS', function() gs.stage_buffer() end, {
-        buffer = bufnr,
-        desc = 'Stage Entire Buffer',
-      })
+      -- Inspect
+      map('n', '<leader>gp', gs.preview_hunk, 'Preview hunk')
+      map('n', '<leader>gb', function() gs.blame_line({ full = true }) end, 'Blame line')
+      map('n', '<leader>gtb', gs.toggle_current_line_blame, 'Toggle line blame')
+      map('n', '<leader>gtd', gs.toggle_deleted, 'Toggle deleted lines')
 
-      -- Undo last staged hunk
-      vim.keymap.set('n', '<leader>hu', gs.undo_stage_hunk, {
-        buffer = bufnr,
-        desc = 'Undo Stage Hunk',
-      })
-
-      -- Reset hunk under cursor
-      vim.keymap.set({ 'n', 'v' }, '<leader>hr', gs.reset_hunk, {
-        buffer = bufnr,
-        desc = 'Reset Hunk Under Cursor',
-      })
-
-      -- Reset entire buffer
-      vim.keymap.set('n', '<leader>hR', function() gs.reset_buffer() end, {
-        buffer = bufnr,
-        desc = 'Reset Entire Buffer',
-      })
-
-      -- Preview hunk inline
-      vim.keymap.set('n', '<leader>hp', gs.preview_hunk, {
-        buffer = bufnr,
-        desc = 'Preview Hunk Under Cursor',
-      })
-
-      -- Blame line
-      vim.keymap.set(
-        'n',
-        '<leader>hb',
-        function()
-          gs.blame_line({
-            full = true,
-          })
-        end,
-        {
-          buffer = bufnr,
-          desc = 'Blame Line',
-        }
-      )
-
-      -- Toggle line blame
-      vim.keymap.set('n', '<leader>htb', gs.toggle_current_line_blame, {
-        buffer = bufnr,
-        desc = 'Toggle Line Blame',
-      })
-
-      -- Toggle deleted lines
-      vim.keymap.set('n', '<leader>htd', gs.toggle_deleted, {
-        buffer = bufnr,
-        desc = 'Toggle Deleted Lines',
-      })
-
-      -- Diff operations
-      vim.keymap.set('n', '<leader>hd', function() gs.diffthis() end, {
-        buffer = bufnr,
-        desc = 'Diff Hunk Under Cursor',
-      })
-
-      vim.keymap.set('n', '<leader>hD', function() gs.diffthis('~') end, {
-        buffer = bufnr,
-        desc = 'Diff Hunk Under Cursor (against index)',
-      })
+      -- Diff
+      map('n', '<leader>gd', function() gs.diffthis() end, 'Diff hunk')
+      map('n', '<leader>gD', function() gs.diffthis('~') end, 'Diff hunk against index')
     end,
   },
-  config = function()
-    -- Setup gitsigns first
-    require('gitsigns').setup()
+  config = function(_, opts)
+    require('gitsigns').setup(opts)
   end,
 }

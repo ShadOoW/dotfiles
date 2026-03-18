@@ -51,6 +51,7 @@ return {
     })
   end,
   keys = {
-    { '<leader>cd', '<cmd>DiffviewOpen<cr>', desc = 'Diffview open' },
+    { '<leader>gv', '<cmd>DiffviewOpen<cr>', desc = 'Open diffview' },
+    { '<leader>gV', '<cmd>DiffviewFileHistory %<cr>', desc = 'File history (diffview)' },
   },
 }

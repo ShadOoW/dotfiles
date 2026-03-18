@@ -78,30 +78,16 @@ keymap.n('<leader>bA', function()
   end
   if n > 0 then notify.info('Buffers', 'Closed ' .. n) end
 end, 'Close all file buffers')
-keymap.n('<leader>bq', function()
+keymap.n('<leader>xb', function()
   local qf = {}
-  for _, b in
-    ipairs(vim.fn.getbufinfo({
-      buflisted = 1,
-    }))
-  do
-    if b.name and b.name ~= '' then table.insert(qf, {
-      filename = b.name,
-      lnum = b.lnum or 1,
-    }) end
+  for _, b in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
+    if b.name and b.name ~= '' then
+      table.insert(qf, { filename = b.name, lnum = b.lnum or 1 })
+    end
   end
   vim.fn.setqflist(qf)
-  _G.buffer_list_panel = true
-  require('trouble').open({
-    mode = 'qflist',
-    win = {
-      position = 'right',
-      size = {
-        width = 40,
-      },
-    },
-  })
-end, 'Buffer list')
+  require('trouble').open({ mode = 'qflist', win = { position = 'right', size = { width = 40 } } })
+end, 'Buffer list (trouble)')
 
 -- F2: Toggle current buffer in/out of quickfix list, open panel if closed
 local function toggle_buffer_in_qflist()
@@ -238,10 +224,7 @@ local function tsc_check()
 
       vim.schedule(function()
         vim.fn.setqflist(items, 'r')
-        require('trouble').close()
-        vim.defer_fn(function()
-          require('trouble').open('qflist')
-        end, 10)
+        require('plugins.ui.panel-manager').open('trouble')
 
         if #items > 0 then
           notify.info('TypeScript', string.format('Found %d issues', #items))
@@ -253,7 +236,7 @@ local function tsc_check()
   }):start()
 end
 
-keymap.n('<leader>xw', tsc_check, 'TypeScript project check')
+keymap.n('<leader>xW', tsc_check, 'TypeScript: run project check (tsc --noEmit)')
 
 -- Quick diagnostic navigation (IntelliJ-style)
 keymap.n('[d', vim.diagnostic.goto_prev, 'Previous diagnostic')
@@ -306,89 +289,6 @@ end, 'Move tab to position')
 keymap.n('<leader><Up>', '<cmd>tabnext<cr>', 'Next tab')
 keymap.n('<leader><Down>', '<cmd>tabprevious<cr>', 'Previous tab')
 
--- Modern Web Development Keymaps
-
--- Web Development Utility Functions
-keymap.n('<leader>wf', function()
-  -- Format current buffer with web-specific formatter
-  local ft = vim.bo.filetype
-  if vim.tbl_contains({ 'html', 'css', 'javascript', 'typescript' }, ft) then
-    require('conform').format({
-      async = true,
-    })
-  else
-    notify.warn('Web Development', 'Not a web file type')
-  end
-end, 'Format web file')
-
--- Toggle embedded language highlighting
-keymap.n('<leader>we', function()
-  if vim.bo.filetype == 'html' then
-    -- Toggle highlighting for embedded JS/CSS
-    vim.cmd('syntax sync fromstart')
-    notify.info('Web Development', 'Refreshed embedded language highlighting')
-  end
-end, 'Refresh embedded language highlighting')
-
--- Quick tag wrapping
-keymap.v('<leader>wt', function()
-  local tag = vim.fn.input('Tag name: ')
-  if tag ~= '' then vim.cmd(string.format('\'<,\'>s/\\%V\\(.*\\)\\%V/<' .. tag .. '>\\1<\\/' .. tag .. '>/')) end
-end, 'Wrap selection with HTML tag')
-
--- Live server toggle (if live-server is installed)
-keymap.n('<leader>wl', function()
-  local cwd = vim.fn.getcwd()
-  vim.fn.jobstart({ 'live-server', cwd }, {
-    detach = true,
-    on_exit = function() notify.info('Live Server', 'Server stopped') end,
-  })
-  notify.info('Live Server', 'Started for: ' .. cwd)
-end, 'Start live server')
-
--- Open in browser
-keymap.n('<leader>wo', function()
-  local filepath = vim.fn.expand('%:p')
-  if vim.bo.filetype == 'html' then
-    if vim.fn.has('mac') == 1 then
-      vim.fn.jobstart({ 'open', filepath }, {
-        detach = true,
-      })
-    elseif vim.fn.has('unix') == 1 then
-      vim.fn.jobstart({ 'xdg-open', filepath }, {
-        detach = true,
-      })
-    end
-    notify.info('Web Development', 'Opened in browser: ' .. vim.fn.expand('%:t'))
-  else
-    notify.warn('Web Development', 'Not an HTML file')
-  end
-end, 'Open HTML file in browser')
-
--- Tailwind utilities
-keymap.n('<leader>wT', function()
-  -- Sort Tailwind classes in current line
-  local line = vim.api.nvim_get_current_line()
-  local cursor_pos = vim.api.nvim_win_get_cursor(0)
-
-  -- Simple Tailwind class sorting (basic implementation)
-  local sorted_line = line:gsub('class="([^"]*)"', function(classes)
-    local class_list = vim.split(classes, '%s+')
-    table.sort(class_list)
-    return 'class="' .. table.concat(class_list, ' ') .. '"'
-  end)
-
-  vim.api.nvim_set_current_line(sorted_line)
-  vim.api.nvim_win_set_cursor(0, cursor_pos)
-end, 'Sort Tailwind classes')
-
--- Quick console.log for debugging
-keymap.n('<leader>wL', function()
-  local word = vim.fn.expand('<cword>')
-  local log_line = string.format('console.log(\'%s:\', %s);', word, word)
-  vim.api.nvim_put({ log_line }, 'l', true, true)
-end, 'Insert console.log for word under cursor')
-
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Navigation Category - g + Arrow Keys
 -- ═══════════════════════════════════════════════════════════════════════════════
@@ -403,6 +303,7 @@ keymap.n('gl', '<C-i>', 'Next cursor position (jumplist)')
 
 -- LSP Navigation with g + special keys
 keymap.n('gd', function() vim.lsp.buf.definition() end, 'Go to definition')
+keymap.n('gi', function() vim.lsp.buf.implementation() end, 'Go to implementation')
 keymap.n('gt', function() vim.lsp.buf.type_definition() end, 'Go to type definition')
 
 -- Code actions and rename

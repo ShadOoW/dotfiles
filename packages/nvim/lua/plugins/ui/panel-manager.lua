@@ -35,6 +35,17 @@ function M.open(ft)
   _opening = nil
 end
 
+-- Like open(), but uses a custom open function instead of the registered one.
+-- Useful for panels with multiple modes (e.g. trouble: diagnostics, loclist, …)
+function M.open_with(ft, open_fn)
+  if not M.panels[ft] then return end
+
+  _opening = ft
+  close_others(ft)
+  pcall(open_fn)
+  _opening = nil
+end
+
 -- Toggle a panel
 function M.toggle(ft)
   local panel = M.panels[ft]

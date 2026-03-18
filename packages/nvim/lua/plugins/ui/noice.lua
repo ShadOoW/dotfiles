@@ -470,29 +470,10 @@ return {
     -- Setup noice-specific keybindings
     local keymap = require('utils.keymap')
 
-    -- Notification panel keybindings (defer scroll so it runs after noice's zt)
-    local function toggle_notification_panel()
-      local noice_win = nil
-      for _, win in ipairs(vim.api.nvim_list_wins()) do
-        if vim.api.nvim_win_is_valid(win) then
-          local buf = vim.api.nvim_win_get_buf(win)
-          if vim.bo[buf].filetype == 'noice' then
-            local config = vim.api.nvim_win_get_config(win)
-            if config and (config.relative == '' or config.relative == nil) then
-              noice_win = win
-              break
-            end
-          end
-        end
-      end
-      if noice_win then
-        vim.api.nvim_win_close(noice_win, true)
-      else
-        require('noice').cmd('history')
-        vim.defer_fn(scroll_noice_panel, 150)
-      end
-    end
-    keymap.n('<F1>', toggle_notification_panel, 'Toggle notification panel')
+    -- Route through panel-manager so competing panels close when noice opens
+    keymap.n('<F1>', function()
+      require('plugins.ui.panel-manager').toggle('noice')
+    end, 'Toggle notification panel')
 
     -- Auto-refresh lualine when notifications change
     local notify_group = vim.api.nvim_create_augroup('NoiceNotifyUpdate', {

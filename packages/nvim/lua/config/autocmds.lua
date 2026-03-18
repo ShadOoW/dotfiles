@@ -29,7 +29,7 @@ vim.api.nvim_create_autocmd('FileType', {
       'DiffviewFileHistory', -- Diffview history
       'Outline', -- Symbol outline
       'TelescopePrompt', -- Telescope
-      'Trouble', -- Diagnostics
+      'trouble', -- Diagnostics
       'sagaoutline', -- LSP Saga outline
     }
 
@@ -63,7 +63,7 @@ vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
   desc = 'Detect TSX/JSX file types',
 })
 
--- Set custom buffer name for Buffer list panel (opened via <leader>bq)
+-- Set custom buffer name for Buffer list panel (opened via <leader>xb)
 -- Use FileType so filetype is guaranteed to be set (BufWinEnter can fire before)
 vim.api.nvim_create_autocmd('FileType', {
   group = panel_group,
@@ -251,7 +251,7 @@ vim.api.nvim_create_autocmd({ 'WinEnter', 'BufEnter' }, {
       local skip_winbar = buftype == 'terminal'
         or buftype == 'help'
         or ft == 'qf'
-        or ft == 'Trouble'
+        or ft == 'trouble'
         or ft == 'lazy'
         or ft == 'mason'
         or ft == 'notify'

@@ -83,7 +83,7 @@ return {
           'noice',
           'alpha',
           'dashboard',
-          'Trouble',
+          'trouble',
           'lir',
           'Outline',
           'spectre_panel',

@@ -1,99 +1,29 @@
+-- When trouble is already open, let it handle mode-switching/closing itself.
+-- When trouble is closed, open via panel-manager so competing panels (noice,
+-- output-panel) are closed first.
+local function trouble_toggle(mode)
+  local trouble = require('trouble')
+  if trouble.is_open() then
+    trouble.toggle(mode)
+  else
+    require('plugins.ui.panel-manager').open_with('trouble', function()
+      trouble.open(mode)
+    end)
+  end
+end
+
 return {
   'folke/trouble.nvim',
   dependencies = { 'nvim-tree/nvim-web-devicons' },
   event = { 'BufReadPost', 'BufNewFile' },
   cmd = { 'Trouble' },
-  keys = function()
-    local panel_manager = require('utils.panel-manager')
-
-    -- Create trouble panel configurations
-    local trouble_panels = {
-      diagnostics = {
-        open = function(opts) require('trouble').open('diagnostics', opts) end,
-        toggle = function(opts) require('trouble').toggle('diagnostics', opts) end,
-        close = function() require('trouble').close() end,
-        is_open = function() return require('trouble').is_open() end,
-        global_var = 'current_trouble_mode',
-        refresh_cmd = 'redrawstatus',
-      },
-      loclist = {
-        open = function(opts) require('trouble').open('loclist', opts) end,
-        toggle = function(opts) require('trouble').toggle('loclist', opts) end,
-        close = function() require('trouble').close() end,
-        is_open = function() return require('trouble').is_open() end,
-        global_var = 'current_trouble_mode',
-        refresh_cmd = 'redrawstatus',
-      },
-      qflist = {
-        open = function(opts) require('trouble').open('qflist', opts) end,
-        toggle = function(opts) require('trouble').toggle('qflist', opts) end,
-        close = function() require('trouble').close() end,
-        is_open = function() return require('trouble').is_open() end,
-        global_var = 'current_trouble_mode',
-        refresh_cmd = 'redrawstatus',
-      },
-      lsp_references = {
-        open = function(opts) require('trouble').open('lsp_references', opts) end,
-        toggle = function(opts) require('trouble').toggle('lsp_references', opts) end,
-        close = function() require('trouble').close() end,
-        is_open = function() return require('trouble').is_open() end,
-        global_var = 'current_trouble_mode',
-        refresh_cmd = 'redrawstatus',
-      },
-      symbols = {
-        open = function(opts) require('trouble').open('symbols', opts) end,
-        toggle = function(opts) require('trouble').toggle('symbols', opts) end,
-        close = function() require('trouble').close() end,
-        is_open = function() return require('trouble').is_open() end,
-        global_var = 'current_trouble_mode',
-        refresh_cmd = 'redrawstatus',
-      },
-      lsp_document_symbols = {
-        open = function(opts) require('trouble').open('lsp_document_symbols', opts) end,
-        toggle = function(opts) require('trouble').toggle('lsp_document_symbols', opts) end,
-        close = function() require('trouble').close() end,
-        is_open = function() return require('trouble').is_open() end,
-        global_var = 'current_trouble_mode',
-        refresh_cmd = 'redrawstatus',
-      },
-    }
-
-    -- Create exclusive panel manager
-    local trouble_manager = panel_manager.create_exclusive_group('trouble', trouble_panels)
-
-    return {
-      {
-        '<leader>xl',
-        trouble_manager.keymap('loclist'),
-        desc = 'Trouble - Location list',
-      },
-      {
-        '<leader>xc',
-        trouble_manager.keymap('qflist'),
-        desc = 'Trouble - Quickfix list',
-      },
-      {
-        '<leader>xr',
-        trouble_manager.keymap('lsp_references'),
-        desc = 'Trouble - LSP references',
-      },
-      {
-        '<F10>',
-        trouble_manager.keymap('diagnostics'),
-        desc = 'Trouble - Toggle diagnostics',
-      },
-      {
-        '<leader>xs',
-        trouble_manager.keymap('symbols'),
-        desc = 'Trouble - Symbols',
-      },
-      {
-        '<leader>xS',
-        trouble_manager.keymap('lsp_document_symbols'),
-        desc = 'Trouble - Document symbols',
-      },
-    }
-  end,
+  keys = {
+    { '<F10>', function() trouble_toggle('diagnostics') end, desc = 'Trouble - Diagnostics' },
+    { '<leader>xl', function() trouble_toggle('loclist') end, desc = 'Trouble - Location list' },
+    { '<leader>xr', function() trouble_toggle('lsp_references') end, desc = 'Trouble - LSP references' },
+    { '<leader>xs', function() trouble_toggle('symbols') end, desc = 'Trouble - Symbols' },
+    { '<leader>xS', function() trouble_toggle('lsp_document_symbols') end, desc = 'Trouble - Document symbols' },
+  },
   opts = {
     modes = {
       qflist = {
@@ -166,10 +96,7 @@ return {
       ['[['] = 'prev',
       [']]'] = 'next',
       ['dd'] = 'delete',
-      ['d'] = {
-        action = 'delete',
-        mode = 'v',
-      },
+      ['d'] = { action = 'delete', mode = 'v' },
       ['i'] = 'inspect',
       ['p'] = 'preview',
       ['P'] = 'toggle_preview',
@@ -233,12 +160,9 @@ return {
   config = function(_, opts)
     require('trouble').setup(opts)
 
-    -- Initialize global trouble mode tracking
-    _G.current_trouble_mode = nil
-
-    -- Create an autocommand to track the current trouble mode
+    -- Track current trouble mode for lualine display
     vim.api.nvim_create_autocmd('FileType', {
-      pattern = 'Trouble',
+      pattern = 'trouble',
       callback = function()
         local view = require('trouble.view')
         if view and view.current then _G.current_trouble_mode = view.current.mode end

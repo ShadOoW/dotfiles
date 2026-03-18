@@ -59,8 +59,6 @@ return {
         'dapui_breakpoints',
         'dapui_scopes',
         'dap-repl',
-        'panel-manager',
-        'exclusive-panel',
       }
 
       local problematic_buftypes = { 'help', 'quickfix', 'terminal', 'prompt', 'nofile', 'acwrite' }

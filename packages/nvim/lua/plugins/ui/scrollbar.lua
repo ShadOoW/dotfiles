@@ -168,7 +168,7 @@ return {
         'prompt',
         'TelescopePrompt',
         'TelescopeResults',
-        'Trouble',
+        'trouble',
       },
       autocmd = {
         render = {

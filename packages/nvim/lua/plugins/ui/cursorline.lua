@@ -14,7 +14,7 @@ return {
         'NvimTree',
         'lazy',
         'neogitstatus',
-        'Trouble',
+        'trouble',
         'lir',
         'Outline',
         'spectre_panel',
