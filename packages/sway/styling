@@ -1,6 +1,3 @@
-# Output configuration
-output * bg ./wallpaper.jpg fill
-
 # Set font (affects titlebars and waybar if using Swaybar)
 font pango:JetBrains Mono Nerd Font 10
 

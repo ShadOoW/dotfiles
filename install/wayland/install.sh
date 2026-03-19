@@ -31,6 +31,9 @@ wayland_packages=(
 
     # Appearance
     nwg-look
+
+    # Wallpaper
+    mpvpaper
 )
 
 # Source global functions
