@@ -37,6 +37,39 @@ cf() {
   echo "Copied '$1' to clipboard."
 }
 
+copyimg() {
+  emulate -L zsh
+
+  local file="$1"
+  local tmp
+  tmp=$(mktemp /tmp/clip-XXXXXX.png) || return 1
+
+  # Always cleanup
+  trap 'rm -f "$tmp"' EXIT INT TERM
+
+  # If file provided → copy it
+  if [[ -n "$file" ]]; then
+    [[ ! -f "$file" ]] && { echo "❌ File not found: $file"; return 1; }
+
+    # Validate it's an image
+    if ! file --mime-type -b "$file" | grep -q '^image/'; then
+      echo "❌ Not an image: $file"
+      return 1
+    fi
+
+    wl-copy < "$file" || { echo "❌ Failed to copy to clipboard"; return 1; }
+  fi
+
+  # Ensure clipboard actually contains an image
+  if ! wl-paste --type image/png > "$tmp" 2>/dev/null; then
+    echo "❌ Clipboard does not contain an image"
+    return 1
+  fi
+
+  # Preview (allow override via $IMG_VIEWER)
+  ${IMG_VIEWER:-feh} "$tmp"
+}
+
 # Function to use fzf with ripdrag
 zdrag() {
   ripdrag "$(fzf)"
