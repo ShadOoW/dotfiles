@@ -174,10 +174,9 @@ bindsym --locked {
     XF86MonBrightnessUp exec brightnessctl set 5%+
 }
 
-# Window screenshot with sway-screenshot (saves to ~/Pictures with timestamp)
-bindsym Print exec sway-screenshot -m region -o ~/Pictures -f "screenshot-$(date +%Y%m%d-%H%M%S).png"
-bindsym $mod+p exec sway-screenshot -m window -o ~/Pictures -f "screenshot-$(date +%Y%m%d-%H%M%S).png"
-bindsym $mod+Shift+p exec sway-screenshot -m output -o ~/Pictures -f "screenshot-$(date +%Y%m%d-%H%M%S).png"
+# Window screenshot (saves to ~/Pictures with timestamp and copies to clipboard)
+bindsym Print exec grim -g "$(slurp)" - | tee ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png | wl-copy
+bindsym $mod+p exec grim -g "$(swaymsg -t get_tree | jq -r '.. | select(.pid? and .visible?) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' | slurp)" - | tee ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png | wl-copy
 
 # Lock screen
 bindsym $mod+l exec swaylock
