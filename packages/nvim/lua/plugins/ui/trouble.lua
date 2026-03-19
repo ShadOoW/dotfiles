@@ -1,49 +1,24 @@
--- When trouble is already open, let it handle mode-switching/closing itself.
--- When trouble is closed, open via panel-manager so competing panels (noice,
--- output-panel) are closed first.
-local function trouble_toggle(mode)
-  local trouble = require('trouble')
-  if trouble.is_open() then
-    trouble.toggle(mode)
-  else
-    require('plugins.ui.panel-manager').open_with('trouble', function()
-      trouble.open(mode)
-    end)
-  end
-end
-
 return {
   'folke/trouble.nvim',
   dependencies = { 'nvim-tree/nvim-web-devicons' },
   event = { 'BufReadPost', 'BufNewFile' },
   cmd = { 'Trouble' },
-  keys = {
-    { '<F10>', function() trouble_toggle('diagnostics') end, desc = 'Trouble - Diagnostics' },
-    { '<leader>xl', function() trouble_toggle('loclist') end, desc = 'Trouble - Location list' },
-    { '<leader>xr', function() trouble_toggle('lsp_references') end, desc = 'Trouble - LSP references' },
-    { '<leader>xs', function() trouble_toggle('symbols') end, desc = 'Trouble - Symbols' },
-    { '<leader>xS', function() trouble_toggle('lsp_document_symbols') end, desc = 'Trouble - Document symbols' },
-  },
   opts = {
     modes = {
+      -- Shows only the most severe diagnostic level present.
+      -- As errors are fixed, warnings surface automatically.
+      cascade = {
+        mode = 'diagnostics',
+        filter = function(items)
+          local severity = vim.diagnostic.severity.HINT
+          for _, item in ipairs(items) do
+            severity = math.min(severity, item.severity)
+          end
+          return vim.tbl_filter(function(i) return i.severity == severity end, items)
+        end,
+      },
       qflist = {
         follow = false,
-      },
-      preview_float = {
-        mode = 'diagnostics',
-        preview = {
-          type = 'float',
-          relative = 'editor',
-          border = 'rounded',
-          title = 'Preview',
-          title_pos = 'center',
-          position = { 0, -2 },
-          size = {
-            width = 0.3,
-            height = 0.3,
-          },
-          zindex = 200,
-        },
       },
     },
     auto_close = false,
@@ -57,9 +32,7 @@ return {
     multiline = true,
     pinned = false,
     win = {
-      size = {
-        height = 12,
-      },
+      size = { height = 12 },
       border = 'rounded',
     },
     preview = {
@@ -71,16 +44,11 @@ return {
       update = 10,
       render = 10,
       follow = 100,
-      preview = {
-        ms = 100,
-        debounce = true,
-      },
+      preview = { ms = 100, debounce = true },
     },
-    actions = {},
     keys = {
       ['?'] = 'help',
       ['r'] = 'refresh',
-      ['R'] = 'toggle_refresh',
       ['q'] = 'close',
       ['<esc>'] = 'cancel',
       ['<cr>'] = 'jump',
@@ -95,8 +63,6 @@ return {
       ['{'] = 'prev',
       ['[['] = 'prev',
       [']]'] = 'next',
-      ['dd'] = 'delete',
-      ['d'] = { action = 'delete', mode = 'v' },
       ['i'] = 'inspect',
       ['p'] = 'preview',
       ['P'] = 'toggle_preview',
@@ -110,11 +76,21 @@ return {
       ['zM'] = 'fold_close_all',
       ['zr'] = 'fold_reduce',
       ['zR'] = 'fold_open_all',
-      ['zx'] = 'fold_update',
-      ['zX'] = 'fold_update_all',
-      ['zn'] = 'fold_disable',
-      ['zN'] = 'fold_enable',
-      ['zi'] = 'fold_toggle_enable',
+      -- Cycle severity filter: all → error → warn → all
+      ['s'] = {
+        action = function(view)
+          local f = view:get_filter('severity')
+          local current = f and f.filter.severity
+          if not current then
+            view:filter({ severity = vim.diagnostic.severity.ERROR }, { id = 'severity' })
+          elseif current == vim.diagnostic.severity.ERROR then
+            view:filter({ severity = vim.diagnostic.severity.WARN }, { id = 'severity' })
+          else
+            view:filter(nil, { id = 'severity', del = true })
+          end
+        end,
+        desc = 'Cycle severity filter (all → error → warn → all)',
+      },
     },
     icons = {
       indent = {

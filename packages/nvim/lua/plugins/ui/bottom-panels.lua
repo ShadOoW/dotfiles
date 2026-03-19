@@ -4,6 +4,23 @@ local function setup()
   local pm = require('plugins.ui.panel-manager')
   local keymap = require('utils.keymap')
 
+  -- Open trouble in a given mode, routing through the panel-manager so competing
+  -- panels (noice, output-panel, etc.) are closed first.
+  -- For diagnostic modes, also trigger lazy workspace-diagnostics population so
+  -- the panel shows project-wide errors, not just currently-open buffers.
+  local function trouble_toggle(mode)
+    local trouble = require('trouble')
+    local is_diag_mode = mode == 'cascade' or mode == 'diagnostics'
+    if is_diag_mode then
+      require('lsp.handlers').populate_workspace_diagnostics_for_buf()
+    end
+    if trouble.is_open() then
+      trouble.toggle({ mode = mode })
+    else
+      pm.open_with('trouble', function() trouble.open({ mode = mode }) end)
+    end
+  end
+
   -- Find a non-floating (split) window showing the given filetype.
   local function find_split_win(ft)
     for _, win in ipairs(vim.api.nvim_list_wins()) do
@@ -25,36 +42,12 @@ local function setup()
   end
 
   -- ── Noice panel ─────────────────────────────────────────────────────────────
-  -- We bypass noice.cmd('history') for re-opens: once the noice buffer exists we
-  -- open it manually so the view always (re)appears even after a manual close.
+  -- Always delegate to noice.cmd('history') — noice manages its own split and
+  -- refreshes content on every call.
   pm.register({
     ft = 'noice',
     open = function()
-      -- Find the existing noice buffer (may be hidden after a previous close)
-      local noice_buf = nil
-      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-        if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == 'noice' then
-          noice_buf = buf
-          break
-        end
-      end
-
-      if noice_buf then
-        -- Re-open in a bottom split without stealing focus (nvim_open_win enter=false)
-        local win = vim.api.nvim_open_win(noice_buf, false, {
-          split = 'below',
-          height = 12,
-        })
-        vim.wo[win].number = false
-        vim.wo[win].relativenumber = false
-        vim.wo[win].signcolumn = 'no'
-        vim.wo[win].wrap = true
-        vim.wo[win].winbar = ''
-        vim.wo[win].winhighlight = 'Normal:NoiceSplit,FloatBorder:NoiceSplitBorder'
-      else
-        -- First ever open — let noice create the buffer via its history command
-        require('noice').cmd('history')
-      end
+      require('noice').cmd('history')
     end,
     close = function()
       local win = find_split_win('noice')
@@ -66,7 +59,7 @@ local function setup()
   -- ── Trouble panel ────────────────────────────────────────────────────────────
   pm.register({
     ft = 'trouble',
-    open = function() require('trouble').open('qflist') end,
+    open = function() require('trouble').open({ mode = 'cascade' }) end,
     close = function() require('trouble').close() end,
     is_open = function() return require('trouble').is_open() end,
   })
@@ -345,12 +338,16 @@ local function setup()
     end,
   })
 
-  keymap.n('<leader>xn', function() pm.toggle('noice') end, 'Toggle notification panel')
-  keymap.n('<leader>xw', function() pm.toggle('trouble') end, 'Toggle workspace diagnostics panel')
-  keymap.n('<leader>xo', function() pm.toggle('outputpanel') end, 'Toggle LSP output panel')
-  keymap.n('<leader>xt', function() pm.toggle('toggleterm') end, 'Toggle terminal')
-  keymap.n('<leader>xL', function() pm.toggle('lspstatus') end, 'Toggle LSP status panel')
-  keymap.n('<leader>xX', function() pm.close_all() end, 'Close all bottom panels')
+  -- ── Panel keybindings (<leader>x = panels only) ──────────────────────────────
+  -- Trouble panels
+  keymap.n('<leader>xd', function() trouble_toggle('cascade') end, 'Diagnostics panel')
+  keymap.n('<leader>xq', function() trouble_toggle('qflist') end, 'Quickfix panel')
+  keymap.n('<leader>xs', function() trouble_toggle('symbols') end, 'Symbols panel')
+  -- Other panels
+  keymap.n('<leader>xn', function() pm.toggle('noice') end, 'Notifications panel')
+  keymap.n('<leader>xo', function() pm.toggle('outputpanel') end, 'LSP output panel')
+  keymap.n('<leader>xt', function() pm.toggle('toggleterm') end, 'Terminal panel')
+  keymap.n('<leader>xl', function() pm.toggle('lspstatus') end, 'LSP status panel')
 end
 
 return { setup = setup }

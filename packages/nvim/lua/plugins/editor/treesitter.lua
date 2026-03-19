@@ -183,7 +183,6 @@ return {
   },
 
   config = function(_, opts)
-    local notify = require('utils.notify')
     require('nvim-treesitter').setup(opts)
 
     -- Configure treesitter context
@@ -199,6 +198,18 @@ return {
       zindex = 20,
       on_attach = nil,
     })
+
+    -- The buffer that triggered this load (BufReadPost) had its FileType
+    -- event fire *before* nvim-treesitter was available, so treesitter's
+    -- FileType handler was never called for it.  Re-fire FileType now so
+    -- nvim-treesitter's handler picks it up via its own parser-path machinery.
+    vim.schedule(function()
+      local buf = vim.api.nvim_get_current_buf()
+      if vim.bo[buf].filetype == '' then return end
+      local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
+      if ok and stats and stats.size > 100 * 1024 then return end
+      vim.api.nvim_exec_autocmds('FileType', { buffer = buf, modeline = false })
+    end)
 
     -- Configure autotag with new API
     require('nvim-ts-autotag').setup({

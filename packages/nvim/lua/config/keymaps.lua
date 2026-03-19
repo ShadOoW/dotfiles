@@ -96,16 +96,6 @@ keymap.n('<leader>bA', function()
   if n > 0 then notify.info('Buffers', 'Closed ' .. n .. ' buffer(s)') end
   if skipped > 0 then notify.warn('Buffers', skipped .. ' modified buffer(s) not closed') end
 end, 'Close all file buffers')
-keymap.n('<leader>xb', function()
-  local qf = {}
-  for _, b in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
-    if b.name and b.name ~= '' then
-      table.insert(qf, { filename = b.name, lnum = b.lnum or 1 })
-    end
-  end
-  vim.fn.setqflist(qf)
-  require('trouble').open({ mode = 'qflist', win = { position = 'right', size = { width = 40 } } })
-end, 'Buffer list (trouble)')
 
 -- F2: Toggle current buffer in/out of quickfix list, open panel if closed
 local function toggle_buffer_in_qflist()
@@ -199,84 +189,12 @@ keymap.n('<leader>ep', function()
   if tmux.is_tmux() then tmux.setup_project_workflow() end
 end, 'Setup project workflow')
 
--- Basic diagnostic keymaps
-keymap.n('<leader>xq', vim.diagnostic.setloclist, 'Open diagnostic quickfix list')
-
--- TypeScript project-wide check
-local function tsc_check()
-  local project_root = vim.fn.getcwd()
-  local tsconfig = project_root .. '/tsconfig.json'
-
-  if vim.fn.filereadable(tsconfig) == 0 then
-    notify.warn('TypeScript', 'No tsconfig.json found')
-    return
-  end
-
-  notify.info('TypeScript', 'Running tsc --noEmit...')
-
-  local Job = require('plenary.job')
-  Job:new({
-    command = 'npx',
-    args = { 'tsc', '--noEmit', '--pretty', 'false' },
-    cwd = project_root,
-    on_exit = function(job, _)
-      local output = job:result()
-      local stderr = job:stderr_result()
-
-      if stderr and #stderr > 0 then vim.list_extend(output, stderr) end
-
-      local items = {}
-      for _, line in ipairs(output) do
-        local file, lnum, col, severity, code, message = line:match('(.+)%((%d+),(%d+)%): (%w+) (TS%d+): (.+)')
-        if file and lnum and col and message then
-          local filepath = vim.fn.fnamemodify(project_root .. '/' .. file, ':p')
-          table.insert(items, {
-            filename = filepath,
-            lnum = tonumber(lnum),
-            col = tonumber(col),
-            text = string.format('[%s] %s', code, message),
-            type = severity == 'error' and 'E' or 'W',
-          })
-        end
-      end
-
-      vim.schedule(function()
-        vim.fn.setqflist(items, 'r')
-        require('plugins.ui.panel-manager').open('trouble')
-
-        if #items > 0 then
-          notify.info('TypeScript', string.format('Found %d issues', #items))
-        else
-          notify.success('TypeScript', 'No errors found')
-        end
-      end)
-    end,
-  }):start()
-end
-
-keymap.n('<leader>xW', tsc_check, 'TypeScript: run project check (tsc --noEmit)')
-
 -- Quick diagnostic navigation (IntelliJ-style)
-keymap.n('[d', vim.diagnostic.goto_prev, 'Previous diagnostic')
-keymap.n(']d', vim.diagnostic.goto_next, 'Next diagnostic')
-keymap.n(
-  '[e',
-  function()
-    vim.diagnostic.goto_prev({
-      severity = vim.diagnostic.severity.ERROR,
-    })
-  end,
-  'Previous error'
-)
-keymap.n(
-  ']e',
-  function()
-    vim.diagnostic.goto_next({
-      severity = vim.diagnostic.severity.ERROR,
-    })
-  end,
-  'Next error'
-)
+keymap.n('[d', function() vim.diagnostic.goto_prev() vim.schedule(function() vim.cmd('normal! zz') end) end, 'Previous diagnostic')
+keymap.n(']d', function() vim.diagnostic.goto_next() vim.schedule(function() vim.cmd('normal! zz') end) end, 'Next diagnostic')
+keymap.n('[e', function() vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR }) vim.schedule(function() vim.cmd('normal! zz') end) end, 'Previous error')
+keymap.n(']e', function() vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR }) vim.schedule(function() vim.cmd('normal! zz') end) end, 'Next error')
+keymap.n('<leader>cd', function() vim.diagnostic.open_float() end, 'Show diagnostic float')
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Tab Management
@@ -354,8 +272,8 @@ keymap.n('<leader>tm[', '<cmd>-tabmove<cr>', 'Move tab left')
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Jumplist navigation
-keymap.n('gh', '<C-o>', 'Previous cursor position (jumplist)')
-keymap.n('gl', '<C-i>', 'Next cursor position (jumplist)')
+keymap.n('gh', '<C-o>zz', 'Previous cursor position (jumplist)')
+keymap.n('gl', '<C-i>zz', 'Next cursor position (jumplist)')
 
 -- LSP Navigation with g + special keys
 keymap.n('gd', function() vim.lsp.buf.definition() end, 'Go to definition')

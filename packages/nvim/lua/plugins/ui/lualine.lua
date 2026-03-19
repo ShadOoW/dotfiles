@@ -40,20 +40,6 @@ return {
       return ' ' .. project_name
     end
 
-    local function get_lsp_status()
-      local clients = vim.lsp.get_clients({
-        bufnr = 0,
-      })
-      if #clients == 0 then return '' end
-
-      local client_names = {}
-      for _, client in pairs(clients) do
-        table.insert(client_names, client.name)
-      end
-
-      return ' ' .. table.concat(client_names, ', ')
-    end
-
     local function get_tag_status()
       local tag_file = vim.fn.expand('%:p:h') .. '/tags'
       if vim.fn.filereadable(tag_file) == 1 then
@@ -90,31 +76,6 @@ return {
       local n = #vim.api.nvim_list_tabpages()
       if n <= 1 then return '' end
       return string.format('󰓩 %d', n)
-    end
-
-    -- Enhanced notification functions with severity filtering
-    local function notification_error_count()
-      -- Check if our notification utilities are available
-      if not _G.notification_utils then return '' end
-
-      local counts = _G.notification_utils.count_by_severity(300) -- Last 5 minutes
-      local error_count = counts.error or 0
-
-      if error_count == 0 then return '' end
-
-      return string.format('E %d', error_count)
-    end
-
-    local function notification_warn_count()
-      -- Check if our notification utilities are available
-      if not _G.notification_utils then return '' end
-
-      local counts = _G.notification_utils.count_by_severity(300) -- Last 5 minutes
-      local warn_count = counts.warn or 0
-
-      if warn_count == 0 then return '' end
-
-      return string.format('W %d', warn_count)
     end
 
     -- Custom theme with improved contrast for better visibility
@@ -244,20 +205,12 @@ return {
           buffer_count,
           tab_count,
           {
-            notification_error_count,
-            color = {
-              fg = '#f38ba8',
-            },
-          },
-          {
-            notification_warn_count,
-            color = {
-              fg = '#f9e2af',
-            },
-          },
-          {
             'branch',
             icon = '',
+            fmt = function(str)
+              if #str > 20 then return str:sub(1, 17) .. '…' end
+              return str
+            end,
           },
           {
             'diff',
@@ -298,9 +251,11 @@ return {
                 -- First check if we have a stored mode globally
                 if _G.current_trouble_mode then
                   local mode_map = {
-                    diagnostics = ' Workspace Problems',
-                    quickfix = ' Quickfix',
+                    cascade = ' Diagnostics',
+                    diagnostics = ' Diagnostics',
+                    qflist = ' Quickfix',
                     loclist = ' Location List',
+                    symbols = ' Symbols',
                     lsp_references = ' References',
                     lsp_definitions = ' Definitions',
                     lsp_type_definitions = ' Type Defs',
@@ -320,9 +275,11 @@ return {
 
                   -- Map trouble modes to display names
                   local mode_map = {
-                    diagnostics = ' Workspace Problems',
-                    quickfix = ' Quickfix',
+                    cascade = ' Diagnostics',
+                    diagnostics = ' Diagnostics',
+                    qflist = ' Quickfix',
                     loclist = ' Location List',
+                    symbols = ' Symbols',
                     lsp_references = ' References',
                     lsp_definitions = ' Definitions',
                     lsp_type_definitions = ' Type Defs',
@@ -342,9 +299,11 @@ return {
                 local trouble_type = buf_name:match('^trouble://([^/]+)')
                 if trouble_type then
                   local type_map = {
-                    diagnostics = ' Workspace Problems',
-                    quickfix = ' Quickfix',
+                    cascade = ' Diagnostics',
+                    diagnostics = ' Diagnostics',
+                    qflist = ' Quickfix',
                     loclist = ' Location List',
+                    symbols = ' Symbols',
                     lsp_references = ' References',
                     lsp_definitions = ' Definitions',
                     lsp_type_definitions = ' Type Defs',
@@ -411,67 +370,31 @@ return {
           },
         },
         lualine_x = {
+          -- LSP progress spinner: shows activity while LSP is working (type-checking,
+          -- indexing, etc.), goes quiet when idle. Replaces static client name list.
           {
-            get_tag_status,
-            color = function()
-              local status = get_tag_status()
-              if status:match('Updating') then
-                return {
-                  fg = '#f9e2af',
-                }
-              else
-                return {
-                  fg = '#a6e3a1',
-                }
-              end
-            end,
-          },
-          {
-            java_version,
-            color = {
-              fg = '#fab387',
+            'lsp_status',
+            symbols = {
+              spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
+              done = '',
             },
-          },
-          {
-            get_lsp_status,
-            color = {
-              fg = '#89b4fa',
-            },
+            color = { fg = '#89b4fa' },
           },
           {
             'diagnostics',
             sources = { 'nvim_diagnostic' },
+            -- Plain ASCII prefixes — Nerd Font v3 glyphs (󰅚 󰀪) render
+            -- as zero-width in many terminals, leaving bare ambiguous numbers.
             symbols = {
-              error = ' ',
-              warn = ' ',
-              info = ' ',
-              hint = ' ',
+              error = 'E:',
+              warn = 'W:',
+              info = 'I:',
+              hint = 'H:',
             },
+            always_visible = false,
           },
         },
         lualine_y = {
-          {
-            'encoding',
-            fmt = function(str) return str:upper() end,
-          },
-          {
-            function()
-              local format = vim.bo.fileformat
-              if format == 'unix' then
-                return ' '
-              elseif format == 'dos' then
-                return ' '
-              elseif format == 'mac' then
-                return ' '
-              else
-                return format
-              end
-            end,
-            color = {
-              fg = '#89b4fa',
-              gui = 'bold',
-            },
-          },
           'filetype',
         },
         lualine_z = { 'progress', 'location' },
