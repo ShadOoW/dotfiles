@@ -5,7 +5,8 @@
     "reload_style_on_change": true,
     "modules-left": [
       "group/audio",
-      "custom/updates"
+      "custom/updates",
+      "custom/claude-code"
     ],
     "modules-center": [
       "sway/workspaces",
@@ -45,7 +46,6 @@
       "custom/recorder",
       "group/connection",
       "group/together",
-      "group/cnoti",
       "tray"
     ],
     "custom/recorder": {
@@ -125,13 +125,7 @@
         "pulseaudio/slider"
       ]
     },
-    "group/cnoti": {
-      "orientation": "inherit",
-      "modules": [
-        "custom/github"
-      ]
-    },
-    "group/connection": {
+"group/connection": {
       "orientation": "inherit",
       "modules": [
         "group/network",
@@ -339,6 +333,14 @@
       "exec": "wttrbar --custom-indicator '{ICON}\n<b>{temp_C}</b>' --location casablanca",
       "return-type": "json"
     },
+    "custom/claude-code": {
+      "format": "{}",
+      "tooltip": true,
+      "interval": 30,
+      "exec": "$HOME/.config/waybar/claude-code.sh",
+      "return-type": "json",
+      "on-click": "$TERMINAL -e claude"
+    },
     "custom/updates": {
       "format": "{}",
       "interval": 10800,
@@ -357,15 +359,7 @@
       "exec": "echo '󰅙\nKill clients using hyrpctl kill'",
       "on-click": "sleep 1 && hyprctl kill"
     },
-    "custom/github": {
-      "format": "{}",
-      "return-type": "json",
-      "interval": 3600,
-      "signal": 9,
-      "exec": "$HOME/.config/waybar/github.sh",
-      "on-click": "xdg-open https://github.com/notifications;pkill -RTMIN+9 waybar"
-    },
-    "idle_inhibitor": {
+"idle_inhibitor": {
       "format": "{icon}",
       "tooltip-format-activated": "Idle Inhibitor is active",
       "tooltip-format-deactivated": "Idle Inhibitor is not active",

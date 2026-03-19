@@ -127,6 +127,25 @@ tooltip label {
   padding-right: 4px;
 }
 
+#custom-claude-code {
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #7dcfff;
+}
+
+#custom-claude-code.claude-mid {
+  color: #e0af68;
+}
+
+#custom-claude-code.claude-high {
+  color: #f7768e;
+}
+
+#custom-claude-code.claude-inactive {
+  color: alpha(#7dcfff, 0.25);
+}
+
 #custom-dmark {
   color: alpha(@foreground, 0.3);
 }
