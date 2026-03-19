@@ -7,8 +7,6 @@ set -euo pipefail
 
 # Define commands: "Name|Command"
 declare -a COMMANDS=(
-    "󰖬 Wiki|qutebrowser --target window --qt-arg name wiki-browser http://localhost:2001 &"
-    " Wiki Dev Environment|~/.config/dotfiles/packages/sway/scripts/start-wiki-dev.sh &"
     " Kill Window|swaymsg kill"
     " System Update|kitty -e sudo pacman -Syu &"
     " Disk Usage|kitty -e ncdu / &"
