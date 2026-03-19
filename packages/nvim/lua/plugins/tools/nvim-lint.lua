@@ -35,11 +35,7 @@ return {
       -- Documentation
       markdown = { 'markdownlint_cli2' },
 
-      -- Web Development
-      javascript = { 'eslint' },
-      typescript = { 'eslint' },
-      javascriptreact = { 'eslint' },
-      typescriptreact = { 'eslint' },
+      -- Web Development: eslint LSP handles diagnostics and code actions
       css = { 'stylelint' },
       scss = { 'stylelint' },
       less = { 'stylelint' },
@@ -47,12 +43,9 @@ return {
       json = { 'jsonlint' },
       yaml = { 'yamllint' },
 
-      -- Python: ruff LSP provides diagnostics + code actions, so nvim-lint is
-      -- not needed here (would produce duplicate diagnostics).
-      -- python = { 'ruff' },
+      -- Python: ruff LSP handles diagnostics and code actions
+      -- Rust: rust-analyzer LSP handles diagnostics
       lua = { 'luacheck' },
-      -- Rust: rust-analyzer (LSP) provides comprehensive diagnostics
-      -- No separate linter needed as rust-analyzer handles all Rust diagnostics
       go = { 'golangcilint' },
 
       -- Shell
@@ -64,8 +57,7 @@ return {
       dockerfile = { 'hadolint' },
       sql = { 'sqlfluff' },
 
-      -- Note: Odin uses OLS (Odin Language Server) for diagnostics
-      -- No separate linter needed as OLS provides comprehensive diagnostics
+      -- Odin: OLS LSP handles diagnostics
     }
 
     -- Custom linter configurations
