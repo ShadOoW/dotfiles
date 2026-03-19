@@ -231,55 +231,10 @@ end, {
   desc = 'Stop LSP client(s)',
 })
 
-vim.api.nvim_create_user_command('LspInfo', function()
-  local clients = vim.lsp.get_clients()
-  if #clients == 0 then
-    notify.info('LSP', 'No clients running')
-    return
-  end
-
-  local buf = vim.api.nvim_get_current_buf()
-  local buf_clients = vim.lsp.get_clients({
-    bufnr = buf,
-  })
-
-  print('=== LSP Client Information ===')
-  print('Buffer: ' .. vim.api.nvim_buf_get_name(buf))
-  print('Filetype: ' .. vim.bo[buf].filetype)
-  print('')
-
-  if #buf_clients > 0 then
-    print('Attached to current buffer:')
-    for _, client in ipairs(buf_clients) do
-      print('  • ' .. client.name .. ' (ID: ' .. client.id .. ')')
-      if client.config.root_dir then print('    Root: ' .. client.config.root_dir) end
-      -- Show capabilities for debugging
-      local caps = client.server_capabilities
-      if client.name == 'cssls' and vim.bo[buf].filetype == 'html' then
-        print('    CSS in HTML capabilities:')
-        print('      - Completion: ' .. tostring(caps.completionProvider and caps.completionProvider ~= nil))
-        print('      - Hover: ' .. tostring(caps.hoverProvider and caps.hoverProvider or false))
-        print('      - Definition: ' .. tostring(caps.definitionProvider and caps.definitionProvider or false))
-      end
-    end
-    print('')
-  else
-    print('No LSP clients attached to current buffer')
-    if vim.bo[buf].filetype == 'html' then
-      print('Expected for HTML: superhtml, tailwindcss')
-    elseif vim.tbl_contains({ 'css', 'scss', 'less' }, vim.bo[buf].filetype) then
-      print('Expected for CSS: cssls')
-    end
-    print('')
-  end
-
-  print('All active clients:')
-  for _, client in ipairs(clients) do
-    local attached = vim.tbl_contains(buf_clients, client) and ' [ATTACHED]' or ''
-    print('  • ' .. client.name .. ' (ID: ' .. client.id .. ')' .. attached)
-  end
+vim.api.nvim_create_user_command('LspStatus', function()
+  require('plugins.ui.panel-manager').toggle('lspstatus')
 end, {
-  desc = 'Show LSP client information',
+  desc = 'Toggle LSP status bottom panel',
 })
 
 -- ===== Buffer Debug Commands =====
@@ -365,54 +320,13 @@ end, {
   desc = 'Manually open Mason (for testing session behavior)',
 })
 
--- ===== LSP Debug Commands =====
+-- ===== LSP Guard Commands =====
 
-vim.api.nvim_create_user_command('LspDebug', function()
-  local buf = vim.api.nvim_get_current_buf()
-  local clients = vim.lsp.get_clients({
-    bufnr = buf,
-  })
-
-  print('=== LSP Debug Information ===')
-  print('Buffer: ' .. vim.api.nvim_buf_get_name(buf))
-  print('Filetype: ' .. vim.bo[buf].filetype)
-  print('Working Directory: ' .. vim.fn.getcwd())
-  print('')
-
-  if #clients == 0 then
-    print('No LSP clients attached to current buffer')
-  else
-    print('Attached clients:')
-    for _, client in ipairs(clients) do
-      print('  • ' .. client.name .. ' (ID: ' .. client.id .. ')')
-      print('    Root: ' .. (client.config.root_dir or 'N/A'))
-      print('    Autostart: ' .. tostring(client.config.autostart))
-      print('    Cmd: ' .. (client.config.cmd and table.concat(client.config.cmd, ' ') or 'N/A'))
-    end
-  end
-
-  print('')
-  print('Deno project check:')
-  local deno_files = { 'deno.json', 'deno.jsonc', 'deps.ts', 'import_map.json' }
-  local is_deno_project = false
-  for _, file in ipairs(deno_files) do
-    local file_path = vim.fn.getcwd() .. '/' .. file
-    if vim.fn.filereadable(file_path) == 1 then
-      print('  ✓ Found: ' .. file)
-      is_deno_project = true
-    end
-  end
-  if not is_deno_project then print('  ✗ No Deno project files found') end
-
-  print('')
-  print('All LSP clients:')
-  local all_clients = vim.lsp.get_clients()
-  for _, client in ipairs(all_clients) do
-    local attached = vim.tbl_contains(clients, client) and ' [ATTACHED]' or ''
-    print('  • ' .. client.name .. ' (ID: ' .. client.id .. ')' .. attached)
-  end
+vim.api.nvim_create_user_command('LspCheckOrphans', function()
+  notify.info('LSP Guard', 'Checking for orphaned mason LSP packages…')
+  require('lsp.guard').check_mason_orphans()
 end, {
-  desc = 'Debug LSP client information and conflicts',
+  desc = 'Check for mason LSP packages installed but not in the server list',
 })
 
 -- Command to force restart LSP for current buffer

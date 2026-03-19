@@ -37,14 +37,5 @@ return {
       },
     },
   },
-  root_dir = function(fname)
-    return require('lspconfig.util').root_pattern(
-      'astro.config.mjs',
-      'astro.config.js',
-      'astro.config.ts',
-      'package.json',
-      '.git'
-    )(fname)
-  end,
-  single_file_support = true,
+single_file_support = true,
 }

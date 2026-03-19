@@ -82,10 +82,7 @@ return {
     },
   },
   filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'json', 'jsonc' },
-  root_dir = function(fname)
-    return require('lspconfig.util').root_pattern('biome.json', 'biome.jsonc')(fname)
-  end,
-  single_file_support = true,
+single_file_support = true,
   init_options = {
     -- Enable all features
     lintRules = {

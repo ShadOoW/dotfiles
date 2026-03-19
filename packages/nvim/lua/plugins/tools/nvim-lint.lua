@@ -47,8 +47,9 @@ return {
       json = { 'jsonlint' },
       yaml = { 'yamllint' },
 
-      -- Programming Languages
-      python = { 'ruff' },
+      -- Python: ruff LSP provides diagnostics + code actions, so nvim-lint is
+      -- not needed here (would produce duplicate diagnostics).
+      -- python = { 'ruff' },
       lua = { 'luacheck' },
       -- Rust: rust-analyzer (LSP) provides comprehensive diagnostics
       -- No separate linter needed as rust-analyzer handles all Rust diagnostics

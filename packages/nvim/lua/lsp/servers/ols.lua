@@ -60,17 +60,6 @@ return {
   -- File types that OLS should handle
   filetypes = { 'odin' },
 
-  -- Root directory detection patterns
-  root_dir = function(fname)
-    local lspconfig = require('lspconfig')
-    return lspconfig.util.root_pattern(
-      'ols.json', -- OLS configuration file
-      '.git', -- Git repository
-      'project.odin', -- Common Odin project file
-      'main.odin' -- Main Odin file
-    )(fname) or lspconfig.util.path.dirname(fname)
-  end,
-
   -- Single file support
   single_file_support = true,
 

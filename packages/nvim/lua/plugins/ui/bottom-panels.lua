@@ -9,9 +9,7 @@ local function setup()
     for _, win in ipairs(vim.api.nvim_list_wins()) do
       if vim.api.nvim_win_is_valid(win) then
         local buf = vim.api.nvim_win_get_buf(win)
-        if vim.bo[buf].filetype == ft and vim.api.nvim_win_get_config(win).relative == '' then
-          return win
-        end
+        if vim.bo[buf].filetype == ft and vim.api.nvim_win_get_config(win).relative == '' then return win end
       end
     end
   end
@@ -86,7 +84,8 @@ local function setup()
         -- Match by filetype, buffer name, or our cached handle
         local ft = vim.bo[buf].filetype
         local name = vim.api.nvim_buf_get_name(buf)
-        if ft == 'outputpanel'
+        if
+          ft == 'outputpanel'
           or name:match('[Oo]utput[%-_ ]?[Pp]anel')
           or (_outputpanel_buf and buf == _outputpanel_buf)
         then
@@ -128,7 +127,9 @@ local function setup()
 
       -- Snapshot current windows so we can detect the new one
       local wins_before = {}
-      for _, w in ipairs(vim.api.nvim_list_wins()) do wins_before[w] = true end
+      for _, w in ipairs(vim.api.nvim_list_wins()) do
+        wins_before[w] = true
+      end
 
       vim.cmd('OutputPanel')
 
@@ -150,6 +151,159 @@ local function setup()
       if win then vim.api.nvim_win_close(win, true) end
     end,
     is_open = function() return find_outputpanel_win() ~= nil end,
+  })
+
+  -- ── LSP status panel ─────────────────────────────────────────────────────────
+  -- Content is generated from the perspective of whichever buffer was active
+  -- when the panel was toggled open (not the lspstatus panel itself).
+  local function lsp_status_lines(source_buf)
+    local ft = vim.bo[source_buf].filetype
+    local buf_clients = vim.lsp.get_clients({ bufnr = source_buf })
+    local all_clients = vim.lsp.get_clients()
+    local rules = require('lsp.servers-list').filetype_rules[ft] or {}
+    local expected = rules.expected or {}
+    local forbidden = rules.forbidden or {}
+    local attached_names = vim.tbl_map(function(c) return c.name end, buf_clients)
+
+    local lines = {}
+    local function line(s) table.insert(lines, s) end
+
+    line(
+      'LSP Status  —  '
+        .. (ft ~= '' and ft or '[no filetype]')
+        .. '  ('
+        .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(source_buf), ':~:.')
+        .. ')'
+    )
+    line(string.rep('─', 70))
+
+    if #expected > 0 then
+      line('EXPECTED')
+      for _, name in ipairs(expected) do
+        local c = nil
+        for _, client in ipairs(buf_clients) do
+          if client.name == name then
+            c = client
+            break
+          end
+        end
+        if c then
+          line(('  ✓  %-20s  attached   root: %s'):format(name, c.config.root_dir or 'N/A'))
+        else
+          line(('  ✗  %-20s  NOT ATTACHED'):format(name))
+        end
+      end
+      line('')
+    end
+
+    line('ATTACHED TO BUFFER')
+    if #buf_clients == 0 then
+      line('  (none)')
+    else
+      for _, c in ipairs(buf_clients) do
+        local tag = vim.tbl_contains(forbidden, c.name) and 'FORBIDDEN'
+          or vim.tbl_contains(expected, c.name) and 'expected'
+          or 'extra'
+        line(('  •  %-20s  %-10s  id:%d  root: %s'):format(c.name, tag, c.id, c.config.root_dir or 'N/A'))
+      end
+    end
+    line('')
+
+    if #forbidden > 0 then
+      local ok_forbidden = vim.tbl_filter(function(n) return not vim.tbl_contains(attached_names, n) end, forbidden)
+      local bad_forbidden = vim.tbl_filter(function(n) return vim.tbl_contains(attached_names, n) end, forbidden)
+      if #ok_forbidden > 0 then
+        line('FORBIDDEN (not running — good)')
+        for _, n in ipairs(ok_forbidden) do
+          line(('  ✓  %s'):format(n))
+        end
+        line('')
+      end
+      if #bad_forbidden > 0 then
+        line('FORBIDDEN (running — :LspStop <name> to remove)')
+        for _, n in ipairs(bad_forbidden) do
+          line(('  ✗  %s'):format(n))
+        end
+        line('')
+      end
+    end
+
+    line('ALL ACTIVE CLIENTS')
+    if #all_clients == 0 then
+      line('  (none)')
+    else
+      for _, c in ipairs(all_clients) do
+        local here = vim.tbl_contains(attached_names, c.name) and '  [this buf]' or ''
+        line(('  •  %s  (id:%d)%s'):format(c.name, c.id, here))
+      end
+    end
+    line('')
+    line('  r  refresh   q  close')
+    return lines
+  end
+
+  -- Find or create the persistent lspstatus scratch buffer.
+  local function get_lsp_status_buf()
+    for _, b in ipairs(vim.api.nvim_list_bufs()) do
+      if vim.api.nvim_buf_is_valid(b) and vim.bo[b].filetype == 'lspstatus' then return b end
+    end
+    local b = vim.api.nvim_create_buf(false, true)
+    vim.bo[b].filetype = 'lspstatus'
+    vim.bo[b].bufhidden = 'hide'
+    return b
+  end
+
+  pm.register({
+    ft = 'lspstatus',
+    title = 'LSP Status',
+    open = function()
+      -- Capture the source buffer before opening the split.
+      local source_buf = vim.api.nvim_get_current_buf()
+      local sbuf = get_lsp_status_buf()
+      local lines = lsp_status_lines(source_buf)
+
+      vim.api.nvim_set_option_value('modifiable', true, { buf = sbuf })
+      vim.api.nvim_buf_set_lines(sbuf, 0, -1, false, lines)
+      vim.api.nvim_set_option_value('modifiable', false, { buf = sbuf })
+
+      local win = vim.api.nvim_open_win(sbuf, false, {
+        split = 'below',
+        height = math.min(#lines + 1, 20),
+      })
+      vim.wo[win].number = false
+      vim.wo[win].relativenumber = false
+      vim.wo[win].signcolumn = 'no'
+      vim.wo[win].wrap = false
+      vim.wo[win].winbar = ''
+
+      -- Refresh content (uses whichever non-lspstatus buffer is current)
+      vim.keymap.set('n', 'r', function()
+        local sb = vim.api.nvim_get_current_buf()
+        for _, w in ipairs(vim.api.nvim_list_wins()) do
+          local wb = vim.api.nvim_win_get_buf(w)
+          if vim.bo[wb].filetype ~= 'lspstatus' then
+            sb = wb
+            break
+          end
+        end
+        local new_lines = lsp_status_lines(sb)
+        vim.api.nvim_set_option_value('modifiable', true, { buf = sbuf })
+        vim.api.nvim_buf_set_lines(sbuf, 0, -1, false, new_lines)
+        vim.api.nvim_set_option_value('modifiable', false, { buf = sbuf })
+      end, { buffer = sbuf, desc = 'Refresh LSP status' })
+
+      vim.keymap.set(
+        'n',
+        'q',
+        function() pm.toggle('lspstatus') end,
+        { buffer = sbuf, desc = 'Close LSP status panel' }
+      )
+    end,
+    close = function()
+      local win = find_split_win('lspstatus')
+      if win then vim.api.nvim_win_close(win, true) end
+    end,
+    is_open = function() return find_split_win('lspstatus') ~= nil end,
   })
 
   -- ── Terminal panel (toggleterm) ──────────────────────────────────────────────
@@ -195,6 +349,7 @@ local function setup()
   keymap.n('<leader>xw', function() pm.toggle('trouble') end, 'Toggle workspace diagnostics panel')
   keymap.n('<leader>xo', function() pm.toggle('outputpanel') end, 'Toggle LSP output panel')
   keymap.n('<leader>xt', function() pm.toggle('toggleterm') end, 'Toggle terminal')
+  keymap.n('<leader>xL', function() pm.toggle('lspstatus') end, 'Toggle LSP status panel')
   keymap.n('<leader>xX', function() pm.close_all() end, 'Close all bottom panels')
 end
 

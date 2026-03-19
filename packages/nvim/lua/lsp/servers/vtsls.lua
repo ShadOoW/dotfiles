@@ -1,28 +1,31 @@
--- Modern VTSLS (Vue TypeScript Language Server) configuration
--- VTSLS is the successor to ts_ls with better performance and Vue support
+-- vtsls LSP configuration.
+-- root_dir intentionally omitted — nvim-lspconfig's default (lsp/vtsls.lua) uses the
+-- new neovim 0.11+ async API (bufnr, on_dir). Overriding it with the old synchronous
+-- API (fname) causes root_dir to always return nil and the server to never start.
 return {
-  cmd = { vim.fn.stdpath('data') .. '/mason/bin/vtsls', '--stdio' },
+  -- cmd intentionally omitted — uses lspconfig default 'vtsls --stdio', which resolves
+  -- through mason's PATH entry. No need to hardcode the mason binary path.
+  filetypes = {
+    'javascript',
+    'javascriptreact',
+    'typescript',
+    'typescriptreact',
+    'vue',
+  },
   settings = {
     vtsls = {
       experimental = {
         completion = {
           enableServerSideFuzzyMatch = true,
         },
-        -- Enable workspace-wide analysis
-        workspace = {
-          didChangeWatchedFiles = {
-            dynamicRegistration = true,
-          },
-        },
       },
-      -- Enable workspace symbol search across all files
       workspaceSymbols = {
         scope = 'workspace',
       },
     },
     typescript = {
       inlayHints = {
-        includeInlayParameterNameHints = 'literal', -- 'none' | 'literals' | 'all'
+        includeInlayParameterNameHints = 'literal',
         includeInlayParameterNameHintsWhenArgumentMatchesName = false,
         includeInlayFunctionParameterTypeHints = true,
         includeInlayVariableTypeHints = false,
@@ -32,7 +35,6 @@ return {
         includeInlayEnumMemberValueHints = true,
       },
       preferences = {
-        disableSuggestions = false,
         quotePreference = 'single',
         includeCompletionsForModuleExports = true,
         includeCompletionsForImportStatements = true,
@@ -49,27 +51,15 @@ return {
         completeFunctionCalls = false,
         completeJSDocs = true,
         enabled = true,
-        includeAutomaticOptionalChainCompletions = true,
-        includeCompletionsForImportStatements = true,
         names = true,
         paths = true,
-        objectLiteralMethodSnippets = {
-          enabled = true,
-        },
       },
-      updateImportsOnFileMove = {
-        enabled = 'always',
-      },
-      surveys = {
-        enabled = false,
-      },
-      npm = {
-        packageManager = 'auto',
-      },
+      updateImportsOnFileMove = { enabled = 'always' },
+      surveys = { enabled = false },
     },
     javascript = {
       inlayHints = {
-        includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all'
+        includeInlayParameterNameHints = 'all',
         includeInlayParameterNameHintsWhenArgumentMatchesName = false,
         includeInlayFunctionParameterTypeHints = true,
         includeInlayVariableTypeHints = true,
@@ -79,83 +69,30 @@ return {
         includeInlayEnumMemberValueHints = true,
       },
       preferences = {
-        disableSuggestions = false,
         quotePreference = 'single',
         includeCompletionsForModuleExports = true,
         includeCompletionsForImportStatements = true,
-        includeCompletionsWithSnippetText = true,
         includeAutomaticOptionalChainCompletions = true,
         includeCompletionsWithInsertText = true,
         allowIncompleteCompletions = true,
-        generateReturnInDocTemplate = true,
         includePackageJsonAutoImports = 'auto',
         useLabelDetailsInCompletionEntries = true,
       },
       suggest = {
         autoImports = true,
         completeFunctionCalls = false,
-        completeJSDocs = true,
         enabled = true,
-        includeAutomaticOptionalChainCompletions = true,
-        includeCompletionsForImportStatements = true,
-        names = true,
-        paths = true,
-        objectLiteralMethodSnippets = {
-          enabled = true,
-        },
       },
-      updateImportsOnFileMove = {
-        enabled = 'always',
-      },
-      surveys = {
-        enabled = false,
-      },
-      npm = {
-        packageManager = 'auto',
-      },
+      updateImportsOnFileMove = { enabled = 'always' },
+      surveys = { enabled = false },
     },
     completions = {
       completeFunctionCalls = true,
     },
   },
-  filetypes = {
-    'javascript',
-    'javascriptreact',
-    'typescript',
-    'typescriptreact',
-    'vue',
-  },
-  -- Ensure vtsls has higher priority for JavaScript/TypeScript files
   init_options = {
     hostInfo = 'neovim',
     maxTsServerMemory = 8192,
-    typescript = {
-      tsdk = vim.fn.stdpath('data') .. '/mason/packages/vtsls/node_modules/@vtsls/language-server/node_modules/typescript/lib',
-    },
-    preferences = {
-      disableSuggestions = false,
-    },
-    plugins = {
-      {
-        name = '@vue/typescript-plugin',
-        location = '', -- Will be automatically detected
-        languages = { 'vue' },
-      },
-    },
   },
   single_file_support = true,
-  root_dir = function(fname)
-    -- Handle case where fname is not provided
-    if not fname or type(fname) ~= 'string' then return nil end
-    -- Use vim.fs.find to look for project markers
-    local root = vim.fs.find({ 'tsconfig.json', 'package.json', 'jsconfig.json', '.git' }, {
-      upward = true,
-      path = vim.fs.dirname(fname),
-    })[1]
-    if root then return vim.fs.dirname(root) end
-    -- Fallback to file directory for better single-file support
-    local dir = vim.fs.dirname(fname)
-    if dir and dir ~= '' then return dir end
-    return vim.uv.cwd() or vim.fn.getcwd()
-  end,
 }

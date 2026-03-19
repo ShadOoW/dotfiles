@@ -16,13 +16,5 @@ return {
   -- It formats according to HTML5 spec by default (no self-closing void elements)
   -- Autoformatter automatically handles proper HTML5 formatting
   filetypes = { 'html', 'htm', 'xhtml' },
-  root_dir = function(fname)
-    -- Try to find a project root, but fallback to file directory
-    local project_root =
-      require('lspconfig.util').root_pattern('.git', 'package.json', 'index.html', '.superhtml')(fname)
-    if project_root then return project_root end
-    -- Fallback: use the directory containing the HTML file
-    return vim.fn.fnamemodify(fname, ':h')
-  end,
-  single_file_support = true,
+single_file_support = true,
 }

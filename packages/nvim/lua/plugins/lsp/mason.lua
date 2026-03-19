@@ -15,26 +15,15 @@ return {
 
     -- Configure Mason LSP
     require('mason-lspconfig').setup({
-      ensure_installed = { -- Web Development
-        'vtsls', -- TypeScript/JavaScript (Volar)
-        'cssls', -- CSS
-        'eslint', -- ESLint
-        'astro', -- Astro
-        'jsonls', -- JSON
-        'yamlls', -- YAML
-        -- C/C++ Development
-        'clangd', -- C/C++/Objective-C
-        -- Systems Programming
-        'rust_analyzer', -- Rust Language Server
-        'ols', -- Odin Language Server
-        -- General
-        'lua_ls', -- Lua
-        'marksman', -- Markdown
-        'bashls', -- Bash
-        'dockerls', -- Docker
-      },
+      -- Derived from lsp/servers-list.lua — the single source of truth.
+      -- mason-lspconfig silently skips any names it doesn't manage (e.g. superhtml, dartls).
+      ensure_installed = require('lsp.servers-list').mason_servers,
       automatic_installation = true,
-      -- Don't auto-setup servers - we configure them manually in servers.lua
+      -- Disable automatic_enable: we call vim.lsp.enable() explicitly in servers.lua.
+      -- Without this, mason-lspconfig re-enables every installed package (including
+      -- orphaned ones like tailwindcss) on every session start.
+      automatic_enable = false,
+      -- No handlers: servers are configured manually in servers.lua via vim.lsp.config.
       handlers = {},
     })
   end,

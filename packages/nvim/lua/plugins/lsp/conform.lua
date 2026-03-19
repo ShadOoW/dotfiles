@@ -14,6 +14,12 @@ return {
         lsp_format = 'prefer',
       } end
 
+      -- Use rust-analyzer (rustfmt) for Rust files
+      if filetype == 'rust' then return {
+        timeout_ms = 10000,
+        lsp_format = 'prefer',
+      } end
+
       -- For JS/TS, use direct npx eslint after save (async, non-blocking)
       if vim.tbl_contains({ 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'vue', 'svelte' }, filetype) then
         local filename = vim.api.nvim_buf_get_name(bufnr)
@@ -80,8 +86,9 @@ return {
       -- Lua (stylua specialized)
       lua = { 'stylua' },
 
-      -- Python (specialized formatters)
-      python = { 'isort', 'black' },
+      -- Python: ruff handles both import sorting (replaces isort) and formatting
+      -- (black-compatible output). Much faster than running black + isort separately.
+      python = { 'ruff_organize_imports', 'ruff_format' },
 
       -- Shell (specialized formatter)
       sh = { 'shfmt' },

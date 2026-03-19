@@ -82,16 +82,6 @@ return {
   -- File types for Dart/Flutter
   filetypes = { 'dart' },
 
-  -- Root directory detection for Flutter projects
-  root_dir = function(fname)
-    local lspconfig = require('lspconfig')
-    return lspconfig.util.root_pattern(
-      'pubspec.yaml', -- Flutter/Dart project
-      'analysis_options.yaml', -- Dart analysis options
-      '.git' -- Git repository
-    )(fname) or lspconfig.util.path.dirname(fname)
-  end,
-
   -- Single file support for standalone Dart files
   single_file_support = true,
 

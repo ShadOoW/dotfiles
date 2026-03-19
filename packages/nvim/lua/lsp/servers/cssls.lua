@@ -108,18 +108,5 @@ return {
   init_options = {
     provideFormatter = true,
   },
-  -- CSS language server for pure CSS files only
-  root_dir = function(fname)
-    return require('lspconfig.util').root_pattern(
-      '.git',
-      'package.json',
-      'node_modules',
-      'style.css',
-      'styles.css',
-      'main.css',
-      '.cssrc',
-      '.cssrc.json'
-    )(fname) or vim.fn.getcwd()
-  end,
-  single_file_support = true,
+single_file_support = true,
 }
