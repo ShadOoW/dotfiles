@@ -59,6 +59,7 @@ declare -A TARGET_DIRS=(
     ["zellij"]="$HOME/.config/zellij"
     ["qutebrowser"]="$HOME/.config/qutebrowser"
     ["zathura"]="$HOME/.config/zathura"
+    ["yazi"]="$HOME/.config/yazi"
 )
 
 # Store setup scripts to run after stowing

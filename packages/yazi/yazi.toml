@@ -1,0 +1,51 @@
+[mgr]
+ratio          = [1, 3, 4]
+sort_by        = "natural"
+sort_sensitive = false
+sort_reverse   = false
+sort_dir_first = true
+linemode       = "size"
+show_hidden    = false
+show_symlink   = true
+scrolloff      = 5
+mouse_events   = ["click", "scroll"]
+title_format   = "yazi: {cwd}"
+
+[preview]
+wrap          = "no"
+tab_size      = 2
+max_width     = 1200
+max_height    = 1800
+image_delay   = 30
+image_filter  = "lanczos3"
+image_quality = 80
+
+[tasks]
+micro_workers    = 10
+macro_workers    = 5
+bizarre_retry    = 3
+suppress_preload = false
+
+[opener]
+edit = [
+    { run = 'nvim "$@"', desc = "nvim", block = true },
+]
+open = [
+    { run = 'xdg-open "$@"', desc = "xdg-open" },
+]
+reveal = [
+    { run = 'xdg-open "$(dirname "$1")"', desc = "Reveal in file manager" },
+]
+
+[open]
+rules = [
+    { mime = "text/*",             use = "edit" },
+    { mime = "application/json",   use = "edit" },
+    { mime = "application/xml",    use = "edit" },
+    { mime = "image/*",            use = "open" },
+    { mime = "video/*",            use = "open" },
+    { mime = "audio/*",            use = "open" },
+    { mime = "application/pdf",    use = "open" },
+    { mime = "inode/x-empty",      use = "edit" },
+    { mime = "*",                  use = "open" },
+]

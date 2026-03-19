@@ -24,7 +24,7 @@ for_window {
   # Marks for our scratchpad applications
   [app_id="terminal-mark"] floating enable, mark terminal, move scratchpad, border pixel 4, border color #7dcfff
   [app_id="music-mark"] floating enable, mark music, move scratchpad, border pixel 4, border color #7dcfff
-  [app_id="org.gnome.Nautilus"] floating enable, mark explorer, move scratchpad, move position center, border pixel 4, border color #7dcfff
+  [app_id="yazi-explorer"] floating enable, mark explorer, move scratchpad, border pixel 4, border color #7dcfff
 }
 
 # Workspace assignments

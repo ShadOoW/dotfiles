@@ -10,12 +10,10 @@ exec {
     # Start MRU focus tracker for Alt-Tab behavior
     ~/.config/dotfiles/packages/sway/scripts/sway_mru_daemon.py &
 
-    # Start applications in background with consistent naming convention
-    sp_terminal &
-    sp_music &
-    sp_explorer &
-    sp_chatgpt &
-    sp_whatapp &
+    # Pre-warm scratchpad apps — for_window rules handle mark + scratchpad
+    kitty --app-id terminal-mark &
+    kitty --app-id music-mark ncmpcpp &
+    kitty --app-id yazi-explorer yazi &
 
     # Start browser
     vivaldi-stable &

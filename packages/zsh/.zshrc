@@ -27,6 +27,17 @@ alias cat="bat --theme=gruvbox-dark"
 alias drag="ripdrag"
 alias n="nvim"
 
+# Yazi: change shell CWD on exit
+function y() {
+    local tmp
+    tmp="$(mktemp -t yazi-cwd.XXXXXX)"
+    yazi "$@" --cwd-file="$tmp"
+    if cwd="$(< "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+        builtin cd -- "$cwd"
+    fi
+    rm -f -- "$tmp"
+}
+
 # Function to copy file content to clipboard
 cf() {
   if [ -z "$1" ]; then

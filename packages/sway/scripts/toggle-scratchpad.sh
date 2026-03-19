@@ -7,13 +7,13 @@
 # app_id:      Value of the selector (e.g., terminal-mark, music-mark, explorer-mark)
 # command:     Command to launch the application
 
-# Set default values
 MARK_NAME=${1:-"unknown"}
 APP_ID_TYPE=${2:-"app_id"}
 APP_ID=${3:-"unknown-mark"}
 COMMAND=${4:-""}
 
-# Define window properties based on mark name
+SCRIPTS_DIR="$(dirname "$0")"
+
 set_window_properties() {
     case "$MARK_NAME" in
         "terminal")
@@ -28,25 +28,31 @@ set_window_properties() {
     esac
 }
 
-# Check if the container is already marked
-is_running=$(swaymsg -t get_tree | jq ".. | objects | select(.marks? != null and (.marks | index(\"$MARK_NAME\")))" | wc -l)
+is_running=$(swaymsg -t get_tree | jq "[ .. | objects | select(.marks? != null and (.marks | index(\"$MARK_NAME\"))) ] | length")
 
-if [ "$is_running" -ge 1 ]; then
-    # Toggle visibility - show window and apply properties
+if [ "$is_running" -gt 0 ]; then
+    # Check if window is currently visible (shown) or hidden (in scratchpad)
+    is_shown=$(swaymsg -t get_tree | jq "[ .. | objects | select(.marks? != null and (.marks | index(\"$MARK_NAME\")) and .visible == true) ] | length")
+
     swaymsg "[con_mark=\"$MARK_NAME\"] scratchpad show"
+
+    # Only apply geometry when showing — move position center requires a visible window
+    if [ "$is_shown" -eq 0 ]; then
+        set_window_properties
+    fi
 else
     if [ -z "$COMMAND" ]; then
         echo "Error: No command provided to launch application"
         exit 1
     fi
 
-    # Launch application - Sway's rules will handle marking and moving to scratchpad
+    # Launch application - for_window rules handle mark + move scratchpad
     eval "$COMMAND" &
-    
-    # Wait a moment for the application to launch and rules to apply
-    sleep 0.5
-    
-    # Show the scratchpad window and set properties
+
+    # Wait until the window is ready (for_window rules will have fired by then)
+    "$SCRIPTS_DIR/swaywait-until.sh" "$APP_ID" > /dev/null
+
+    # Show immediately — this is a keybind trigger, not a pre-warm
     swaymsg "[con_mark=\"$MARK_NAME\"] scratchpad show"
     set_window_properties
 fi
