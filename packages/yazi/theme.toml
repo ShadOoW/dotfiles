@@ -1,3 +1,20 @@
 [flavor]
 dark  = "tokyo-night"
 light = "tokyo-night"
+
+# ── Manager ───────────────────────────────────────────────────────────────────
+[mgr]
+# Neon markers — highly visible copy/cut/select state on each file row
+marker_copied   = { fg = "#73daca", bg = "#73daca" }   # teal glow = copied
+marker_cut      = { fg = "#ff9e64", bg = "#ff9e64" }   # orange glow = cut
+marker_selected = { fg = "#bb9af7", bg = "#bb9af7" }   # purple    = selected
+
+# ── Status bar ────────────────────────────────────────────────────────────────
+[status]
+separator_open  = ""   # powerline left-fill arrow
+separator_close = ""   # powerline right-fill arrow
+separator_style = { fg = "#7aa2f7", bg = "#1e2030" }
+
+mode_normal = { bg = "#7aa2f7", fg = "#1e2030", bold = true }   # blue
+mode_select = { bg = "#bb9af7", fg = "#1e2030", bold = true }   # purple
+mode_unset  = { bg = "#e0af68", fg = "#1e2030", bold = true }   # amber

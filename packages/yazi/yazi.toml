@@ -14,11 +14,11 @@ title_format   = "yazi: {cwd}"
 [preview]
 wrap          = "no"
 tab_size      = 2
-max_width     = 1200
-max_height    = 1800
-image_delay   = 30
+max_width     = 1800
+max_height    = 2400
+image_delay   = 20
 image_filter  = "lanczos3"
-image_quality = 80
+image_quality = 90
 
 [tasks]
 micro_workers    = 10
@@ -27,8 +27,13 @@ bizarre_retry    = 3
 suppress_preload = false
 
 [opener]
+# Open nvim in a new kitty window; stash the yazi scratchpad first
 edit = [
-    { run = 'nvim "$@"', desc = "nvim", block = true },
+    { run = '~/.config/yazi/scripts/edit-in-kitty.sh "$@"', desc = "nvim in kitty", block = true },
+]
+# Open a shell in the selected directory; stash yazi first
+open_terminal = [
+    { run = '~/.config/yazi/scripts/open-terminal.sh "$1"', desc = "Terminal here", block = true },
 ]
 open = [
     { run = 'xdg-open "$@"', desc = "xdg-open" },
@@ -42,6 +47,7 @@ rules = [
     { mime = "text/*",             use = "edit" },
     { mime = "application/json",   use = "edit" },
     { mime = "application/xml",    use = "edit" },
+    { mime = "inode/directory",    use = "open_terminal" },
     { mime = "image/*",            use = "open" },
     { mime = "video/*",            use = "open" },
     { mime = "audio/*",            use = "open" },

@@ -8,6 +8,7 @@ run = "plugin smart-enter"
 desc = "Enter dir / open file"
 
 # ── Relative-number motions (1-9j/k) ────────────────────────────────────────
+# These only apply to navigation (j/k). Press N then j/k to move N rows.
 [[mgr.prepend_keymap]]
 on = ["1"]
 run = "plugin relative-motions --args=1"
@@ -48,10 +49,10 @@ on  = "<C-f>"
 run = "plugin smart-filter"
 desc = "Smart filter"
 
-# ── Zoxide jump ─────────────────────────────────────────────────────────────
+# ── Zoxide jump ───────────────────────────────────────────────────────────────
 [[mgr.prepend_keymap]]
 on  = "z"
-run = "plugin zoxide"
+run = "shell --block '~/.config/yazi/scripts/zoxide-jump.sh'"
 desc = "Zoxide jump"
 
 # ── Toggle hidden ────────────────────────────────────────────────────────────
@@ -60,23 +61,66 @@ on  = "."
 run = "hidden toggle"
 desc = "Toggle hidden files"
 
-# ── Shell in CWD ─────────────────────────────────────────────────────────────
+# ── Shell in CWD (opens new kitty terminal, stashes yazi) ────────────────────
 [[mgr.prepend_keymap]]
 on  = "!"
-run = "shell --block '$SHELL'"
-desc = "Open shell here"
+run = "shell '~/.config/yazi/scripts/open-terminal.sh'"
+desc = "Terminal in CWD"
 
-# ── Drag & drop via ripdrag ──────────────────────────────────────────────────
+# ── Drag & drop via ripdrag (Alt+d to avoid conflicting with scroll C-d) ─────
 [[mgr.prepend_keymap]]
-on  = "<C-d>"
+on  = "<A-d>"
 run = "plugin drag"
 desc = "Drag files (ripdrag)"
+
+# ── Preview scroll (Ctrl+j/k) ────────────────────────────────────────────────
+[[mgr.prepend_keymap]]
+on  = "<C-j>"
+run = "seek 5"
+desc = "Preview: scroll down"
+
+[[mgr.prepend_keymap]]
+on  = "<C-k>"
+run = "seek -5"
+desc = "Preview: scroll up"
 
 # ── Archive: compress selected ───────────────────────────────────────────────
 [[mgr.prepend_keymap]]
 on  = "C"
 run = "plugin ouch"
 desc = "Compress with ouch"
+
+# ── Yank / Cut / Paste with visual feedback ──────────────────────────────────
+[[mgr.prepend_keymap]]
+on  = "y"
+run = ["yank", "shell 'notify-send -t 1500 Yazi Copied 2>/dev/null'"]
+desc = "Yank (copy)"
+
+[[mgr.prepend_keymap]]
+on  = "x"
+run = ["yank --cut", "shell 'notify-send -t 1500 Yazi Cut 2>/dev/null'"]
+desc = "Yank (cut)"
+
+[[mgr.prepend_keymap]]
+on  = "p"
+run = ["paste", "shell 'notify-send -t 1500 Yazi Pasted 2>/dev/null'"]
+desc = "Paste"
+
+# ── Path copy (Y prefix) ──────────────────────────────────────────────────────
+[[mgr.prepend_keymap]]
+on  = ["Y", "p"]
+run = "copy path"
+desc = "Copy: full path"
+
+[[mgr.prepend_keymap]]
+on  = ["Y", "n"]
+run = "copy filename"
+desc = "Copy: filename"
+
+[[mgr.prepend_keymap]]
+on  = ["Y", "d"]
+run = "copy dirname"
+desc = "Copy: directory path"
 
 # ── Bookmarks (vim-style marks) ──────────────────────────────────────────────
 [[mgr.prepend_keymap]]
@@ -137,3 +181,14 @@ desc = "Go: pictures"
 on  = ["g", "o"]
 run = "cd /mnt/backup/code"
 desc = "Go: /mnt/backup/code"
+
+# ── Input widget: Escape closes immediately (no double-Escape needed) ─────────
+[[input.prepend_keymap]]
+on  = "<Esc>"
+run = "close"
+desc = "Cancel"
+
+[[input.prepend_keymap]]
+on  = "<C-c>"
+run = "close"
+desc = "Cancel (insert mode)"
