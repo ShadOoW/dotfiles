@@ -1,7 +1,18 @@
 {
   "enabledPlugins": {
     "lua-lsp@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true
+    "typescript-lsp@claude-plugins-official": true,
+    "backend-development@claude-code-workflows": true,
+    "comprehensive-review@claude-code-workflows": true,
+    "javascript-typescript@claude-code-workflows": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-code-workflows": {
+      "source": {
+        "source": "github",
+        "repo": "wshobson/agents"
+      }
+    }
   },
   "skipDangerousModePermissionPrompt": true
 }
