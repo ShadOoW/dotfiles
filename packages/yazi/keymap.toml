@@ -1,6 +1,12 @@
 # Yazi keymap — nvim-style
 # prepend_keymap = higher priority than defaults
 
+# ── Open and hide yazi (Enter key) ─────────────────────────────────────────────────
+[[mgr.prepend_keymap]]
+on  = "<Enter>"
+run = ["shell --block swaymsg '[app_id=yazi-explorer] move scratchpad'", "open"]
+desc = "Open and hide yazi"
+
 # ── Smart enter (open file OR cd into dir) ───────────────────────────────────
 [[mgr.prepend_keymap]]
 on  = "l"
@@ -192,3 +198,4 @@ desc = "Cancel"
 on  = "<C-c>"
 run = "close"
 desc = "Cancel (insert mode)"
+

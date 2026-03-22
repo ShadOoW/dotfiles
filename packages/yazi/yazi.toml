@@ -29,14 +29,14 @@ suppress_preload = false
 [opener]
 # Open nvim in a new kitty window; stash the yazi scratchpad first
 edit = [
-    { run = '~/.config/yazi/scripts/edit-in-kitty.sh "$@"', desc = "nvim in kitty", block = true },
+    { run = 'swaymsg [app_id=yazi-explorer] move scratchpad; ~/.config/yazi/scripts/edit-in-kitty.sh "$@"', desc = "nvim in kitty" },
 ]
 # Open a shell in the selected directory; stash yazi first
 open_terminal = [
-    { run = '~/.config/yazi/scripts/open-terminal.sh "$1"', desc = "Terminal here", block = true },
+    { run = 'swaymsg [app_id=yazi-explorer] move scratchpad; ~/.config/yazi/scripts/open-terminal.sh "$1"', desc = "Terminal here" },
 ]
 open = [
-    { run = 'xdg-open "$@"', desc = "xdg-open" },
+    { run = 'swaymsg [app_id=yazi-explorer] move scratchpad; xdg-open "$@"', desc = "xdg-open" },
 ]
 reveal = [
     { run = 'xdg-open "$(dirname "$1")"', desc = "Reveal in file manager" },
