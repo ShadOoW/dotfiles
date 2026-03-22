@@ -12,6 +12,15 @@ function M.setup()
     callback = function(args)
       local client = vim.lsp.get_client_by_id(args.data.client_id)
       if not client then return end
+
+      -- Never attach LSP to virtual diffview:// buffers — their paths don't exist
+      -- on disk and are not in any tsconfig, causing spurious ESLint/tsserver errors.
+      local bufname = vim.api.nvim_buf_get_name(args.buf)
+      if bufname:match('^diffview://') then
+        vim.lsp.stop_client(client.id, true)
+        return
+      end
+
       local ft = vim.bo[args.buf].filetype
       local rules = server_list.filetype_rules[ft]
       if not rules then return end

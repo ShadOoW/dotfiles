@@ -43,7 +43,17 @@ return {
     vim.schedule(function()
       for _, buf in ipairs(vim.api.nvim_list_bufs()) do
         if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].filetype ~= '' then
-          vim.api.nvim_exec_autocmds('FileType', { buffer = buf, modeline = false })
+          local ft = vim.bo[buf].filetype
+          -- Skip non-standard filetypes that don't have LSP/treesitter support
+          if not vim.tbl_contains({
+            'diffview',
+            'DiffviewFiles',
+            'gitcommit',
+            'gitconfig',
+            'gitrebase',
+          }, ft) then
+            vim.api.nvim_exec_autocmds('FileType', { buffer = buf, modeline = false })
+          end
         end
       end
     end)
