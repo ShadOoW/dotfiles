@@ -13,8 +13,5 @@ if [ -f "$LOCK_FILE" ]; then
 fi
 touch "$LOCK_FILE"
 
-# Small delay to allow compositor to stabilize after focus changes
-sleep 0.05
-
 CWD=$(~/.config/sway/scripts/swaycwd.sh 2>/dev/null || echo "$HOME")
 exec kitty --working-directory "$CWD"
