@@ -11,13 +11,14 @@ sway_packages=(
     autotiling
     wl-clipboard
     cliphist
-   grim
+    grim
     slurp
     jq
     wluma
     brightnessctl
     rofi-wayland
     sway-contrib-git
+    iwmenu
 )
 
 # Source global functions

@@ -4,7 +4,7 @@
 #
 bindsym {
     $mod+Return exec $term_cwd
-    $mod+Shift+Return exec $term    
+    $mod+Shift+Return exec $term
     $mod+q kill
     $mod+d exec $menu
     $mod+Shift+d exec $window
@@ -69,7 +69,7 @@ bindsym {
     $mod+8 workspace number 8
     $mod+9 workspace number 9
     $mod+grave workspace number 10
-    
+
     # Move focused container to workspace
     $mod+Shift+1 move container to workspace number 1
     $mod+Shift+2 move container to workspace number 2
@@ -95,11 +95,11 @@ bindsym --whole-window {
 # Layout stuff:
 #
 bindsym {
-    # You can "split" the current object of your focus with
-    # $mod+b or $mod+v, for horizontal and vertical splits
-    # respectively.
-    $mod+b split h
-    $mod+v split v
+    # Toggle split direction (horizontal <-> vertical)
+    $mod+v split toggle
+
+    # Exit split (return to single window)
+    $mod+b split none
 
     # Switch the current container between different layout styles
     $mod+s exec ~/.config/sway/scripts/stacked-tabbed.sh
@@ -184,6 +184,10 @@ bindsym $mod+l exec swaylock
 # Project manager
 bindsym $mod+x exec $projects
 
+# Wi-Fi manager
+bindsym $mod+n exec iwmenu -l rofi
+
 # Change background video
 bindsym $mod+k exec ~/.local/bin/sway-cycle-bg next
 bindsym $mod+Shift+k exec ~/.local/bin/sway-cycle-bg prev
+
