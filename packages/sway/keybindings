@@ -7,10 +7,9 @@ bindsym {
     $mod+Shift+Return exec $term
     $mod+q kill
     $mod+d exec $menu
-    $mod+Shift+d exec $window
+    $mod+x exec $window
     $mod+c exec $clipboard
 
-    $mod+Shift+x exec $commands
     $mod+a exec $sp_explorer
     $mod+m exec $sp_music
     $mod+z exec $sp_terminal
@@ -181,8 +180,8 @@ bindsym $mod+p exec grim -g "$(swaymsg -t get_tree | jq -r '.. | select(.pid? an
 # Lock screen
 bindsym $mod+l exec swaylock
 
-# Project manager
-bindsym $mod+x exec $projects
+# Commands
+bindsym $mod+Shift+d exec $commands
 
 # Wi-Fi manager
 bindsym $mod+n exec iwmenu -l rofi

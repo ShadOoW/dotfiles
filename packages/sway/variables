@@ -6,7 +6,7 @@ set {
     $term kitty
     $term_cwd ~/.config/sway/scripts/kitty-cwd.sh
     $menu ~/.config/rofi/open-close.sh "rofi -show run"
-    $window ~/.config/rofi/open-close.sh "rofi -show window"
+    $window ~/.config/rofi/open-close.sh "rofi -show sway-windows -modi 'sway-windows:/home/shad/.config/rofi/scripts/sway-windows.sh'"
     $clipboard ~/.config/rofi/open-close.sh "cliphist list | rofi -dmenu -display-columns 2 | cliphist decode | wl-copy"
     $commands ~/.config/rofi/open-close.sh "~/.config/rofi/custom-commands.sh"
     $projects ~/.config/rofi/open-close.sh "~/.config/dotfiles/packages/kitty/scripts/project-manager.sh"

@@ -25,6 +25,8 @@ if [ -n "$rofi_proc" ]; then
         cmd=$(echo "$cmd" | sed 's|.*rofi -dmenu -display-columns.*|clipboard|g')
         cmd=$(echo "$cmd" | sed 's|rofi -show run|run|g')
         cmd=$(echo "$cmd" | sed 's|rofi -show window|window|g')
+        cmd=$(echo "$cmd" | sed 's|rofi -show sway-windows.*|sway-windows|g')
+        cmd=$(echo "$cmd" | sed 's|.*sway-windows\.sh|sway-windows|g')
         echo "$cmd" | xargs  # trim whitespace
     }
 

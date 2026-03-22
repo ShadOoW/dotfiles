@@ -8,16 +8,17 @@ then
 fi
 
 TARGET=$1
+TIMEOUT=10
 
-swaymsg -t subscribe -m '["window"]' | while read line
+# Use timeout to prevent hanging on subscribe
+timeout $TIMEOUT swaymsg -t subscribe -m '["window"]' | while read line
 do
-    CON=`echo $line | jq -r 'select(.change=="new").container'`
-    APPID=`echo $CON | jq -r '.app_id'`
-    CLASS=`echo $CON | jq -r '.window_properties.class'`
-    CONID=`echo $CON | jq -r '.id'`
+    CON=`echo "$line" | jq -r 'select(.change=="new").container' 2>/dev/null`
+    APPID=`echo "$CON" | jq -r '.app_id' 2>/dev/null`
+    CLASS=`echo "$CON" | jq -r '.window_properties.class' 2>/dev/null`
+    CONID=`echo "$CON" | jq -r '.id' 2>/dev/null`
 
-    if [ "$APPID" = "$TARGET" ] || [ "$CLASS" = "$TARGET" ]
-    then
+    if [ "$APPID" = "$TARGET" ] || [ "$CLASS" = "$TARGET" ]; then
         echo "$CONID"
         exit 0
     fi
