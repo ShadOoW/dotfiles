@@ -1,6 +1,9 @@
 # Set font (affects titlebars and waybar if using Swaybar)
 font pango:JetBrains Mono Nerd Font 10
 
+# Disable default swaybg
+swaybg_command echo
+
 # Remove window titlebars
 default_floating_border none
 hide_edge_borders --i3 smart

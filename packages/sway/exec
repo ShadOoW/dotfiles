@@ -1,5 +1,5 @@
 exec_always {
-    pkill mpvpaper; mpvpaper -o "no-audio loop" '*' ~/.config/sway/background.mp4
+    ~/.config/dotfiles/packages/sway/scripts/workspace-backgrounds.sh
 }
 
 exec {

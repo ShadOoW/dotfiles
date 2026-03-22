@@ -183,3 +183,7 @@ bindsym $mod+l exec swaylock
 
 # Project manager
 bindsym $mod+x exec $projects
+
+# Change background video
+bindsym $mod+k exec ~/.local/bin/sway-cycle-bg next
+bindsym $mod+Shift+k exec ~/.local/bin/sway-cycle-bg prev
