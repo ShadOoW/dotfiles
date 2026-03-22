@@ -58,7 +58,7 @@ install_package_pacman() {
     fi
 
     log "info" "Installing ${C_ACCENT}${pkg}${RESET}"
-    if sudo pacman -S --noconfirm "$pkg" &>/dev/null; then
+    if sudo pacman -S --noconfirm "$pkg"; then
         log "success" "Installed ${C_ACCENT}${pkg}${RESET}"
         return 0
     else
@@ -121,7 +121,7 @@ install_packages_pacman() {
 
     # Install packages
     log "info" "Installing packages: ${C_ACCENT}${to_install[*]}${RESET}"
-    if "${cmd[@]}" &>/dev/null; then
+    if "${cmd[@]}"; then
         log "success" "All packages installed successfully"
         return 0
     else
@@ -164,7 +164,7 @@ install_packages_aur() {
     cmd+=("${to_install[@]}")
 
     log "info" "Installing packages: ${C_ACCENT}${to_install[*]}${RESET}"
-    if "${cmd[@]}" &>/dev/null; then
+    if "${cmd[@]}"; then
         log "success" "All packages installed successfully"
         return 0
     else

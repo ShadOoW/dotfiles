@@ -3,19 +3,10 @@ set -e
 
 # Font packages
 pacman_fonts=(
-    adobe-source-code-pro-fonts 
-    adobe-source-sans-fonts
-    noto-fonts-emoji
-    otf-font-awesome 
-    ttf-droid 
-    ttf-fira-code
-    ttf-fantasque-nerd
-    ttf-jetbrains-mono-nerd
-    ttf-roboto-mono-nerd
-    ttf-firacode-nerd
+    inter-font
     otf-monaspace-nerd
-    noto-fonts
     terminus-font
+    ttf-jetbrains-mono-nerd
 )
 
 # Source global functions

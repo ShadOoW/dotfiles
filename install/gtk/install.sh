@@ -3,29 +3,22 @@ set -e
 
 # GTK themes and icons
 aur_packages=(
-    # Tokyonight GTK theme
+    # GTK engine and build tools
     gtk-engine-murrine
     sassc
     gnome-themes-extra
+
+    # GTK themes (used in nvim/config)
     tokyonight-gtk-theme-git
 
-    # Other GTK themes
+    # GTK themes (used in gtk3 settings)
     catppuccin-gtk-theme-macchiato
-    layan-gtk-theme-git
 
-    # Icons
-    tela-circle-icon-theme-all-git
-    papirus-icon-theme-git
-    whitesur-icon-theme-git
+    # Icons (used in gtk3 settings)
     candy-icons-git
-    reversal-icon-theme-git
-    nordzy-icon-theme
 
-    # Cursors
-    whitesur-cursor-theme-git
+    # Cursors (used in gtk3 settings)
     bibata-cursor-theme
-    oreo-cursors-git
-    volantes-cursors-git
 )
 
 # Source global functions
