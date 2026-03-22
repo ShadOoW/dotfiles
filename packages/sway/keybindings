@@ -158,17 +158,17 @@ bindsym --locked {
     XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
     XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
     XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
-    
+
     # Media control keys
     XF86AudioPrev exec mpc prev
     XF86AudioNext exec mpc next
     XF86AudioPlay exec mpc toggle
-    
+
     # Custom FN key bindings for media control
     F11 exec mpc prev
     F12 exec mpc next
     F10 exec mpc toggle
-    
+
     # Special keys to adjust brightness via brightnessctl
     XF86MonBrightnessDown exec brightnessctl set 5%-
     XF86MonBrightnessUp exec brightnessctl set 5%+
