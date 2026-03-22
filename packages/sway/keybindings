@@ -15,7 +15,7 @@ bindsym {
     $mod+m exec $sp_music
     $mod+z exec $sp_terminal
     # $mod+Shift+x exec $sp_chatgpt
-    # $mod+w exec $sp_whatsapp
+    $mod+w exec pkill waybar || waybar
     # Pin window in foreground of every workspace
     $mod+Shift+i sticky toggle
 
