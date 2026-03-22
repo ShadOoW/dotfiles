@@ -13,6 +13,7 @@ pacman_fonts=(
     ttf-jetbrains-mono-nerd
     ttf-roboto-mono-nerd
     ttf-firacode-nerd
+    otf-monaspace-nerd
     noto-fonts
     terminus-font
 )
