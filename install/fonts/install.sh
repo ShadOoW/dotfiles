@@ -50,4 +50,18 @@ fi
 log "info" "Refreshing font cache"
 fc-cache -fv
 
+# Enable nerd-fonts fontconfig aliases (e.g., Monaspace → Monaspice)
+log "info" "Enabling nerd-fonts fontconfig aliases"
+nerd_conf_src="/usr/share/fontconfig/conf.avail/10-nerd-font-symbols.conf"
+nerd_conf_dst="/etc/fonts/conf.d/10-nerd-font-symbols.conf"
+if [ -f "$nerd_conf_src" ]; then
+    if [ -L "$nerd_conf_dst" ]; then
+        log "info" "Nerd fonts config already linked"
+    else
+        sudo ln -sf "$nerd_conf_src" "$nerd_conf_dst" || log "warning" "Failed to link nerd fonts config"
+    fi
+else
+    log "warning" "Nerd fonts config not found at $nerd_conf_src"
+fi
+
 log "success" "Font installation completed successfully"
