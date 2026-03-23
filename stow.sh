@@ -60,6 +60,7 @@ declare -A TARGET_DIRS=(
     ["qutebrowser"]="$HOME/.config/qutebrowser"
     ["zathura"]="$HOME/.config/zathura"
     ["yazi"]="$HOME/.config/yazi"
+    ["fontconfig"]="$HOME/.config/fontconfig"
 )
 
 # Store setup scripts to run after stowing

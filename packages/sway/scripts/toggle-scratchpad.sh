@@ -49,10 +49,10 @@ else
     # Launch application - for_window rules handle mark + move scratchpad
     eval "$COMMAND" &
 
-    # Wait until the window is ready (for_window rules will have fired by then)
-    "$SCRIPTS_DIR/swaywait-until.sh" "$APP_ID" > /dev/null
+    # Wait for window to appear - simple delay is sufficient
+    sleep 0.3
 
-    # Show immediately — this is a keybind trigger, not a pre-warm
+    # Show immediately
     swaymsg "[con_mark=\"$MARK_NAME\"] scratchpad show"
     set_window_properties
 fi
