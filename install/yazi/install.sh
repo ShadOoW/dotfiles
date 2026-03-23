@@ -18,6 +18,7 @@ aur_pkg=(
     ripdrag
     glow
     tig
+    resvg
 )
 
 # Source global functions
