@@ -7,6 +7,7 @@ x-scheme-handler/unknown=vivaldi-stable.desktop
 text/plain=userapp-mousepad-MAVO62.desktop
 image/png=userapp-feh --scale-down-P4MK62.desktop
 image/jpeg=userapp-feh --scale-down-P4MK62.desktop
+x-scheme-handler/claude-cli=claude-code-url-handler.desktop
 
 [Added Associations]
 text/plain=chromium.desktop;userapp-mousepad-MAVO62.desktop;
