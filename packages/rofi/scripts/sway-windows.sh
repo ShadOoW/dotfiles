@@ -85,7 +85,32 @@ format_ws() {
     fi
 }
 
-# If argument provided or stdin has content, user made a selection - focus the window
+# Handle entry selection via ROFI_RETV (proper rofi modi way)
+retv="${ROFI_RETV:-}"
+if [ "$retv" = "1" ] || [ $# -gt 0 ]; then
+    # Extract title from $1 - format is "ws app - window_title"
+    # Get everything after the last " - "
+    if [ -n "$1" ]; then
+        title=$(printf '%s' "$1" | cut -d $'\0' -f1)
+        title="${title##* - }"
+    fi
+
+    # Try to focus by title
+    if [ -n "$title" ]; then
+        found_id=$(swaymsg -t get_tree | jq -r '
+            [.nodes[].nodes[] | select(.type == "workspace")
+            | recurse(.nodes[]?, .floating_nodes[]?)
+            | select(.type == "con" or .type == "floating_con")
+            | select(.name == "'"$title"'")
+            | .id] | .[0]')
+        if [ -n "$found_id" ] && [ "$found_id" != "null" ]; then
+            swaymsg "[con_id=$found_id]" focus > /dev/null 2>&1
+        fi
+    fi
+    exit 0
+fi
+
+# If argument provided, user made a selection (legacy fallback)
 if [ $# -gt 0 ]; then
     if [ "$1" = "--focused-index" ]; then
         # Output the index of the focused window (0-based) without sorting
@@ -99,25 +124,6 @@ if [ $# -gt 0 ]; then
             | .focused]
             ' | jq -r 'index(true)'
         exit 0
-    fi
-
-    # Read selection from argument (rofi passes selected line as argument on Enter)
-    selected="$1"
-
-    # Extract container ID from selection (format: "ws name - title <!-- id -->")
-    winid=$(echo "$selected" | sed 's/.*<!-- \(.*\) -->.*/\1/')
-
-    # Extract window title for fallback
-    title=$(echo "$selected" | sed 's/.* - \(.*\) <!--.*/\1/')
-
-    # Focus the window by container ID, or by title if ID fails
-    if ! swaymsg "[con_id=$winid]" focus > /dev/null 2>&1; then
-        swaymsg -t get_tree | jq -r "
-            [.nodes[].nodes[] | select(.type == \"workspace\")
-            | recurse(.nodes[]?, .floating_nodes[]?)
-            | select(.type == \"con\" or .type == \"floating_con\")
-            | select(.name == \"$title\")
-            | .id] | .[0]" | xargs -I{} swaymsg "[con_id={}]" focus > /dev/null 2>&1 || true
     fi
     exit 0
 fi
@@ -138,8 +144,8 @@ swaymsg -t get_tree | jq -r '
     ws_display=$(format_ws "$ws")
 
     if [ "$focused" = "true" ]; then
-        echo -e "$ws_display $display_name - $name <!-- $id -->\u0000icon\u001f$icon"
+        echo -e "$ws_display $display_name - $name\u0000icon\u001f$icon\u0000info\u001f$id"
     else
-        echo -e "$ws_display $display_name - $name <!-- $id -->\u0000icon\u001f$icon"
+        echo -e "$ws_display $display_name - $name\u0000icon\u001f$icon\u0000info\u001f$id"
     fi
 done
