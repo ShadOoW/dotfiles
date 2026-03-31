@@ -117,8 +117,8 @@ vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 
 -- File formatting options
-vim.opt.fixendofline = true
-vim.opt.endofline = true
+-- Let Neovim auto-detect EOL per file; don't modify file endings on save
+vim.opt.fixendofline = false
 vim.opt.fileformat = 'unix'
 
 -- Better paste behavior to avoid extra empty lines

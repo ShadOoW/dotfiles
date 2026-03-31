@@ -5,7 +5,8 @@ return {
   event = 'VeryLazy',
   dependencies = { 'MunifTanjim/nui.nvim', 'rcarriga/nvim-notify' },
   opts = {
-    -- LSP integration for enhanced hover, signature, and progress
+    -- Use nvim-notify as the notification backend
+    backend = 'notify',
     lsp = {
       override = {
         ['vim.lsp.util.convert_input_to_markdown_lines'] = true,

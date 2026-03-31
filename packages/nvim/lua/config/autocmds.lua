@@ -326,16 +326,6 @@ vim.api.nvim_create_autocmd('FileType', {
   desc = 'Configure HTML files for superhtml and HTML5 compliance',
 })
 
--- Ensure files always end with a newline when saving
-vim.api.nvim_create_autocmd('BufWritePre', {
-  pattern = '*',
-  callback = function()
-    -- Ensure the file ends with a newline
-    local buf = vim.api.nvim_get_current_buf()
-    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-    if #lines > 0 and lines[#lines] ~= '' then vim.api.nvim_buf_set_lines(buf, -1, -1, false, { '' }) end
-  end,
-})
 
 -- Enhanced session post-load handling: Clean up unwanted windows and conditionally open Lazy/Mason
 vim.api.nvim_create_autocmd('User', {

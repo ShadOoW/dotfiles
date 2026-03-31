@@ -195,8 +195,8 @@ return {
       callback = setup_highlights,
     })
 
-    -- Set nvim-notify as the default notification handler
-    vim.notify = notify
+    -- Don't replace vim.notify - let Noice handle notifications through its notify config
+    -- This prevents duplicate notification panels
 
     -- Create utility functions for notification management
     _G.notification_utils = {
