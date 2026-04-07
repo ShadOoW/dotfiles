@@ -4,9 +4,11 @@ set -e
 # Font packages
 pacman_fonts=(
     inter-font
+    noto-fonts
     otf-monaspace-nerd
     terminus-font
     ttf-jetbrains-mono-nerd
+    ttf-firacode-nerd
 )
 
 # Source global functions
