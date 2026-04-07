@@ -3,6 +3,9 @@ local notify = require('utils.notify')
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+-- Prevent rainbow-delimiters from loading (dependency of mini.nvim, not used)
+vim.g.loaded_rainbow_delimiters = true
+
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
 
