@@ -1,12 +1,14 @@
 return {
   'folke/which-key.nvim',
-  event = 'VimEnter',
+  -- Load immediately so leader key works without delay
+  lazy = false,
   config = function()
     local wk = require('which-key')
 
     -- Configure which-key
     wk.setup({
       delay = 0,
+      timeoutlen = 300,
       icons = {
         mappings = false,
         keys = vim.g.have_nerd_font and {} or {
@@ -14,7 +16,6 @@ return {
           Down = '<Down> ',
           Left = '<Left> ',
           Right = '<Right> ',
-          -- Add more key mappings as needed
         },
       },
       spec = {

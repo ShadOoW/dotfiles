@@ -196,7 +196,19 @@ return {
       mode = 'cursor',
       separator = nil,
       zindex = 20,
-      on_attach = nil,
+      on_attach = function(buf)
+        -- Only enable for real files with parsers
+        local ft = vim.bo[buf].filetype
+        if ft == '' or vim.tbl_contains({
+          'qf',
+          'help',
+          'netrw',
+          'lazy',
+          'fzf',
+        }, ft) then
+          return false
+        end
+      end,
     })
 
     -- The buffer that triggered this load (BufReadPost) had its FileType
