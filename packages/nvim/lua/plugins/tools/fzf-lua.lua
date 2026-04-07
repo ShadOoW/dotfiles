@@ -65,23 +65,6 @@ return {
       vim.schedule(function() require('trouble').toggle('quickfix') end)
     end
 
-    local function picker_opts(title, icon, extra_opts)
-      local config = {
-        prompt = icon and (icon .. ' ' .. title .. ': ') or (title .. ': '),
-        winopts = {
-          title = icon and (icon .. ' ' .. title) or title,
-        },
-        fzf_opts = {
-          ['--info'] = 'inline',
-          ['--layout'] = 'reverse',
-        },
-        silent = true,
-      }
-
-      if extra_opts then config = vim.tbl_deep_extend('force', config, extra_opts) end
-      return config
-    end
-
     -- Returns true when the current tab is hosting a DiffView session.
     local diffview_fts = {
       DiffviewFiles = true,
@@ -137,7 +120,7 @@ return {
           horizontal = 'right:50%',
           layout = 'flex',
           flip_columns = 120,
-          scrollbar = false,
+          scrollbar = true,
           title_pos = 'center',
           delay = 100,
           wrap = true,
@@ -181,11 +164,14 @@ return {
         ['--keep-right'] = '',
         ['--scroll-off'] = '5',
         ['--layout'] = 'reverse',
-        ['--info'] = 'inline',
-        ['--pointer'] = '▶',
+        ['--info'] = 'default',
+        ['--ellipsis'] = '..',
+        ['--pointer'] = '█',
         ['--marker'] = '✓',
-        ['--prompt'] = '❯ ',
-        ['--color'] = 'fg:#a9b1d6,bg:#1a1b26,preview-fg:#a9b1d6,preview-bg:#1a1b26,hl:#bb9af7:bold,fg+:#c0caf5:bold,bg+:#292e42,gutter:#1a1b26,hl+:#bb9af7:bold,query:#7aa2f7:bold,info:#e0af68,prompt:#7aa2f7,pointer:#7aa2f7,marker:#9ece6a:bold,spinner:#9ece6a,header:#9ece6a:bold,border:#1a1b26',
+        ['--prompt'] = '› ',
+        ['--input-label'] = 'Search: ',
+        ['--highlight-line'] = true,
+        ['--color'] = 'fg:#a9b1d6,bg:#1a1b26,preview-fg:#a9b1d6,preview-bg:#1a1b26,hl:#bb9af7:bold,fg+:#c0caf5:bold,bg+:#15161f,gutter:#414868,hl+:#7aa2f7:bold,query:#7aa2f7:bold,info:#e0af68,prompt:#7aa2f7,pointer:#7aa2f7,marker:#9ece6a:bold,spinner:#9ece6a,header:#9ece6a:bold,border:#414868',
       },
       previewers = {
         builtin = {
@@ -230,6 +216,7 @@ return {
         no_header = true,
         no_header_i = true,
         delimiter = ' │ ',
+        multiline = true,
       },
       actions = {
         files = {
@@ -255,8 +242,13 @@ return {
           title = icon and (icon .. ' ' .. title) or title,
         },
         fzf_opts = {
-          ['--info'] = 'inline',
+          ['--info'] = 'default',
           ['--layout'] = 'reverse',
+          ['--ellipsis'] = '..',
+          ['--pointer'] = '█',
+          ['--prompt'] = '› ',
+          ['--input-label'] = 'Search: ',
+          ['--highlight-line'] = true,
         },
         silent = true,
       }
