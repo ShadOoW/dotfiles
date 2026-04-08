@@ -59,9 +59,8 @@ vim.opt.smartcase = true
 vim.opt.signcolumn = 'yes'
 
 -- Add padding/spacing around buffer content on all sides
--- Left padding: Increase number column width and add fold column
-vim.opt.numberwidth = 6 -- Increased from default 4 for more left spacing
-vim.opt.foldcolumn = '1' -- Add fold column for extra left spacing
+vim.opt.numberwidth = 4
+vim.opt.foldcolumn = '0'
 -- Left/Right padding: Keep columns visible at edges
 vim.opt.sidescrolloff = 8 -- Columns to keep left/right of cursor (creates horizontal gap)
 
