@@ -103,17 +103,18 @@ return {
             local bufname = vim.api.nvim_buf_get_name(buf)
 
             -- Remove any restored trouble/panel buffers, Lazy/Mason windows,
-            -- or the initial folder buffer from nvim . (directory path, no filetype)
+            -- [No Name] buffers (empty bufname with no filetype), or initial folder buffer
             local is_initial_folder_buf = bufname ~= ''
               and vim.fn.isdirectory(bufname) == 1
               and filetype == ''
               and buftype == ''
+            local is_no_name_buf = bufname == '' and buftype == '' and filetype == ''
             if
               filetype == 'trouble'
               or filetype == 'exclusive-panel'
               or filetype == 'lazy'
               or filetype == 'mason'
-              or (bufname == '' and buftype == 'nofile' and filetype == '')
+              or is_no_name_buf
               or is_initial_folder_buf
             then
               pcall(vim.api.nvim_buf_delete, buf, {
@@ -184,22 +185,45 @@ return {
       return false
     end
 
+    local function cleanup_initial_buffer()
+      local initial_bufnr = vim.api.nvim_get_current_buf()
+      local bufname = vim.api.nvim_buf_get_name(initial_bufnr)
+      local filetype = vim.api.nvim_get_option_value('filetype', { buf = initial_bufnr })
+      -- Delete if it's the initial directory buffer or [No Name] buffer
+      if (bufname ~= '' and vim.fn.isdirectory(bufname) == 1 and filetype == '') or (bufname == '' and filetype == '') then
+        -- Don't delete if it's the only buffer left
+        if #vim.api.nvim_list_bufs() > 1 then
+          pcall(vim.api.nvim_buf_delete, initial_bufnr, { force = true })
+        end
+      end
+      -- Also clean up any other [No Name] buffers
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_valid(buf) and buf ~= initial_bufnr then
+          local bname = vim.api.nvim_buf_get_name(buf)
+          local btype = vim.api.nvim_get_option_value('filetype', { buf = buf })
+          if bname == '' and btype == '' then
+            pcall(vim.api.nvim_buf_delete, buf, { force = true })
+          end
+        end
+      end
+    end
+
     local function try_restore_or_open_oil()
       local persistence = require('persistence')
       local session_file = persistence.current()
       if vim.fn.filereadable(session_file) == 0 then session_file = persistence.current({ branch = false }) end
+      local initial_bufnr = vim.api.nvim_get_current_buf()
       if session_file ~= '' and vim.fn.filereadable(session_file) == 1 then
         local success = pcall(persistence.load)
-        if success then require('utils.notify').success('Persistence', 'Session restored') end
+        if success then
+          require('utils.notify').success('Persistence', 'Session restored')
+          vim.schedule(cleanup_initial_buffer)
+        end
       else
         local ok, oil = pcall(require, 'oil')
         if ok and oil then
-          local initial_bufnr = vim.api.nvim_get_current_buf()
           oil.open(vim.fn.getcwd(), {}, function()
-            -- oil.open() uses :edit which abandons the initial buffer - delete it
-            if vim.api.nvim_buf_is_valid(initial_bufnr) and vim.api.nvim_get_current_buf() ~= initial_bufnr then
-              pcall(vim.api.nvim_buf_delete, initial_bufnr, { force = true })
-            end
+            cleanup_initial_buffer()
           end)
         end
       end

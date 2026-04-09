@@ -17,7 +17,7 @@ return {
       -- Enable all visual indicators
       set_cursor = true,
       set_cursorline = true,
-      set_number = true,
+      set_number = false,
 
       -- Disable in special buffers for clean experience
       ignore = { 'NvimTree', 'TelescopePrompt', 'lazy', 'mason', 'trouble', 'neo-tree' },

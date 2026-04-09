@@ -59,10 +59,11 @@ vim.opt.smartcase = true
 vim.opt.signcolumn = 'yes'
 
 -- Add padding/spacing around buffer content on all sides
-vim.opt.numberwidth = 4
+vim.opt.numberwidth = 8
 vim.opt.foldcolumn = '0'
+vim.opt.cursorcolumn = false
 -- Left/Right padding: Keep columns visible at edges
-vim.opt.sidescrolloff = 8 -- Columns to keep left/right of cursor (creates horizontal gap)
+vim.opt.sidescrolloff = 8
 
 -- Decrease update time
 vim.opt.updatetime = 250
@@ -97,8 +98,7 @@ vim.opt.inccommand = 'split'
 
 -- Show which line your cursor is on
 vim.opt.cursorline = true
-vim.opt.cursorlineopt = 'number,line'
-vim.opt.cursorcolumn = true -- highlight the current column
+vim.opt.cursorlineopt = 'line'
 
 
 -- Disable all scrolling animations
@@ -146,6 +146,17 @@ end, {
   desc = 'Paste in visual mode without extra empty lines',
 })
 
+vim.api.nvim_create_autocmd({ 'UIEnter', 'BufReadPost', 'VimResized', 'WinEnter' }, {
+  group = vim.api.nvim_create_augroup('FixNumberColumns', { clear = true }),
+  callback = function()
+    vim.defer_fn(function()
+      vim.wo.cursorlineopt = 'line'
+      vim.wo.numberwidth = 8
+      vim.wo.foldcolumn = '0'
+    end, 100)
+  end,
+})
+
 -- Enable true color support
 vim.opt.termguicolors = true
 
@@ -180,7 +191,7 @@ vim.api.nvim_create_autocmd('VimEnter', {
 })
 
 -- Session options
-vim.opt.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions'
+vim.opt.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal'
 
 -- File type associations
 vim.filetype.add({

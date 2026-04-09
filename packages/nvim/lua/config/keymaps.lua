@@ -188,6 +188,41 @@ keymap.n('<leader>ep', function()
   local tmux = require('utils.tmux')
   if tmux.is_tmux() then tmux.setup_project_workflow() end
 end, 'Setup project workflow')
+keymap.n('<leader>SD', function()
+  local persistence = require('persistence')
+  local session_file = persistence.current() or ''
+  local branch_session = persistence.current({ branch = false }) or ''
+  local state_dir = vim.fn.stdpath('state')
+  local deleted = false
+
+  -- Delete current directory session
+  if session_file ~= '' and vim.fn.filereadable(session_file) == 1 then
+    vim.fn.delete(session_file)
+    deleted = true
+  end
+  -- Delete branch variant if different
+  if branch_session ~= '' and branch_session ~= session_file and vim.fn.filereadable(branch_session) == 1 then
+    vim.fn.delete(branch_session)
+    deleted = true
+  end
+
+  -- Delete all session files in the sessions directory (thorough cleanup)
+  local sessions_dir = state_dir .. '/nvim/sessions'
+  if vim.fn.isdirectory(sessions_dir) == 1 then
+    for _, file in ipairs(vim.fn.glob(sessions_dir .. '/*', false, true)) do
+      if vim.fn.filereadable(file) == 1 then
+        vim.fn.delete(file)
+        deleted = true
+      end
+    end
+  end
+
+  if deleted then
+    notify.info('Session', 'All session files deleted')
+  else
+    notify.warn('Session', 'No session file found')
+  end
+end, 'Delete all session files')
 
 -- Quick diagnostic navigation (IntelliJ-style)
 keymap.n('[d', function() vim.diagnostic.goto_prev() vim.schedule(function() vim.cmd('normal! zz') end) end, 'Previous diagnostic')
