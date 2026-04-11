@@ -15,44 +15,44 @@ COMMAND=${4:-""}
 SCRIPTS_DIR="$(dirname "$0")"
 
 set_window_properties() {
-    case "$MARK_NAME" in
-        "terminal")
-            swaymsg "[con_mark=\"$MARK_NAME\"] resize set width 100ppt height 40ppt, move position 0 60ppt"
-            ;;
-        "music")
-            swaymsg "[con_mark=\"$MARK_NAME\"] resize set width 60ppt height 40ppt, move position center, move to 0 15"
-            ;;
-        "explorer")
-            swaymsg "[con_mark=\"$MARK_NAME\"] resize set width 100ppt height 50ppt, move position center"
-            ;;
-    esac
+  case "$MARK_NAME" in
+    "terminal")
+      swaymsg "[con_mark=\"$MARK_NAME\"] resize set width 100ppt height 40ppt, move position 0 60ppt"
+      ;;
+    "music")
+      swaymsg "[con_mark=\"$MARK_NAME\"] resize set width 60ppt height 40ppt, move position center, move to 0 15"
+      ;;
+    "explorer")
+      swaymsg "[con_mark=\"$MARK_NAME\"] resize set width 100ppt height 50ppt, move position center"
+      ;;
+  esac
 }
 
 is_running=$(swaymsg -t get_tree | jq "[ .. | objects | select(.marks? != null and (.marks | index(\"$MARK_NAME\"))) ] | length")
 
 if [ "$is_running" -gt 0 ]; then
-    # Check if window is currently visible (shown) or hidden (in scratchpad)
-    is_shown=$(swaymsg -t get_tree | jq "[ .. | objects | select(.marks? != null and (.marks | index(\"$MARK_NAME\")) and .visible == true) ] | length")
+  # Check if window is currently visible (shown) or hidden (in scratchpad)
+  is_shown=$(swaymsg -t get_tree | jq "[ .. | objects | select(.marks? != null and (.marks | index(\"$MARK_NAME\")) and .visible == true) ] | length")
 
-    swaymsg "[con_mark=\"$MARK_NAME\"] scratchpad show"
+  swaymsg "[con_mark=\"$MARK_NAME\"] scratchpad show"
 
-    # Only apply geometry when showing — move position center requires a visible window
-    if [ "$is_shown" -eq 0 ]; then
-        set_window_properties
-    fi
-else
-    if [ -z "$COMMAND" ]; then
-        echo "Error: No command provided to launch application"
-        exit 1
-    fi
-
-    # Launch application - for_window rules handle mark + move scratchpad
-    eval "$COMMAND" &
-
-    # Wait for window to appear - simple delay is sufficient
-    sleep 0.3
-
-    # Show immediately
-    swaymsg "[con_mark=\"$MARK_NAME\"] scratchpad show"
+  # Only apply geometry when showing — move position center requires a visible window
+  if [ "$is_shown" -eq 0 ]; then
     set_window_properties
+  fi
+else
+  if [ -z "$COMMAND" ]; then
+    echo "Error: No command provided to launch application"
+    exit 1
+  fi
+
+  # Launch application - for_window rules handle mark + move scratchpad
+  eval "$COMMAND" &
+
+  # Wait for window to appear - simple delay is sufficient
+  sleep 0.3
+
+  # Show immediately
+  swaymsg "[con_mark=\"$MARK_NAME\"] scratchpad show"
+  set_window_properties
 fi

@@ -10,5 +10,5 @@ return {
     '--fallback-style=llvm',
   },
   filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'proto' },
-single_file_support = true,
+  single_file_support = true,
 }

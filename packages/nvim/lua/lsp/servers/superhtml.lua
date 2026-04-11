@@ -16,5 +16,5 @@ return {
   -- It formats according to HTML5 spec by default (no self-closing void elements)
   -- Autoformatter automatically handles proper HTML5 formatting
   filetypes = { 'html', 'htm', 'xhtml' },
-single_file_support = true,
+  single_file_support = true,
 }

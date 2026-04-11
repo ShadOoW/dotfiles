@@ -190,20 +190,18 @@ return {
       local bufname = vim.api.nvim_buf_get_name(initial_bufnr)
       local filetype = vim.api.nvim_get_option_value('filetype', { buf = initial_bufnr })
       -- Delete if it's the initial directory buffer or [No Name] buffer
-      if (bufname ~= '' and vim.fn.isdirectory(bufname) == 1 and filetype == '') or (bufname == '' and filetype == '') then
+      if
+        (bufname ~= '' and vim.fn.isdirectory(bufname) == 1 and filetype == '') or (bufname == '' and filetype == '')
+      then
         -- Don't delete if it's the only buffer left
-        if #vim.api.nvim_list_bufs() > 1 then
-          pcall(vim.api.nvim_buf_delete, initial_bufnr, { force = true })
-        end
+        if #vim.api.nvim_list_bufs() > 1 then pcall(vim.api.nvim_buf_delete, initial_bufnr, { force = true }) end
       end
       -- Also clean up any other [No Name] buffers
       for _, buf in ipairs(vim.api.nvim_list_bufs()) do
         if vim.api.nvim_buf_is_valid(buf) and buf ~= initial_bufnr then
           local bname = vim.api.nvim_buf_get_name(buf)
           local btype = vim.api.nvim_get_option_value('filetype', { buf = buf })
-          if bname == '' and btype == '' then
-            pcall(vim.api.nvim_buf_delete, buf, { force = true })
-          end
+          if bname == '' and btype == '' then pcall(vim.api.nvim_buf_delete, buf, { force = true }) end
         end
       end
     end
@@ -221,11 +219,7 @@ return {
         end
       else
         local ok, oil = pcall(require, 'oil')
-        if ok and oil then
-          oil.open(vim.fn.getcwd(), {}, function()
-            cleanup_initial_buffer()
-          end)
-        end
+        if ok and oil then oil.open(vim.fn.getcwd(), {}, function() cleanup_initial_buffer() end) end
       end
     end
 

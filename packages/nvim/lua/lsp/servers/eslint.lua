@@ -34,6 +34,6 @@ return {
     'svelte',
     'astro',
   },
-single_file_support = false,
+  single_file_support = false,
   workspace_required = true,
 }

@@ -23,17 +23,23 @@ def get_pause_path() -> str:
 
 
 def swaymsg_get_tree() -> dict:
-    proc = subprocess.run(["swaymsg", "-t", "get_tree"], capture_output=True, text=True, check=True)
+    proc = subprocess.run(
+        ["swaymsg", "-t", "get_tree"], capture_output=True, text=True, check=True
+    )
     return json.loads(proc.stdout)
 
 
 def swaymsg_get_workspaces() -> List[dict]:
-    proc = subprocess.run(["swaymsg", "-t", "get_workspaces"], capture_output=True, text=True, check=True)
+    proc = subprocess.run(
+        ["swaymsg", "-t", "get_workspaces"], capture_output=True, text=True, check=True
+    )
     return json.loads(proc.stdout)
 
 
 def run_swaymsg(cmd: str) -> None:
-    subprocess.run(["swaymsg", cmd], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(
+        ["swaymsg", cmd], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+    )
 
 
 def load_mru(path: str) -> List[int]:
@@ -60,18 +66,29 @@ def flatten_nodes(node: dict) -> List[dict]:
     return res
 
 
-def find_workspace_and_windows(tree: dict, workspace_name: Optional[str]) -> Tuple[Optional[int], List[dict]]:
+def find_workspace_and_windows(
+    tree: dict, workspace_name: Optional[str]
+) -> Tuple[Optional[int], List[dict]]:
     if not workspace_name:
         return None, []
     nodes = flatten_nodes(tree)
-    workspace = next((n for n in nodes if n.get("type") == "workspace" and n.get("name") == workspace_name), None)
+    workspace = next(
+        (
+            n
+            for n in nodes
+            if n.get("type") == "workspace" and n.get("name") == workspace_name
+        ),
+        None,
+    )
     if workspace is None:
         return None, []
     ws_nodes = flatten_nodes(workspace)
     windows = [
         n
         for n in ws_nodes
-        if n.get("type") == "con" and isinstance(n.get("id"), int) and (n.get("app_id") is not None or n.get("window") is not None)
+        if n.get("type") == "con"
+        and isinstance(n.get("id"), int)
+        and (n.get("app_id") is not None or n.get("window") is not None)
     ]
     return workspace.get("id"), windows
 
@@ -141,5 +158,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
-

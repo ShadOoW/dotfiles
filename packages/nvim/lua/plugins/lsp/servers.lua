@@ -26,9 +26,7 @@ return {
       local ok, server_config = pcall(require, 'lsp.servers.' .. name)
       if ok and server_config and type(server_config) == 'table' then
         -- Force strict opt-in for noisy servers
-        if name == 'eslint' or name == 'biome' then
-          server_config.single_file_support = false
-        end
+        if name == 'eslint' or name == 'biome' then server_config.single_file_support = false end
         vim.lsp.config(name, server_config)
       end
     end
@@ -45,13 +43,15 @@ return {
         if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].filetype ~= '' then
           local ft = vim.bo[buf].filetype
           -- Skip non-standard filetypes that don't have LSP/treesitter support
-          if not vim.tbl_contains({
-            'diffview',
-            'DiffviewFiles',
-            'gitcommit',
-            'gitconfig',
-            'gitrebase',
-          }, ft) then
+          if
+            not vim.tbl_contains({
+              'diffview',
+              'DiffviewFiles',
+              'gitcommit',
+              'gitconfig',
+              'gitrebase',
+            }, ft)
+          then
             vim.api.nvim_exec_autocmds('FileType', { buffer = buf, modeline = false })
           end
         end

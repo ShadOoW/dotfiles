@@ -62,26 +62,32 @@ return {
   on_attach = function(client, bufnr)
     require('lsp.handlers').on_attach(client, bufnr)
 
-    local function map(key, fn, desc)
-      vim.keymap.set('n', key, fn, { buffer = bufnr, desc = 'Rust: ' .. desc })
-    end
+    local function map(key, fn, desc) vim.keymap.set('n', key, fn, { buffer = bufnr, desc = 'Rust: ' .. desc }) end
 
     -- ── LSP / rust-analyzer workspace commands ───────────────────────────────
-    map('<leader>re', function()
-      vim.lsp.buf.execute_command({ command = 'rust-analyzer.expandMacro' })
-    end, 'Expand macro')
+    map(
+      '<leader>re',
+      function() vim.lsp.buf.execute_command({ command = 'rust-analyzer.expandMacro' }) end,
+      'Expand macro'
+    )
 
-    map('<leader>rp', function()
-      vim.lsp.buf.execute_command({ command = 'rust-analyzer.parentModule' })
-    end, 'Go to parent module')
+    map(
+      '<leader>rp',
+      function() vim.lsp.buf.execute_command({ command = 'rust-analyzer.parentModule' }) end,
+      'Go to parent module'
+    )
 
-    map('<leader>ro', function()
-      vim.lsp.buf.execute_command({ command = 'rust-analyzer.openDocs' })
-    end, 'Open docs in browser')
+    map(
+      '<leader>ro',
+      function() vim.lsp.buf.execute_command({ command = 'rust-analyzer.openDocs' }) end,
+      'Open docs in browser'
+    )
 
-    map('<leader>rj', function()
-      vim.lsp.buf.execute_command({ command = 'rust-analyzer.joinLines' })
-    end, 'Join lines (smart)')
+    map(
+      '<leader>rj',
+      function() vim.lsp.buf.execute_command({ command = 'rust-analyzer.joinLines' }) end,
+      'Join lines (smart)'
+    )
 
     map('<leader>rw', function()
       vim.lsp.buf.execute_command({ command = 'rust-analyzer.reloadWorkspace' })
@@ -92,17 +98,21 @@ return {
     local root = client.config.root_dir or vim.fn.getcwd()
 
     local function cargo(subcmd, desc)
-      map('<leader>r' .. subcmd:sub(1, 1), function()
-        require('toggleterm').exec('cargo ' .. subcmd, 1, 15, root, 'horizontal')
-      end, 'cargo ' .. desc)
+      map(
+        '<leader>r' .. subcmd:sub(1, 1),
+        function() require('toggleterm').exec('cargo ' .. subcmd, 1, 15, root, 'horizontal') end,
+        'cargo ' .. desc
+      )
     end
 
     cargo('run', 'run')
     cargo('test', 'test')
     cargo('build', 'build')
     -- clippy uses <leader>rk (k for check+clippy, c is taken by 'cargo check')
-    map('<leader>rk', function()
-      require('toggleterm').exec('cargo clippy --all-targets --all-features', 1, 15, root, 'horizontal')
-    end, 'cargo clippy')
+    map(
+      '<leader>rk',
+      function() require('toggleterm').exec('cargo clippy --all-targets --all-features', 1, 15, root, 'horizontal') end,
+      'cargo clippy'
+    )
   end,
 }

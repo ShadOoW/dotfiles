@@ -3,20 +3,20 @@ set -e
 
 # Audio packages
 pipewire_packages=(
-    pipewire
-    wireplumber
-    pipewire-audio
-    pipewire-alsa
-    pipewire-pulse
-    sof-firmware
-    pavucontrol
+  pipewire
+  wireplumber
+  pipewire-audio
+  pipewire-alsa
+  pipewire-pulse
+  sof-firmware
+  pavucontrol
 )
 
 # Source global functions
 GLOBAL_SH="$(dirname "$(readlink -f "$0")")/../../utils/global.sh"
 if ! source "$GLOBAL_SH"; then
-    log "error" "Failed to source global.sh"
-    exit 1
+  log "error" "Failed to source global.sh"
+  exit 1
 fi
 
 # Disable PulseAudio
@@ -34,17 +34,17 @@ install_package_pacman "pipewire-pulse" || exit 1
 # Enable Pipewire services
 log "info" "Enabling Pipewire services"
 services=(
-    "pipewire.socket"
-    "pipewire-pulse.socket"
-    "wireplumber.service"
-    "pipewire.service"
+  "pipewire.socket"
+  "pipewire-pulse.socket"
+  "wireplumber.service"
+  "pipewire.service"
 )
 
 for service in "${services[@]}"; do
-    if ! systemctl --user enable --now "$service" &>/dev/null; then
-        log "error" "Failed to enable $service"
-        exit 1
-    fi
+  if ! systemctl --user enable --now "$service" &>/dev/null; then
+    log "error" "Failed to enable $service"
+    exit 1
+  fi
 done
 
 log "success" "Pipewire installation and setup completed"

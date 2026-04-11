@@ -3,29 +3,29 @@ set -e
 
 # Sway window manager packages
 sway_packages=(
-    sway
-    swaybg
-    swayidle
-    swaylock
-    sway-git
-    autotiling
-    wl-clipboard
-    cliphist
-    grim
-    slurp
-    jq
-    wluma
-    brightnessctl
-    rofi-wayland
-    sway-contrib-git
-    iwmenu
+  sway
+  swaybg
+  swayidle
+  swaylock
+  sway-git
+  autotiling
+  wl-clipboard
+  cliphist
+  grim
+  slurp
+  jq
+  wluma
+  brightnessctl
+  rofi-wayland
+  sway-contrib-git
+  iwmenu
 )
 
 # Source global functions
 GLOBAL_SH="$(dirname "$(readlink -f "$0")")/../../utils/global.sh"
 if ! source "$GLOBAL_SH"; then
-    log "error" "Failed to source global.sh"
-    exit 1
+  log "error" "Failed to source global.sh"
+  exit 1
 fi
 
 # Install sway packages

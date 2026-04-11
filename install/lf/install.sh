@@ -3,19 +3,19 @@ set -e
 
 # Thunar and related packages
 pacman_packages=(
-    lf
-    xdotool
-    xclip
-    bat
-    less
-    ripdrag
+  lf
+  xdotool
+  xclip
+  bat
+  less
+  ripdrag
 )
 
 # Source global functions
 GLOBAL_SH="$(dirname "$(readlink -f "$0")")/../../utils/global.sh"
 if ! source "$GLOBAL_SH"; then
-    log "error" "Failed to source global.sh"
-    exit 1
+  log "error" "Failed to source global.sh"
+  exit 1
 fi
 
 # Install Lf packages

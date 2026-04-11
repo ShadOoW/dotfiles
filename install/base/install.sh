@@ -3,36 +3,35 @@ set -e
 
 # Base development packages
 pacman_pkg=(
-    kitty
-    base-devel
-    findutils
-    stow
-    btop
-    iwd
-    debugedit
-    git
-    fakeroot
-    archlinux-keyring
-    zip
-    unzip
-    polkit-gnome
-    xorg-xhost
-    gparted
+  kitty
+  base-devel
+  findutils
+  stow
+  btop
+  iwd
+  debugedit
+  git
+  fakeroot
+  archlinux-keyring
+  zip
+  unzip
+  polkit-gnome
+  xorg-xhost
+  gparted
 )
 
 # Bluetooth related packages
 blue_pkg=(
-    bluez
-    bluez-utils
-    blueman
+  bluez
+  bluez-utils
+  blueman
 )
-
 
 # Source global functions
 GLOBAL_SH="$(dirname "$(readlink -f "$0")")/../../utils/global.sh"
 if ! source "$GLOBAL_SH"; then
-    log "error" "Failed to source global.sh"
-    exit 1
+  log "error" "Failed to source global.sh"
+  exit 1
 fi
 
 # Install base packages

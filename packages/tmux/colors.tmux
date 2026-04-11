@@ -4,7 +4,6 @@
 # template github.com/metaory/confsubst
 # values github.com/metaory/hexocd-colorscheme
 
-
 #▁▁▁16B▁▁▁▁▁
 #━━━━━━━━━━━┓
 C00='#332266'
@@ -132,4 +131,3 @@ CBB='#000000'
 CWW='#FFFFFF'
 
 # vim: ft=bash
-

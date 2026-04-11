@@ -3,13 +3,13 @@
 
 # ── Open and hide yazi (Enter key) ─────────────────────────────────────────────────
 [[mgr.prepend_keymap]]
-on  = "<Enter>"
+on = "<Enter>"
 run = ["shell --block swaymsg '[app_id=yazi-explorer] move scratchpad'", "open"]
 desc = "Open and hide yazi"
 
 # ── Smart enter (open file OR cd into dir) ───────────────────────────────────
 [[mgr.prepend_keymap]]
-on  = "l"
+on = "l"
 run = "plugin smart-enter"
 desc = "Enter dir / open file"
 
@@ -45,157 +45,155 @@ run = "plugin relative-motions --args=9"
 
 # ── Jump-to-char (vim f<char>) ───────────────────────────────────────────────
 [[mgr.prepend_keymap]]
-on  = "f"
+on = "f"
 run = "plugin jump-to-char"
 desc = "Jump to char"
 
 # ── Smart filter (continuous / auto-enter unique dir) ───────────────────────
 [[mgr.prepend_keymap]]
-on  = "<C-f>"
+on = "<C-f>"
 run = "plugin smart-filter"
 desc = "Smart filter"
 
 # ── Zoxide jump ───────────────────────────────────────────────────────────────
 [[mgr.prepend_keymap]]
-on  = "z"
+on = "z"
 run = "shell --block '~/.config/yazi/scripts/zoxide-jump.sh'"
 desc = "Zoxide jump"
 
 # ── Toggle hidden ────────────────────────────────────────────────────────────
 [[mgr.prepend_keymap]]
-on  = "."
+on = "."
 run = "hidden toggle"
 desc = "Toggle hidden files"
 
 # ── Shell in CWD (opens new kitty terminal, stashes yazi) ────────────────────
 [[mgr.prepend_keymap]]
-on  = "!"
+on = "!"
 run = "shell '~/.config/yazi/scripts/open-terminal.sh'"
 desc = "Terminal in CWD"
 
 # ── Drag & drop via ripdrag (Alt+d to avoid conflicting with scroll C-d) ─────
 [[mgr.prepend_keymap]]
-on  = "<A-d>"
+on = "<A-d>"
 run = "plugin drag"
 desc = "Drag files (ripdrag)"
 
 # ── Preview scroll (Ctrl+j/k) ────────────────────────────────────────────────
 [[mgr.prepend_keymap]]
-on  = "<C-j>"
+on = "<C-j>"
 run = "seek 5"
 desc = "Preview: scroll down"
 
 [[mgr.prepend_keymap]]
-on  = "<C-k>"
+on = "<C-k>"
 run = "seek -5"
 desc = "Preview: scroll up"
 
 # ── Archive: compress selected ───────────────────────────────────────────────
 [[mgr.prepend_keymap]]
-on  = "C"
+on = "C"
 run = "plugin ouch"
 desc = "Compress with ouch"
 
 # ── Yank / Cut / Paste with visual feedback ──────────────────────────────────
 [[mgr.prepend_keymap]]
-on  = "y"
+on = "y"
 run = ["yank", "shell 'notify-send -t 1500 Yazi Copied 2>/dev/null'"]
 desc = "Yank (copy)"
 
 [[mgr.prepend_keymap]]
-on  = "x"
+on = "x"
 run = ["yank --cut", "shell 'notify-send -t 1500 Yazi Cut 2>/dev/null'"]
 desc = "Yank (cut)"
 
 [[mgr.prepend_keymap]]
-on  = "p"
+on = "p"
 run = ["paste", "shell 'notify-send -t 1500 Yazi Pasted 2>/dev/null'"]
 desc = "Paste"
 
 # ── Path copy (Y prefix) ──────────────────────────────────────────────────────
 [[mgr.prepend_keymap]]
-on  = ["Y", "p"]
+on = ["Y", "p"]
 run = "copy path"
 desc = "Copy: full path"
 
 [[mgr.prepend_keymap]]
-on  = ["Y", "n"]
+on = ["Y", "n"]
 run = "copy filename"
 desc = "Copy: filename"
 
 [[mgr.prepend_keymap]]
-on  = ["Y", "d"]
+on = ["Y", "d"]
 run = "copy dirname"
 desc = "Copy: directory path"
 
 # ── Bookmarks (vim-style marks) ──────────────────────────────────────────────
 [[mgr.prepend_keymap]]
-on  = ["b", "m"]
+on = ["b", "m"]
 run = "plugin bookmarks --args=save"
 desc = "Bookmark: set mark"
 
 [[mgr.prepend_keymap]]
-on  = ["b", "'"]
+on = ["b", "'"]
 run = "plugin bookmarks --args=jump"
 desc = "Bookmark: jump to mark"
 
 [[mgr.prepend_keymap]]
-on  = ["b", "d"]
+on = ["b", "d"]
 run = "plugin bookmarks --args=delete"
 desc = "Bookmark: delete mark"
 
 # ── Cheatsheet ───────────────────────────────────────────────────────────────
 [[mgr.prepend_keymap]]
-on  = "?"
+on = "?"
 run = "shell --block -- bat --language=md --style=plain --paging=always ~/.config/yazi/CHEATSHEET.md"
 desc = "Show cheatsheet"
 
 # ── Git shortcuts ─────────────────────────────────────────────────────────────
 [[mgr.prepend_keymap]]
-on  = ["g", "t"]
+on = ["g", "t"]
 run = "shell --block -- tig"
 desc = "Git: open tig"
 
-
 # ── Go-to directory shortcuts ─────────────────────────────────────────────────
 [[mgr.prepend_keymap]]
-on  = ["g", "h"]
+on = ["g", "h"]
 run = "cd ~"
 desc = "Go: home"
 
 [[mgr.prepend_keymap]]
-on  = ["g", "d"]
+on = ["g", "d"]
 run = "cd ~/Downloads"
 desc = "Go: downloads"
 
 [[mgr.prepend_keymap]]
-on  = ["g", "c"]
+on = ["g", "c"]
 run = "cd ~/.config"
 desc = "Go: ~/.config"
 
 [[mgr.prepend_keymap]]
-on  = ["g", "C"]
+on = ["g", "C"]
 run = "cd ~/.config/dotfiles"
 desc = "Go: dotfiles"
 
 [[mgr.prepend_keymap]]
-on  = ["g", "p"]
+on = ["g", "p"]
 run = "cd ~/Pictures"
 desc = "Go: pictures"
 
 [[mgr.prepend_keymap]]
-on  = ["g", "o"]
+on = ["g", "o"]
 run = "cd /mnt/backup/code"
 desc = "Go: /mnt/backup/code"
 
 # ── Input widget: Escape closes immediately (no double-Escape needed) ─────────
 [[input.prepend_keymap]]
-on  = "<Esc>"
+on = "<Esc>"
 run = "close"
 desc = "Cancel"
 
 [[input.prepend_keymap]]
-on  = "<C-c>"
+on = "<C-c>"
 run = "close"
 desc = "Cancel (insert mode)"
-

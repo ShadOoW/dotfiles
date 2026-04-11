@@ -71,7 +71,5 @@ require('utils.tmux').setup()
 -- Fix: Use single column for both absolute and relative numbers
 vim.api.nvim_create_autocmd({ 'UIEnter', 'BufReadPost', 'WinEnter' }, {
   once = false,
-  callback = function()
-    vim.wo.cursorlineopt = 'line'
-  end,
+  callback = function() vim.wo.cursorlineopt = 'line' end,
 })

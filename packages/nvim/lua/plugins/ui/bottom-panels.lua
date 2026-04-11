@@ -11,9 +11,7 @@ local function setup()
   local function trouble_toggle(mode)
     local trouble = require('trouble')
     local is_diag_mode = mode == 'cascade' or mode == 'diagnostics'
-    if is_diag_mode then
-      require('lsp.handlers').populate_workspace_diagnostics_for_buf()
-    end
+    if is_diag_mode then require('lsp.handlers').populate_workspace_diagnostics_for_buf() end
     if trouble.is_open() then
       trouble.toggle({ mode = mode })
     else
@@ -46,9 +44,7 @@ local function setup()
   -- refreshes content on every call.
   pm.register({
     ft = 'noice',
-    open = function()
-      require('noice').cmd('history')
-    end,
+    open = function() require('noice').cmd('history') end,
     close = function()
       local win = find_split_win('noice')
       if win then vim.api.nvim_win_close(win, true) end

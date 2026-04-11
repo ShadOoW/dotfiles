@@ -9,7 +9,7 @@ set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Resurrect Configuration  
+# Resurrect Configuration
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Restore pane contents (terminal output)
@@ -46,4 +46,4 @@ bind-key C-s run-shell '~/.config/tmux/plugins/tmux-resurrect/scripts/save.sh'
 bind-key C-r run-shell '~/.config/tmux/plugins/tmux-resurrect/scripts/restore.sh'
 
 # Session info and management
-bind-key I display-message "Session: #S | Windows: #{session_windows} | Auto-save: #{?@continuum-save-interval,ON,OFF}" 
+bind-key I display-message "Session: #S | Windows: #{session_windows} | Auto-save: #{?@continuum-save-interval,ON,OFF}"

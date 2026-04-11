@@ -26,7 +26,7 @@ return {
       'jsonc',
       'yaml',
       'toml',
-      'xml',             -- Documentation & Markup
+      'xml', -- Documentation & Markup
       'markdown',
       'markdown_inline', -- Programming Languages
       'lua',
@@ -54,7 +54,7 @@ return {
       'git_rebase',
       -- Build Tools & Package Managers
       'make',
-      'cmake',   -- Data & Query Languages
+      'cmake', -- Data & Query Languages
       'sql',
       'graphql', -- Specialized
       'diff',
@@ -169,10 +169,10 @@ return {
     incremental_selection = {
       enable = true,
       keymaps = {
-        init_selection = '<CR>',      -- Enter to start selection
-        node_incremental = '<CR>',    -- Enter to expand selection
+        init_selection = '<CR>', -- Enter to start selection
+        node_incremental = '<CR>', -- Enter to expand selection
         scope_incremental = '<S-CR>', -- Shift+Enter for scope
-        node_decremental = '<BS>',    -- Backspace to shrink selection
+        node_decremental = '<BS>', -- Backspace to shrink selection
       },
     },
 
@@ -199,13 +199,16 @@ return {
       on_attach = function(buf)
         -- Only enable for real files with parsers
         local ft = vim.bo[buf].filetype
-        if ft == '' or vim.tbl_contains({
-          'qf',
-          'help',
-          'netrw',
-          'lazy',
-          'fzf',
-        }, ft) then
+        if
+          ft == ''
+          or vim.tbl_contains({
+            'qf',
+            'help',
+            'netrw',
+            'lazy',
+            'fzf',
+          }, ft)
+        then
           return false
         end
       end,
@@ -227,8 +230,8 @@ return {
     require('nvim-ts-autotag').setup({
       opts = {
         -- Defaults
-        enable_close = true,          -- Auto close tags
-        enable_rename = true,         -- Auto rename pairs of tags
+        enable_close = true, -- Auto close tags
+        enable_rename = true, -- Auto rename pairs of tags
         enable_close_on_slash = true, -- Auto close on trailing </
       },
       -- Also override individual filetype configs, these take priority.

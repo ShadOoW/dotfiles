@@ -4,24 +4,24 @@
 @define-color cursor #c5c5c5;
 
 /* Base 16 colors that style.css expects */
-@define-color color0 #191919;   /* black */
-@define-color color1 #582c1e;   /* darkred */
-@define-color color2 #4e4843;   /* brown2 */
-@define-color color3 #634723;   /* amber */
-@define-color color4 #50473c;   /* darkbrown */
-@define-color color5 #763b28;   /* rust */
-@define-color color6 #855f2f;   /* gold */
-@define-color color7 #8c8c8c;   /* lightgray */
-@define-color color8 #525252;   /* gray */
-@define-color color9 #582c1e;   /* darkred - brighter */
-@define-color color10 #59554c;  /* taupe */
-@define-color color11 #796d62;  /* sandstone */
-@define-color color12 #6b5f51;  /* mocha */
-@define-color color13 #763b28;  /* rust - brighter */
-@define-color color14 #855f2f;  /* gold - brighter */
-@define-color color15 #c5c5c5;  /* white */
-@define-color color16 #09b86f;  /* green */
-@define-color color17 #7dcfff;  /* cyan */
+@define-color color0 #191919; /* black */
+@define-color color1 #582c1e; /* darkred */
+@define-color color2 #4e4843; /* brown2 */
+@define-color color3 #634723; /* amber */
+@define-color color4 #50473c; /* darkbrown */
+@define-color color5 #763b28; /* rust */
+@define-color color6 #855f2f; /* gold */
+@define-color color7 #8c8c8c; /* lightgray */
+@define-color color8 #525252; /* gray */
+@define-color color9 #582c1e; /* darkred - brighter */
+@define-color color10 #59554c; /* taupe */
+@define-color color11 #796d62; /* sandstone */
+@define-color color12 #6b5f51; /* mocha */
+@define-color color13 #763b28; /* rust - brighter */
+@define-color color14 #855f2f; /* gold - brighter */
+@define-color color15 #c5c5c5; /* white */
+@define-color color16 #09b86f; /* green */
+@define-color color17 #7dcfff; /* cyan */
 
 /* Original earthy/warm palette definitions */
 @define-color black #191919;

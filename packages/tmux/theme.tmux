@@ -2,16 +2,16 @@
 # Based on Tokyo Night colors but simplified for our needs
 
 # Tokyo Night Color Palette
-set -g @theme_bg "#1a1b26"          # Deep night background
-set -g @theme_fg "#c0caf5"          # Soft blue-white text  
-set -g @theme_accent "#7aa2f7"      # Bright blue accent
-set -g @theme_inactive "#565f89"    # Muted inactive text
-set -g @theme_active "#bb9af7"      # Purple highlight
-set -g @theme_border "#3b4261"      # Subtle border
-set -g @theme_green "#9ece6a"       # Success green
-set -g @theme_orange "#ff9e64"      # Warning orange
-set -g @theme_red "#f7768e"         # Error red
-set -g @theme_cyan "#7dcfff"        # Info cyan
+set -g @theme_bg "#1a1b26"       # Deep night background
+set -g @theme_fg "#c0caf5"       # Soft blue-white text
+set -g @theme_accent "#7aa2f7"   # Bright blue accent
+set -g @theme_inactive "#565f89" # Muted inactive text
+set -g @theme_active "#bb9af7"   # Purple highlight
+set -g @theme_border "#3b4261"   # Subtle border
+set -g @theme_green "#9ece6a"    # Success green
+set -g @theme_orange "#ff9e64"   # Warning orange
+set -g @theme_red "#f7768e"      # Error red
+set -g @theme_cyan "#7dcfff"     # Info cyan
 
 # Basic tmux styling
 set -g status-style "bg=#{@theme_bg},fg=#{@theme_fg}"
@@ -40,7 +40,7 @@ set -g window-status-current-format "#[fg=#{@theme_bg},bg=#{@theme_accent}] #I #
 
 # Position status bar with gap from bottom (simulates gap from top in appearance)
 set -g status-position bottom
-set -g status-justify centre    # Center the window list
+set -g status-justify centre # Center the window list
 set -g window-status-separator ""
 set -g status-interval 1
 
@@ -69,4 +69,4 @@ set -g mode-style "bg=#{@theme_accent},fg=#{@theme_bg}"
 
 # Clock mode styling
 set -g clock-mode-colour "#7aa2f7"
-set -g clock-mode-style 24 
+set -g clock-mode-style 24

@@ -63,7 +63,6 @@ vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
   desc = 'Detect TSX/JSX file types',
 })
 
-
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
 --  See `:help vim.highlight.on_yank()`
@@ -325,7 +324,6 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
   desc = 'Configure HTML files for superhtml and HTML5 compliance',
 })
-
 
 -- Enhanced session post-load handling: Clean up unwanted windows and conditionally open Lazy/Mason
 vim.api.nvim_create_autocmd('User', {

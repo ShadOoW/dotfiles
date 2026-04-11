@@ -3,7 +3,10 @@
 echo "Setting up global prettier for neovim..."
 
 # Change to the ~/.config/prettierd directory
-cd ~/.config/prettierd || { echo "Failed to cd to ~/.config/prettierd"; exit 1; }
+cd ~/.config/prettierd || {
+  echo "Failed to cd to ~/.config/prettierd"
+  exit 1
+}
 
 npm install
 

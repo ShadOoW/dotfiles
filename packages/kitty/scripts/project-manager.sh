@@ -23,7 +23,7 @@ startup_command=$(echo "$info" | jq -r '.startup_command')
 
 # Launch Kitty in project directory
 if [ -n "$startup_command" ] && [ "$startup_command" != "null" ]; then
-    kitty --directory "$path" -e $startup_command &
+  kitty --directory "$path" -e $startup_command &
 else
-    kitty --directory "$path" &
-fi 
+  kitty --directory "$path" &
+fi

@@ -231,9 +231,7 @@ end, {
   desc = 'Stop LSP client(s)',
 })
 
-vim.api.nvim_create_user_command('LspStatus', function()
-  require('plugins.ui.panel-manager').toggle('lspstatus')
-end, {
+vim.api.nvim_create_user_command('LspStatus', function() require('plugins.ui.panel-manager').toggle('lspstatus') end, {
   desc = 'Toggle LSP status bottom panel',
 })
 

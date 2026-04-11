@@ -53,5 +53,6 @@ For granular control, you can comment out specific packages inside the script.
 ```
 
 ## Notes
+
 - Always back up your existing configurations before applying these dotfiles
 - Search for "shad" to make sure to find places with my hardcoded username.

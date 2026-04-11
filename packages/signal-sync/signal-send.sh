@@ -20,7 +20,10 @@ else
   msg=$(cat)
 fi
 
-[[ -z "$msg" ]] && { echo "Usage: signal-send.sh <message>"; exit 1; }
+[[ -z "$msg" ]] && {
+  echo "Usage: signal-send.sh <message>"
+  exit 1
+}
 
 # Use daemon HTTP API (avoids "config in use" when daemon is running)
 SIGNAL_HTTP="${SIGNAL_HTTP:-http://127.0.0.1:8080}"

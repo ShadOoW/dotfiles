@@ -6,10 +6,10 @@ LOCK_FILE="/tmp/kitty-cwd.lock"
 
 # Prevent rapid re-execution (common during key repeat)
 if [ -f "$LOCK_FILE" ]; then
-    LOCK_AGE=$(($(date +%s) - $(stat -c %Y "$LOCK_FILE" 2>/dev/null || echo 0)))
-    if [ "$LOCK_AGE" -lt 1 ]; then
-        exec kitty  # Just open kitty without CWD
-    fi
+  LOCK_AGE=$(($(date +%s) - $(stat -c %Y "$LOCK_FILE" 2>/dev/null || echo 0)))
+  if [ "$LOCK_AGE" -lt 1 ]; then
+    exec kitty # Just open kitty without CWD
+  fi
 fi
 touch "$LOCK_FILE"
 

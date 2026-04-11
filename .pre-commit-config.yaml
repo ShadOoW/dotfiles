@@ -13,7 +13,7 @@ repos:
         language: system
         entry: shfmt -w -i 2 -ci
         types: [shell]
-        exclude: ^backup/
+        exclude: ^(backup|\.crush|\.claude)/
 
       - id: ruff-format
         name: ruff format

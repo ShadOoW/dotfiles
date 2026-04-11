@@ -4,51 +4,51 @@ set -e
 # LSP servers for Crush AI assistant
 # These match the languageServers in packages/crush/config.json
 pacman_pkg=(
-    # Go
-    gopls
+  # Go
+  gopls
 
-    # Rust
-    rust-analyzer
+  # Rust
+  rust-analyzer
 
-    # Python
-    pyright
+  # Python
+  pyright
 
-    # Bash
-    bash-language-server
+  # Bash
+  bash-language-server
 
-    # Lua
-    lua-language-server
+  # Lua
+  lua-language-server
 
-    # Markdown
-    marksman
+  # Markdown
+  marksman
 
-    # YAML
-    yaml-language-server
+  # YAML
+  yaml-language-server
 )
 
 # AUR packages
 aur_pkg=(
-    # Includes: json, css, html, typescript language servers
-    vscode-langservers-extracted
+  # Includes: json, css, html, typescript language servers
+  vscode-langservers-extracted
 
-    # JSON (alternative)
-    json-lsp
+  # JSON (alternative)
+  json-lsp
 
-    # Terraform
-    terraform-ls
+  # Terraform
+  terraform-ls
 
-    # Dockerfile
-    dockerfile-language-server
+  # Dockerfile
+  dockerfile-language-server
 
-    # Vim
-    vim-language-server
+  # Vim
+  vim-language-server
 )
 
 # Source global functions
 GLOBAL_SH="$(dirname "$(readlink -f "$0")")/../../utils/global.sh"
 if ! source "$GLOBAL_SH"; then
-    log "error" "Failed to source global.sh"
-    exit 1
+  log "error" "Failed to source global.sh"
+  exit 1
 fi
 
 # Install pacman packages

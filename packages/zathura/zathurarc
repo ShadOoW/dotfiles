@@ -7,8 +7,8 @@ set clipboard clipboard
 # Copy keybindings for Wayland
 map y toggle_page_mode
 map Y copy
-map <C-c> copy
-map <C-y> copy
+map <C-c >copy
+map <C-y >copy
 
 # Recolor settings for better readability
 set recolor true
@@ -92,7 +92,7 @@ set show-h-scrollbar true
 set show-v-scrollbar true
 
 # Enhanced key bindings for better usability
-map <C-i> recolor
+map <C-i >recolor
 map r reload
 map R rotate
 map K zoom in
@@ -103,11 +103,11 @@ map g goto top
 map G goto bottom
 
 # Additional convenience bindings
-map <C-r> rotate
-map <C-R> rotate rotate
-map <Space> scroll down
-map <S-Space> scroll up
-map <BackSpace> scroll up
+map <C-r >rotate
+map <C-R >rotate rotate
+map <Space >scroll down
+map <S-Space >scroll up
+map <BackSpace >scroll up
 
 # Vim-like navigation
 map h scroll left
@@ -118,10 +118,10 @@ map H navigate previous
 map L navigate next
 
 # Page navigation
-map <C-d> scroll half-down
-map <C-u> scroll half-up
-map <C-f> scroll full-down
-map <C-b> scroll full-up
+map <C-d >scroll half-down
+map <C-u >scroll half-up
+map <C-f >scroll full-down
+map <C-b >scroll full-up
 
 # Tab navigation
-map <C-Tab> focus_inputbar ":exec tabbed-surf-open"
+map <C-Tab >focus_inputbar ":exec tabbed-surf-open"

@@ -74,7 +74,7 @@ for i in "${updates[@]}"; do
   tooltip+="<b> $update </b>$prev $next\n"
 done
 
-tooltip=${tooltip::-2}  # Remove trailing newline
+tooltip=${tooltip::-2} # Remove trailing newline
 
 # Output the JSON formatted text and tooltip
 cat <<EOF

@@ -39,4 +39,3 @@
 
 # Output structure (simple)
 -o "/mnt/share/music/%(artist,uploader)s/%(track,title)s.%(ext)s"
-

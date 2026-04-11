@@ -3,44 +3,44 @@ set -e
 
 # Wayland packages
 wayland_packages=(
-    waybar
-    swaync
-    swayidle
-    swaylock
-    wttrbar
-    wlsunset
-    wl-screenrec
-    sway-screenshot
-    xdg-desktop-portal-wlr
-    pacman-contrib
-    aurutils
-    slurp
-    jq
-    gron
+  waybar
+  swaync
+  swayidle
+  swaylock
+  wttrbar
+  wlsunset
+  wl-screenrec
+  sway-screenshot
+  xdg-desktop-portal-wlr
+  pacman-contrib
+  aurutils
+  slurp
+  jq
+  gron
 
-    # Rofi
-    rofi-wayland
+  # Rofi
+  rofi-wayland
 
-    # Notifications
-    fyi
-    mako
+  # Notifications
+  fyi
+  mako
 
-    # Clipboard
-    wl-clipboard
-    cliphist
+  # Clipboard
+  wl-clipboard
+  cliphist
 
-    # Appearance
-    nwg-look
+  # Appearance
+  nwg-look
 
-    # Wallpaper
-    mpvpaper
+  # Wallpaper
+  mpvpaper
 )
 
 # Source global functions
 GLOBAL_SH="$(dirname "$(readlink -f "$0")")/../../utils/global.sh"
 if ! source "$GLOBAL_SH"; then
-    log "error" "Failed to source global.sh"
-    exit 1
+  log "error" "Failed to source global.sh"
+  exit 1
 fi
 
 # Install wayland packages

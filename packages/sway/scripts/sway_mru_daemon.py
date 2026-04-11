@@ -105,9 +105,9 @@ def main() -> int:
                     container = event.get("container") or {}
                     con_id = container.get("id")
                     # Track only real windows with an id and either app_id or window
-                    is_real_window = (
-                        isinstance(con_id, int)
-                        and (container.get("app_id") is not None or container.get("window") is not None)
+                    is_real_window = isinstance(con_id, int) and (
+                        container.get("app_id") is not None
+                        or container.get("window") is not None
                     )
                     if not is_real_window:
                         continue
@@ -135,5 +135,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-
-

@@ -82,7 +82,7 @@ return {
     },
   },
   filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'json', 'jsonc' },
-single_file_support = true,
+  single_file_support = true,
   init_options = {
     -- Enable all features
     lintRules = {

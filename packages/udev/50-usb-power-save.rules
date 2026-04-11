@@ -6,4 +6,3 @@
 ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1532", ATTR{idProduct}=="0084", GOTO="power_usb_rules_end"
 # SONiX Keyboard
 ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="320f", ATTR{idProduct}=="5004", GOTO="power_usb_rules_end"
-

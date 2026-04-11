@@ -14,8 +14,8 @@ return {
         -- Silence diagnostics that ruff already covers so there are no duplicates.
         diagnosticSeverityOverrides = {
           reportUndefinedVariable = 'none', -- ruff F821
-          reportUnusedImport = 'none',      -- ruff F401
-          reportUnusedVariable = 'none',    -- ruff F841
+          reportUnusedImport = 'none', -- ruff F401
+          reportUnusedVariable = 'none', -- ruff F841
         },
       },
     },

@@ -1,2 +1,4 @@
 backup/
-packages/prettierd/node_modules/
+packages/prettierd/
+justfile
+.pre-commit-config.yaml

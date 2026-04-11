@@ -21,9 +21,7 @@ end
 
 local function close_others(except_ft)
   for ft, panel in pairs(M.panels) do
-    if ft ~= except_ft then
-      pcall(panel.close)
-    end
+    if ft ~= except_ft then pcall(panel.close) end
   end
 end
 

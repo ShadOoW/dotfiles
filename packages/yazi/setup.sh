@@ -18,9 +18,9 @@ ya pkg add yazi-rs/plugins:diff
 # Community plugins
 ya pkg add dedukun/relative-motions
 ya pkg add dedukun/bookmarks
-ya pkg add Joao-Queiroga/drag          # ripdrag drag-and-drop
-ya pkg add ndtoan96/ouch               # archive compress/extract
-ya pkg add boydaihungst/restore        # trash recovery
+ya pkg add Joao-Queiroga/drag   # ripdrag drag-and-drop
+ya pkg add ndtoan96/ouch        # archive compress/extract
+ya pkg add boydaihungst/restore # trash recovery
 
 echo "Making scripts executable..."
 chmod +x ~/.config/yazi/scripts/*.sh 2>/dev/null || true

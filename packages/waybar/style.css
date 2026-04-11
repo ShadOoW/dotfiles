@@ -11,7 +11,6 @@
   box-shadow: none;
   text-shadow: none;
   padding: 0px;
-
 }
 
 window#waybar {
@@ -41,7 +40,7 @@ tooltip label {
 }
 
 #submap,
-#tray>.needs-attention {
+#tray > .needs-attention {
   animation-name: blink-active;
   animation-duration: 1s;
   animation-timing-function: linear;
@@ -301,4 +300,3 @@ tooltip label {
   animation-iteration-count: infinite;
   animation-direction: alternate;
 }
-

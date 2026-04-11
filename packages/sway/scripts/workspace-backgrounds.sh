@@ -16,7 +16,7 @@ mp4_files=("$VIDEOS_DIR"/*.mp4)
 shopt -u nullglob
 
 if [ ${#mp4_files[@]} -eq 0 ]; then
-	exit 0
+  exit 0
 fi
 
 # Pick random

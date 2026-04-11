@@ -27,10 +27,7 @@ function M.on_attach(client, bufnr)
   -- once the server goes idle, guaranteeing it gets up-to-date tokens.
   -- `seen_begin` prevents misfires from stale `end` events that arrive
   -- before our handler is registered.
-  if
-    vim.tbl_contains(M.workspace_diag_servers, client.name)
-    and not _token_refresh_scheduled[client.id]
-  then
+  if vim.tbl_contains(M.workspace_diag_servers, client.name) and not _token_refresh_scheduled[client.id] then
     _token_refresh_scheduled[client.id] = true
     local pending = {}
     local seen_begin = false
@@ -123,9 +120,7 @@ function M.populate_workspace_diagnostics_for_buf(bufnr)
   local ok, wd = pcall(require, 'workspace-diagnostics')
   if not ok then return end
   for _, client in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
-    if vim.tbl_contains(M.workspace_diag_servers, client.name) then
-      wd.populate_workspace_diagnostics(client, bufnr)
-    end
+    if vim.tbl_contains(M.workspace_diag_servers, client.name) then wd.populate_workspace_diagnostics(client, bufnr) end
   end
 end
 

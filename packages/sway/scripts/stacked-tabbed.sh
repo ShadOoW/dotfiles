@@ -5,7 +5,7 @@ CURRENT_LAYOUT=$(swaymsg -t get_tree | jq -r '.. | select(.nodes? // [] | .[] | 
 
 # Toggle layout
 if [ "$CURRENT_LAYOUT" = "tabbed" ]; then
-    swaymsg layout stacking
+  swaymsg layout stacking
 else
-    swaymsg layout tabbed
+  swaymsg layout tabbed
 fi

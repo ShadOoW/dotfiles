@@ -1,4 +1,4 @@
 Host home.shadhq.com
-    ProxyCommand cloudflared access ssh --hostname %h
-    ServerAliveInterval 30
-    ServerAliveCountMax 3
+ProxyCommand cloudflared access ssh --hostname %h
+ServerAliveInterval 30
+ServerAliveCountMax 3

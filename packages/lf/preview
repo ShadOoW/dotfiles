@@ -13,70 +13,70 @@ MIME=$(file -Lb --mime-type "$FILE")
 
 # Preview based on file type
 case "$MIME" in
-    # Image previews - use ASCII art for images to avoid GPU issues
-    image/*)
-        if [ "$TERM" = "xterm-kitty" ] && command -v kitty >/dev/null 2>&1; then
-            kitty +kitten icat --transfer-mode=file --place=60x20@0x0 "$file" < /dev/null > /dev/tty
-        elif command -v chafa >/dev/null 2>&1; then
-            chafa -s "${WIDTH}x${HEIGHT}" "$FILE"
-        elif command -v img2txt >/dev/null 2>&1; then
-            img2txt -W "$WIDTH" -H "$HEIGHT" "$FILE"
-        else
-            echo "Image: $FILE"
-            echo "Install chafa or libcaca for ASCII art image previews"
-        fi
-        ;;
-    
-    # PDF previews
-    application/pdf)
-        pdftotext -l 10 -nopgbrk -q -- "$FILE" - | fmt -w "$WIDTH" | head -n "$HEIGHT"
-        ;;
-    
-    # Audio metadata
-    audio/*)
-        exiftool "$FILE" | grep -E '(Title|Artist|Album|Genre|Track|Year)' | head -n "$HEIGHT"
-        ;;
-    
-    # Video metadata
-    video/*)
-        exiftool "$FILE" | grep -E '(Title|Duration|Resolution|Frame Rate|File Size)' | head -n "$HEIGHT"
-        ;;
-    
-    # Archives
-    application/zip|application/x-tar|application/x-rar|application/x-7z-compressed)
-        als "$FILE" | head -n "$HEIGHT"
-        ;;
-    
-    # Text files with syntax highlighting
-    text/*)
-        bat --color=always --style="plain" --line-range :$HEIGHT "$FILE"
-        ;;
-    
-    # JSON/YAML files
-    application/json|text/yaml)
-        bat --color=always --style="plain" --language=json --line-range :$HEIGHT "$FILE"
-        ;;
-    
-    # Markdown
-    text/markdown)
-        bat --color=always --style="plain" --language=markdown --line-range :$HEIGHT "$FILE"
-        ;;
-    
-    # HTML
-    text/html)
-        bat --color=always --style="plain" --language=html --line-range :$HEIGHT "$FILE"
-        ;;
-        
-    # For other files, show basic file info
-    *)
-        file -b "$FILE" 
-        echo ""
-        stat -c "Size: %s bytes
+  # Image previews - use ASCII art for images to avoid GPU issues
+  image/*)
+    if [ "$TERM" = "xterm-kitty" ] && command -v kitty >/dev/null 2>&1; then
+      kitty +kitten icat --transfer-mode=file --place=60x20@0x0 "$file" </dev/null >/dev/tty
+    elif command -v chafa >/dev/null 2>&1; then
+      chafa -s "${WIDTH}x${HEIGHT}" "$FILE"
+    elif command -v img2txt >/dev/null 2>&1; then
+      img2txt -W "$WIDTH" -H "$HEIGHT" "$FILE"
+    else
+      echo "Image: $FILE"
+      echo "Install chafa or libcaca for ASCII art image previews"
+    fi
+    ;;
+
+  # PDF previews
+  application/pdf)
+    pdftotext -l 10 -nopgbrk -q -- "$FILE" - | fmt -w "$WIDTH" | head -n "$HEIGHT"
+    ;;
+
+  # Audio metadata
+  audio/*)
+    exiftool "$FILE" | grep -E '(Title|Artist|Album|Genre|Track|Year)' | head -n "$HEIGHT"
+    ;;
+
+  # Video metadata
+  video/*)
+    exiftool "$FILE" | grep -E '(Title|Duration|Resolution|Frame Rate|File Size)' | head -n "$HEIGHT"
+    ;;
+
+  # Archives
+  application/zip | application/x-tar | application/x-rar | application/x-7z-compressed)
+    als "$FILE" | head -n "$HEIGHT"
+    ;;
+
+  # Text files with syntax highlighting
+  text/*)
+    bat --color=always --style="plain" --line-range :$HEIGHT "$FILE"
+    ;;
+
+  # JSON/YAML files
+  application/json | text/yaml)
+    bat --color=always --style="plain" --language=json --line-range :$HEIGHT "$FILE"
+    ;;
+
+  # Markdown
+  text/markdown)
+    bat --color=always --style="plain" --language=markdown --line-range :$HEIGHT "$FILE"
+    ;;
+
+  # HTML
+  text/html)
+    bat --color=always --style="plain" --language=html --line-range :$HEIGHT "$FILE"
+    ;;
+
+  # For other files, show basic file info
+  *)
+    file -b "$FILE"
+    echo ""
+    stat -c "Size: %s bytes
 Created: %w
 Modified: %y
 Access: %x
 Permissions: %A" "$FILE"
-        ;;
+    ;;
 esac
 
 # Text-based previews should exit with code 0

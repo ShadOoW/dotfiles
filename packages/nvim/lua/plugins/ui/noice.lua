@@ -472,9 +472,7 @@ return {
     local keymap = require('utils.keymap')
 
     -- Route through panel-manager so competing panels close when noice opens
-    keymap.n('<F1>', function()
-      require('plugins.ui.panel-manager').toggle('noice')
-    end, 'Toggle notification panel')
+    keymap.n('<F1>', function() require('plugins.ui.panel-manager').toggle('noice') end, 'Toggle notification panel')
 
     -- Auto-refresh lualine when notifications change
     local notify_group = vim.api.nvim_create_augroup('NoiceNotifyUpdate', {

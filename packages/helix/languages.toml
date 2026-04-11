@@ -35,7 +35,14 @@ name = "typescript"
 scope = "source.ts"
 file-types = ["ts", "tsx"]
 language-servers = ["typescript-language-server"]
-formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath", "{file}", "--parser", "typescript"] }
+formatter = { command = "npx", args = [
+  "--no-install",
+  "prettier",
+  "--stdin-filepath",
+  "{file}",
+  "--parser",
+  "typescript",
+] }
 auto-format = true
 
 # JavaScript configuration
@@ -44,7 +51,14 @@ name = "javascript"
 scope = "source.js"
 file-types = ["js", "jsx", "mjs"]
 language-servers = ["typescript-language-server"]
-formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath", "{file}", "--parser", "babel"] }
+formatter = { command = "npx", args = [
+  "--no-install",
+  "prettier",
+  "--stdin-filepath",
+  "{file}",
+  "--parser",
+  "babel",
+] }
 auto-format = true
 
 # JSON configuration
@@ -53,7 +67,14 @@ name = "json"
 scope = "source.json"
 file-types = ["json", "jsonc"]
 language-servers = ["typescript-language-server"]
-formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath", "{file}", "--parser", "json"] }
+formatter = { command = "npx", args = [
+  "--no-install",
+  "prettier",
+  "--stdin-filepath",
+  "{file}",
+  "--parser",
+  "json",
+] }
 auto-format = true
 
 # Markdown configuration
@@ -62,7 +83,14 @@ name = "markdown"
 scope = "source.markdown"
 file-types = ["md", "markdown"]
 language-servers = ["marksman"]
-formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath", "{file}", "--parser", "markdown"] }
+formatter = { command = "npx", args = [
+  "--no-install",
+  "prettier",
+  "--stdin-filepath",
+  "{file}",
+  "--parser",
+  "markdown",
+] }
 auto-format = true
 
 [[language]]
@@ -71,15 +99,34 @@ scope = "source.astro"
 injection-regex = "astro"
 file-types = ["astro"]
 language-servers = ["astro-ls"]
-formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath", "{file}", "--parser", "astro"] }
+formatter = { command = "npx", args = [
+  "--no-install",
+  "prettier",
+  "--stdin-filepath",
+  "{file}",
+  "--parser",
+  "astro",
+] }
 auto-format = true
-roots = ["package.json", "astro.config.ts", "tsconfig.json", "tailwind.config.ts"]
+roots = [
+  "package.json",
+  "astro.config.ts",
+  "tsconfig.json",
+  "tailwind.config.ts",
+]
 
 [[language]]
 name = "css"
 file-types = ["css", "scss", "less"]
 language-servers = ["css-ls"]
-formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath", "{file}", "--parser", "css"] }
+formatter = { command = "npx", args = [
+  "--no-install",
+  "prettier",
+  "--stdin-filepath",
+  "{file}",
+  "--parser",
+  "css",
+] }
 auto-format = true
 
 [[language]]
@@ -87,6 +134,12 @@ name = "html"
 scope = "source.html"
 file-types = ["html", "htm"]
 language-servers = ["html-ls"]
-formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath", "{file}", "--parser", "html"] }
+formatter = { command = "npx", args = [
+  "--no-install",
+  "prettier",
+  "--stdin-filepath",
+  "{file}",
+  "--parser",
+  "html",
+] }
 auto-format = true
-

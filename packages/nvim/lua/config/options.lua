@@ -100,7 +100,6 @@ vim.opt.inccommand = 'split'
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = 'line'
 
-
 -- Disable all scrolling animations
 vim.opt.lazyredraw = false
 vim.opt.jumpoptions = 'stack'

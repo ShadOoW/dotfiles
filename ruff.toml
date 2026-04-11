@@ -2,6 +2,5 @@ cache-dir = "~/.cache/ruff"
 
 [format]
 indent-style = "space"
-indent-width = 4
 quote-style = "double"
 line-ending = "lf"

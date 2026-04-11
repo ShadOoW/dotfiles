@@ -49,14 +49,8 @@ function M.setup()
         local rules = server_list.filetype_rules[ft]
         if not rules or not rules.expected or #rules.expected == 0 then return end
 
-        local attached_names = vim.tbl_map(
-          function(c) return c.name end,
-          vim.lsp.get_clients({ bufnr = bufnr })
-        )
-        local missing = vim.tbl_filter(
-          function(s) return not vim.tbl_contains(attached_names, s) end,
-          rules.expected
-        )
+        local attached_names = vim.tbl_map(function(c) return c.name end, vim.lsp.get_clients({ bufnr = bufnr }))
+        local missing = vim.tbl_filter(function(s) return not vim.tbl_contains(attached_names, s) end, rules.expected)
         if #missing > 0 then
           require('utils.notify').warn(
             'LSP Guard',
@@ -95,9 +89,7 @@ function M.check_mason_orphans()
   local orphans = {}
   for _, pkg in ipairs(registry.get_installed_package_names()) do
     local lsp_name = pkg_to_lsp[pkg]
-    if lsp_name and not allowed[lsp_name] then
-      table.insert(orphans, ('  %s  →  lsp: %s'):format(pkg, lsp_name))
-    end
+    if lsp_name and not allowed[lsp_name] then table.insert(orphans, ('  %s  →  lsp: %s'):format(pkg, lsp_name)) end
   end
 
   if #orphans > 0 then

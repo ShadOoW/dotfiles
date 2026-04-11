@@ -29,7 +29,8 @@ toggle_wlsunset() {
     pkill -x wlsunset
     notify "wlsunset stopped"
   else
-    wlsunset -t 3000 -T 6500 -l auto -L auto & disown
+    wlsunset -t 3000 -T 6500 -l auto -L auto &
+    disown
     notify "wlsunset started (warm filter applied)"
   fi
 

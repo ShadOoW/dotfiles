@@ -5,7 +5,7 @@
 
 # Source /etc/environment for GPU configuration (Intel iGPU for Wayland)
 if [ -f /etc/environment ]; then
-	. /etc/environment
+  . /etc/environment
 fi
 
 exec "$@"

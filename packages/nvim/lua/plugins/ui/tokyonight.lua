@@ -84,8 +84,7 @@ return {
         hl.TabLine = {
           fg = c.fg_gutter,
         }
-        hl.TabLineFill = {
-        }
+        hl.TabLineFill = {}
         hl.TabLineSel = {
           fg = c.fg,
         }
@@ -233,25 +232,25 @@ return {
         }
 
         -- Gitsigns sign column (bar colors distinguish add vs change vs delete)
-        hl.GitSignsAdd    = { fg = '#73daca' } -- teal-green
+        hl.GitSignsAdd = { fg = '#73daca' } -- teal-green
         hl.GitSignsChange = { fg = '#e0af68' } -- amber: modified in place
         hl.GitSignsDelete = { fg = '#f7768e' } -- red
 
         -- Gitsigns line-number highlights (numhl)
-        hl.GitSignsAddNr    = { fg = '#73daca', bold = true }
+        hl.GitSignsAddNr = { fg = '#73daca', bold = true }
         hl.GitSignsChangeNr = { fg = '#e0af68', bold = true }
         hl.GitSignsDeleteNr = { fg = '#f7768e', bold = true }
 
         -- Gitsigns line highlights (diff review mode: linehl=true)
         -- Green = new content (add/change/changedelete), Red = removed content
         -- Matches delta/fzf convention: new line is always green
-        hl.GitSignsAddLn          = { bg = '#1a3020' } -- green: new line
-        hl.GitSignsChangeLn       = { bg = '#1a3020' } -- green: current line is new content
-        hl.GitSignsDeleteLn       = { bg = '#2d1a1a' } -- red: removed line (virtual)
+        hl.GitSignsAddLn = { bg = '#1a3020' } -- green: new line
+        hl.GitSignsChangeLn = { bg = '#1a3020' } -- green: current line is new content
+        hl.GitSignsDeleteLn = { bg = '#2d1a1a' } -- red: removed line (virtual)
         hl.GitSignsChangeDeleteLn = { bg = '#1a3020' } -- green: new content replacing deleted
 
         -- Gitsigns word-diff inline highlights
-        hl.GitSignsAddInline    = { bg = '#1f4a2e', bold = true } -- stronger green for changed words
+        hl.GitSignsAddInline = { bg = '#1f4a2e', bold = true } -- stronger green for changed words
         hl.GitSignsChangeInline = { bg = '#1a3060', bold = true } -- stronger blue for changed words
         hl.GitSignsDeleteInline = { bg = '#4a1a1a', bold = true } -- stronger red for deleted words
       end,

@@ -87,9 +87,7 @@ return {
         local buf = vim.api.nvim_win_get_buf(win)
         local ft = vim.bo[buf].filetype
         local cfg = vim.api.nvim_win_get_config(win)
-        if cfg.relative == '' and not diffview_fts[ft] and not vim.wo[win].diff then
-          target = win
-        end
+        if cfg.relative == '' and not diffview_fts[ft] and not vim.wo[win].diff then target = win end
       end
       if target then
         vim.api.nvim_set_current_win(target)
@@ -100,15 +98,11 @@ return {
     end
 
     local function safe_file_edit(selected, opts)
-      if not redirect_from_diffview(selected, opts, actions.file_tabedit) then
-        actions.file_edit(selected, opts)
-      end
+      if not redirect_from_diffview(selected, opts, actions.file_tabedit) then actions.file_edit(selected, opts) end
     end
 
     local function safe_buf_edit(selected, opts)
-      if not redirect_from_diffview(selected, opts, actions.buf_tabedit) then
-        actions.buf_edit(selected, opts)
-      end
+      if not redirect_from_diffview(selected, opts, actions.buf_tabedit) then actions.buf_edit(selected, opts) end
     end
 
     fzf.setup({

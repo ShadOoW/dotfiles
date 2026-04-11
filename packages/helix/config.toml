@@ -27,4 +27,4 @@ auto-signature-help = true
 render = true
 
 [keys.normal]
-"backspace" = { w = ":w", q = ":bc", c = ":sh gradle run --quiet", l = ":sh lsd", t =":sh cargo nextest run", r = ":reload"}
+"backspace" = { w = ":w", q = ":bc", c = ":sh gradle run --quiet", l = ":sh lsd", t = ":sh cargo nextest run", r = ":reload" }

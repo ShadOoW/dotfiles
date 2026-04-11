@@ -3,23 +3,23 @@ set -e
 
 # Pacman packages
 pacman_packages=(
-    beets
+  beets
 )
 
 # AUR packages
 aur_packages=(
-    beets-bandcamp
-    lidarr
-    nicotine+
-    prowlarr
-    sabnzbd
+  beets-bandcamp
+  lidarr
+  nicotine+
+  prowlarr
+  sabnzbd
 )
 
 # Source global functions
 GLOBAL_SH="$(dirname "$(readlink -f "$0")")/../../utils/global.sh"
 if ! source "$GLOBAL_SH"; then
-    log "error" "Failed to source global.sh"
-    exit 1
+  log "error" "Failed to source global.sh"
+  exit 1
 fi
 
 # Install pacman packages
