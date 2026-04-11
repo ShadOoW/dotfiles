@@ -1,0 +1,44 @@
+repos:
+  - repo: local
+    hooks:
+      - id: stylua
+        name: stylua
+        language: system
+        entry: stylua
+        types: [lua]
+        exclude: ^backup/
+
+      - id: shfmt
+        name: shfmt
+        language: system
+        entry: shfmt -w -i 2 -ci
+        types: [shell]
+        exclude: ^backup/
+
+      - id: ruff-format
+        name: ruff format
+        language: system
+        entry: ruff format
+        types: [python]
+        exclude: ^backup/
+
+      - id: prettier
+        name: prettier
+        language: system
+        entry: prettier --write
+        types_or: [json, markdown, css]
+        exclude: ^backup/
+
+      - id: taplo
+        name: taplo
+        language: system
+        entry: taplo format
+        types: [toml]
+        exclude: ^backup/
+
+      - id: kdlfmt
+        name: kdlfmt
+        language: system
+        entry: kdlfmt format
+        files: \.kdl$
+        exclude: ^backup/
