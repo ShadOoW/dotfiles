@@ -68,6 +68,8 @@ sudo sed -i '/^GRUB_THEME=/d' "$GRUB_CFG"
 sudo sed -i '/^GRUB_SAVEDEFAULT=/d' "$GRUB_CFG"
 sudo sed -i '/^GRUB_DEFAULT=/d' "$GRUB_CFG"
 sudo sed -i '/^GRUB_TIMEOUT=/d' "$GRUB_CFG"
+sudo sed -i '/^GRUB_GFXMODE=/d' "$GRUB_CFG"
+sudo sed -i '/^GRUB_PRELOAD_MODULES=/d' "$GRUB_CFG"
 
 # Add i915 parameters for Intel GPU Wayland support
 log "info" "Adding i915 kernel parameters for Intel GPU"
@@ -84,6 +86,8 @@ fi
   echo "GRUB_DEFAULT=saved"
   echo "GRUB_SAVEDEFAULT=true"
   echo "GRUB_TIMEOUT=15"
+  echo "GRUB_GFXMODE=1920x1080x32,auto"
+  echo "GRUB_PRELOAD_MODULES=\"part_gpt part_msdos efi_gop all_video\""
 } | sudo tee -a "$GRUB_CFG" >/dev/null
 
 # Update GRUB configuration
