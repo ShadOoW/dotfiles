@@ -9,4 +9,3 @@ Target = *
 Description = Post-update snapshot created
 When = PostTransaction
 Exec = /usr/bin/snapper --config root create --description "post-update" --cleanup-algorithm number
-IgnoreErrors yes
