@@ -29,13 +29,13 @@ alias n="nvim"
 
 # Yazi: change shell CWD on exit
 function y() {
-    local tmp
-    tmp="$(mktemp -t yazi-cwd.XXXXXX)"
-    yazi "$@" --cwd-file="$tmp"
-    if cwd="$(< "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-        builtin cd -- "$cwd"
-    fi
-    rm -f -- "$tmp"
+  local tmp
+  tmp="$(mktemp -t yazi-cwd.XXXXXX)"
+  yazi "$@" --cwd-file="$tmp"
+  if cwd="$(<"$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+    builtin cd -- "$cwd"
+  fi
+  rm -f -- "$tmp"
 }
 
 # Function to copy file content to clipboard
@@ -60,7 +60,10 @@ copyimg() {
 
   # If file provided → copy it
   if [[ -n "$file" ]]; then
-    [[ ! -f "$file" ]] && { echo "❌ File not found: $file"; return 1; }
+    [[ ! -f "$file" ]] && {
+      echo "❌ File not found: $file"
+      return 1
+    }
 
     # Validate it's an image
     if ! file --mime-type -b "$file" | grep -q '^image/'; then
@@ -68,11 +71,14 @@ copyimg() {
       return 1
     fi
 
-    wl-copy < "$file" || { echo "❌ Failed to copy to clipboard"; return 1; }
+    wl-copy <"$file" || {
+      echo "❌ Failed to copy to clipboard"
+      return 1
+    }
   fi
 
   # Ensure clipboard actually contains an image
-  if ! wl-paste --type image/png > "$tmp" 2>/dev/null; then
+  if ! wl-paste --type image/png >"$tmp" 2>/dev/null; then
     echo "❌ Clipboard does not contain an image"
     return 1
   fi
@@ -94,9 +100,9 @@ HISTSIZE=10000
 SAVEHIST=10000
 setopt appendhistory
 setopt extended_history  # Store timestamps for Atuin import compatibility
-setopt histignorealldups  # Don't save duplicate entries in history
-setopt sharehistory       # Share history between all sessions
-setopt incappendhistory   # Immediately append to history file
+setopt histignorealldups # Don't save duplicate entries in history
+setopt sharehistory      # Share history between all sessions
+setopt incappendhistory  # Immediately append to history file
 
 eval "$(zoxide init zsh)"
 
@@ -125,29 +131,29 @@ zle -N go_home_dir
 zle -N run_ls
 
 # Bind Page Up and Page Down
-bindkey "^[[5~" cd_up      # Page Up
-bindkey "^[[6~" cd_back    # Page Down
+bindkey "^[[5~" cd_up   # Page Up
+bindkey "^[[6~" cd_back # Page Down
 bindkey -r '^[[H'
 bindkey "^[OH" go_home_dir # Home key
 bindkey -r '^[[F'
-bindkey "^[OF" run_ls      # End key
+bindkey "^[OF" run_ls # End key
 
 # Configure history substring search
-bindkey '^[[A' history-substring-search-up      # Up arrow
-bindkey '^[[B' history-substring-search-down    # Down arrow
-bindkey '^[OA' history-substring-search-up      # Up arrow (alternate)
-bindkey '^[OB' history-substring-search-down    # Down arrow (alternate)
+bindkey '^[[A' history-substring-search-up   # Up arrow
+bindkey '^[[B' history-substring-search-down # Down arrow
+bindkey '^[OA' history-substring-search-up   # Up arrow (alternate)
+bindkey '^[OB' history-substring-search-down # Down arrow (alternate)
 
 # Word navigation with Ctrl+Left and Ctrl+Right
-bindkey "^[[1;5D" backward-word                 # Ctrl+Left
-bindkey "^[[1;5C" forward-word                  # Ctrl+Right
+bindkey "^[[1;5D" backward-word # Ctrl+Left
+bindkey "^[[1;5C" forward-word  # Ctrl+Right
 # Alternative key codes for some terminals
-bindkey "^[Od" backward-word                    # Ctrl+Left (alternate)
-bindkey "^[Oc" forward-word                     # Ctrl+Right (alternate)
+bindkey "^[Od" backward-word # Ctrl+Left (alternate)
+bindkey "^[Oc" forward-word  # Ctrl+Right (alternate)
 
 # Improved prompt
 autoload -Uz vcs_info
-precmd() { vcs_info }
+precmd() { vcs_info; }
 zstyle ':vcs_info:git:*' formats ' %F{yellow}(%b)%f'
 setopt prompt_subst
 PROMPT='%B%F{blue}%c%B%F{magenta} %{$reset_color%}% %F{red}❯%F{yellow}❯%F{green}❯%f '
@@ -162,13 +168,13 @@ export PASSWORD_STORE_DIR=/mnt/backup/pass
 export EDITOR=nvim
 
 source /home/shad/.config/broot/launcher/bash/br
-export JAVA_HOME=/usr/lib/jvm/java-25-openjdk
+export JAVA_HOME=/usr/lib/jvm/java-26-openjdk
 
 # Atuin: Alt+Down = global search, Alt+Up = directory-scoped search
 export ATUIN_NOBIND='true'
 eval "$(atuin init zsh)"
-bindkey '^[[1;3B' atuin-search      # Alt+Down for global search
-bindkey '^[[1;3A' atuin-up-search    # Alt+Up for directory mode
+bindkey '^[[1;3B' atuin-search    # Alt+Down for global search
+bindkey '^[[1;3A' atuin-up-search # Alt+Up for directory mode
 
 # Skip Atuin recording when ATUIN_SKIP is set (Cursor/VSCode user settings)
 functions[_atuin_preexec_orig]=${functions[_atuin_preexec]}
@@ -176,4 +182,3 @@ _atuin_preexec() {
   [[ -n "${ATUIN_SKIP:-}" ]] && return
   _atuin_preexec_orig "$@"
 }
-

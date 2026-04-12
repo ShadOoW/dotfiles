@@ -99,19 +99,19 @@ fi
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
   case "$1" in
-  --username)
-    if [[ -n "$2" && "${2:0:1}" != "-" ]]; then
-      USERNAME="$2"
-      shift 2
-    else
-      log "error" "--username requires a non-empty argument"
+    --username)
+      if [[ -n "$2" && "${2:0:1}" != "-" ]]; then
+        USERNAME="$2"
+        shift 2
+      else
+        log "error" "--username requires a non-empty argument"
+        usage
+      fi
+      ;;
+    *)
+      log "error" "Unknown option: $1"
       usage
-    fi
-    ;;
-  *)
-    log "error" "Unknown option: $1"
-    usage
-    ;;
+      ;;
   esac
 done
 
