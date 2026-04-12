@@ -30,11 +30,24 @@ fi
 sudo cp "$CONFIG_SOURCE" "$CONFIG_TARGET"
 log "Config installed to $CONFIG_TARGET"
 
+log "Creating .snapshots directory and mounting"
+sudo mkdir -p /.snapshots
+ROOT_DEV=$(findmnt -n -o SOURCE / | cut -d'[' -f1)
+sudo mount -o subvol=/ "$ROOT_DEV" /.snapshots 2>/dev/null || true
+
 log "Creating initial snapshot"
 sudo snapper --config root create --description "initial-setup" --cleanup-algorithm number || true
 
 log "Enabling snapper-cleanup.timer"
 sudo systemctl enable --now snapper-cleanup.timer 2>/dev/null || true
+
+if command -v grub-btrfsd &>/dev/null; then
+  log "Enabling grub-btrfs for snapshot boot entries"
+  sudo systemctl enable --now grub-btrfsd.service 2>/dev/null || true
+fi
+
+log "Regenerating GRUB to include snapshots"
+sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 log "Snapper setup complete!"
 log ""
