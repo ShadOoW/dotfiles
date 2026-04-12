@@ -69,6 +69,8 @@ declare -A TARGET_DIRS=(
   ["yazi"]="$HOME/.config/yazi"
   ["fontconfig"]="$HOME/.config/fontconfig"
   ["ssh"]="$HOME/.ssh"
+  ["snapper-hooks"]="/etc/pacman.d/hooks"
+  ["snapper-config"]="/etc/snapper/configs"
 )
 
 # Store setup scripts to run after stowing
@@ -97,19 +99,19 @@ fi
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --username)
-      if [[ -n "$2" && "${2:0:1}" != "-" ]]; then
-        USERNAME="$2"
-        shift 2
-      else
-        log "error" "--username requires a non-empty argument"
-        usage
-      fi
-      ;;
-    *)
-      log "error" "Unknown option: $1"
+  --username)
+    if [[ -n "$2" && "${2:0:1}" != "-" ]]; then
+      USERNAME="$2"
+      shift 2
+    else
+      log "error" "--username requires a non-empty argument"
       usage
-      ;;
+    fi
+    ;;
+  *)
+    log "error" "Unknown option: $1"
+    usage
+    ;;
   esac
 done
 

@@ -1,0 +1,12 @@
+[Trigger]
+Operation = Upgrade
+Operation = Install
+Operation = Remove
+Type = Package
+Target = *
+
+[Action]
+Description = Creating pre-update snapshot with snapper
+When = PreTransaction
+Exec = /usr/bin/snapper --config root create --description "pre-update" --cleanup-algorithm number
+AbortTransactionOnFail yes
