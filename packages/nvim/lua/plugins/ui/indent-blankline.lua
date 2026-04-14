@@ -13,20 +13,20 @@ return {
     local hooks = require('ibl.hooks')
     -- Create subtle highlight groups
     hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
-      -- Subtle indent guides - very faint
+      -- Visible indent guides - easy to scan but not distracting
       vim.api.nvim_set_hl(0, 'IBLIndent1', {
-        fg = '#2a2e36',
+        fg = '#3a3e46',
       })
       vim.api.nvim_set_hl(0, 'IBLIndent2', {
-        fg = '#2d3139',
+        fg = '#454b56',
       })
       vim.api.nvim_set_hl(0, 'IBLIndent3', {
-        fg = '#30343c',
+        fg = '#505660',
       })
 
-      -- Subtle scope highlighting - slightly more visible but not distracting
+      -- Scope highlighting - more visible for block boundaries
       vim.api.nvim_set_hl(0, 'IBLScope', {
-        fg = '#414868',
+        fg = '#6a7090',
       })
     end)
 
