@@ -163,11 +163,6 @@ run = "cd ~"
 desc = "Go: home"
 
 [[mgr.prepend_keymap]]
-on = ["g", "d"]
-run = "cd ~/Downloads"
-desc = "Go: downloads"
-
-[[mgr.prepend_keymap]]
 on = ["g", "c"]
 run = "cd ~/.config"
 desc = "Go: ~/.config"
@@ -178,14 +173,25 @@ run = "cd ~/.config/dotfiles"
 desc = "Go: dotfiles"
 
 [[mgr.prepend_keymap]]
-on = ["g", "p"]
-run = "cd ~/Pictures"
-desc = "Go: pictures"
-
-[[mgr.prepend_keymap]]
 on = ["g", "o"]
 run = "cd /mnt/backup/code"
 desc = "Go: /mnt/backup/code"
+
+# ── Goto /data (gd prefix) ─────────────────────────────────────────────────────
+[[mgr.prepend_keymap]]
+on = ["g", "d", "d"]
+run = "cd /data"
+desc = "Go: /data"
+
+[[mgr.prepend_keymap]]
+on = ["g", "d", "w"]
+run = "cd /data/downloads"
+desc = "Go: /data/downloads"
+
+[[mgr.prepend_keymap]]
+on = ["g", "d", "s"]
+run = "cd /data/screen"
+desc = "Go: /data/screen"
 
 # ── Input widget: Escape closes immediately (no double-Escape needed) ─────────
 [[input.prepend_keymap]]

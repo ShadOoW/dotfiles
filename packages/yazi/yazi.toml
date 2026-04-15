@@ -27,11 +27,9 @@ bizarre_retry = 3
 suppress_preload = false
 
 [opener]
-# Open nvim in a new kitty window; stash the yazi scratchpad first
 edit = [
   { run = 'swaymsg [app_id=yazi-explorer] move scratchpad; ~/.config/yazi/scripts/edit-in-kitty.sh "$@"', desc = "nvim in kitty" },
 ]
-# Open a shell in the selected directory; stash yazi first
 open_terminal = [
   { run = 'swaymsg [app_id=yazi-explorer] move scratchpad; ~/.config/yazi/scripts/open-terminal.sh "$1"', desc = "Terminal here" },
 ]
