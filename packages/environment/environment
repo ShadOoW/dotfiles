@@ -1,6 +1,0 @@
-# Wayland/Wlroots GPU configuration
-# Force wlroots to use the Intel iGPU when monitor is connected to integrated graphics
-# This is needed on hybrid Intel/NVIDIA setups where the monitor is on the Intel port
-
-WLR_DRM_DEVICES=/dev/dri/by-path/pci-0000:00:02.0-card
-WLR_NO_HARDWARE_CURSORS=1

@@ -41,7 +41,6 @@ declare -A TARGET_DIRS=(
   ["zram"]="/etc/systemd"
   ["iwd"]="/etc/iwd"
   ["dhcpcd"]="/etc"
-  ["environment"]="/etc"
   ["git"]="$HOME/.config/git"
   ["sway"]="$HOME/.config/sway"
   ["rofi"]="$HOME/.config/rofi"
