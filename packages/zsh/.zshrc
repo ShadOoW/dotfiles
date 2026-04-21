@@ -2,17 +2,79 @@
 autoload -Uz compinit
 compinit
 
-# Source plugins
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
-source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+# zinit annexes for binary management
+zinit light-mode for \
+  zdharma-continuum/zinit-annex-as-monitor \
+  zdharma-continuum/zinit-annex-bin-gem-node \
+  zdharma-continuum/zinit-annex-patch-dl \
+  zdharma-continuum/zinit-annex-rust
 
-# FZF plugins
-source /usr/share/zsh/plugins/fzf-tab-git/fzf-tab.zsh
-source /usr/share/zsh/plugins/zsh-fzf-plugin/fzf.plugin.zsh
+# Load plugins with turbo mode (wait for prompt, then load in background)
+# Order matters: compinit first, then fzf-tab, then history-substring-search, then others
+zinit ice wait lucid blockf
+zinit light Aloxaf/fzf-tab
 
-# Fast Node Manager (FNM)
-eval "$(fnm env --use-on-cd --shell zsh)"
+zinit ice wait lucid blockf
+zinit light zsh-users/zsh-autosuggestions
+
+zinit ice wait lucid
+zinit light zsh-users/zsh-history-substring-search
+
+zinit ice wait lucid
+zinit light zdharma-continuum/fast-syntax-highlighting
+
+# Binary releases from GitHub - using official zinit recipes
+# fnm - Fast Node Manager
+zinit for \
+  as'completion' \
+  atclone"./fnm completions --shell zsh > _fnm.zsh" \
+  atload'eval $(fnm env --shell zsh)' \
+  atpull'%atclone' \
+  blockf \
+  from'gh-r' \
+  nocompile \
+  sbin'fnm' \
+  @Schniz/fnm
+
+# atuin
+zinit for \
+  from'gh-r' \
+  bpick'atuin-x86_64-unknown-linux-gnu.tar.gz' \
+  sbin'**/atuin' \
+  @atuinsh/atuin
+
+# zoxide - correct repo is ajeetdsouza/zoxide
+zinit for \
+  from'gh-r' \
+  sbin'**/zoxide' \
+  @ajeetdsouza/zoxide
+
+# fzf - with shell integration
+zinit for \
+  from'gh-r' \
+  sbin'fzf' \
+  atclone'fzf --zsh > fzf.zsh' \
+  atpull'%atclone' \
+  src'fzf.zsh' \
+  @junegunn/fzf
+
+# broot
+zinit for \
+  from'gh-r' \
+  sbin'**/broot' \
+  @Canop/broot
+
+# lsd
+zinit for \
+  from'gh-r' \
+  sbin'**/lsd' \
+  @lsd-rs/lsd
+
+# bat
+zinit for \
+  from'gh-r' \
+  sbin'**/bat' \
+  @sharkdp/bat
 
 # Set-up icons for files/directories in terminal using lsd
 # Configure LS_COLORS for better readability (especially for mounted directories)
@@ -92,9 +154,6 @@ zdrag() {
   ripdrag "$(fzf)"
 }
 
-# Set-up FZF key bindings (CTRL R for fuzzy history finder)
-source <(fzf --zsh)
-
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
@@ -159,19 +218,7 @@ setopt prompt_subst
 PROMPT='%B%F{blue}%c%B%F{magenta} %{$reset_color%}% %F{red}❯%F{yellow}❯%F{green}❯%f '
 RPROMPT='%B%F{green}${vcs_info_msg_0_}%f'
 
-# Function to watch directory as a tree
-export PATH="$HOME/.local/bin:$PATH"
-export PRETTIERD_DEFAULT_CONFIG="$HOME/.config/prettierd/.prettierrc"
-export PATH="$HOME/.config/signal-sync:$PATH"
-export PATH="$HOME/go/bin:$PATH"
-export PASSWORD_STORE_DIR=/mnt/backup/pass
-export EDITOR=nvim
-
-source /home/shad/.config/broot/launcher/bash/br
-export JAVA_HOME=/usr/lib/jvm/java-26-openjdk
-
 # Atuin: Alt+Down = global search, Alt+Up = directory-scoped search
-export ATUIN_NOBIND='true'
 eval "$(atuin init zsh)"
 bindkey '^[[1;3B' atuin-search    # Alt+Down for global search
 bindkey '^[[1;3A' atuin-up-search # Alt+Up for directory mode

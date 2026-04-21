@@ -1,22 +1,11 @@
 #!/bin/bash
 set -e
 
-# ZSH and related packages
+# ZSH packages only - plugins and binaries now managed by zinit
 pacman_packages=(
-  atuin
-  lsd
-  fzf
   zsh
-  bat
-  zoxide
+  fzf
   findutils
-  fnm
-  zsh-completions
-  zsh-history-substring-search
-  zsh-autosuggestions
-  zsh-fast-syntax-highlighting-git
-  zsh-fzf-plugin-git
-  fzf-tab-git
 )
 
 # Source global functions
@@ -27,7 +16,7 @@ if ! source "$GLOBAL_SH"; then
 fi
 
 # Install ZSH packages
-log "info" "Installing ZSH and related packages"
+log "info" "Installing ZSH packages"
 install_packages_aur "${pacman_packages[@]}" || exit 1
 
 # Check if zsh is installed
@@ -36,15 +25,5 @@ if ! command -v zsh >/dev/null; then
   exit 1
 fi
 
-# Check if fnm is installed
-if ! command -v fnm >/dev/null; then
-  log "warning" "FNM installation may have failed. If not available, install manually:"
-fi
-
-# Check if atuin is installed
-if ! command -v atuin >/dev/null; then
-  log "warning" "Atuin installation may have failed. If not available, install manually."
-fi
-
-log "info" "Note: This script only installs ZSH and plugins. It does not modify .zshrc or change the default shell"
+log "info" "Note: Most ZSH plugins and tools (atuin, fnm, zoxide, fzf-tab, etc.) are now managed by zinit in .zshenv/.zshrc"
 log "success" "ZSH setup completed successfully"
