@@ -1,3 +1,5 @@
+# Add deno completions to search path
+if [[ ":$FPATH:" != *":/home/shad/.zsh/completions:"* ]]; then export FPATH="/home/shad/.zsh/completions:$FPATH"; fi
 # Enable Completion
 autoload -Uz compinit
 compinit
@@ -229,3 +231,7 @@ _atuin_preexec() {
   [[ -n "${ATUIN_SKIP:-}" ]] && return
   _atuin_preexec_orig "$@"
 }
+. "/home/shad/.deno/env"
+
+# bun completions
+[ -s "/home/shad/.bun/_bun" ] && source "/home/shad/.bun/_bun"

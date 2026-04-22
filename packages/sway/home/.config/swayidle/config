@@ -5,7 +5,7 @@ timeout 900 swaylock \
   --indicator-radius 100 \
   --indicator-thickness 7 \
   --effect-pixelate 5 \ 
---effect-vignette 0.2:0.2 \
+  --effect-vignette 0.2:0.2 \
   --ring-color 7dcfff \
   --key-hl-color 7dcfff \
   --line-color 00000000 \

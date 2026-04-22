@@ -3,7 +3,7 @@
 # Basics:
 #
 bindsym {
-    $mod+Return exec $term_cwd
+    $mod+Return exec ~/.config/sway/scripts/kitty-cwd.sh
     $mod+Shift+Return exec $term
     $mod+q kill
     $mod+d exec $menu
@@ -37,8 +37,8 @@ floating_modifier $mod normal
 #
 bindsym {
     # Focus next (MRU across workspace)
-    $mod+Tab exec ~/.config/dotfiles/packages/sway/scripts/sway_mru_cycle.py prev
-    $mod+Shift+Tab exec ~/.config/dotfiles/packages/sway/scripts/sway_mru_cycle.py next
+    $mod+Tab exec ~/.config/sway/scripts/sway_mru_cycle.py prev
+    $mod+Shift+Tab exec ~/.config/sway/scripts/sway_mru_cycle.py next
 
     # Or use $mod+[up|down|left|right]
     $mod+Left focus left

@@ -1,5 +1,5 @@
 exec_always {
-    ~/.config/dotfiles/packages/sway/scripts/workspace-backgrounds.sh
+    ~/.config/sway/scripts/workspace-backgrounds.sh
 }
 
 exec {
@@ -8,7 +8,7 @@ exec {
     wl-paste --watch cliphist store &
 
     # Start MRU focus tracker for Alt-Tab behavior
-    ~/.config/dotfiles/packages/sway/scripts/sway_mru_daemon.py &
+    ~/.config/sway/scripts/sway_mru_daemon.py &
 
     # Pre-warm scratchpad apps — for_window rules handle mark + scratchpad
     kitty --app-id terminal-mark &

@@ -1,0 +1,17 @@
+#!/bin/sh
+# Sway wrapper to capture logs to ~/.local/state/sway/logs/
+# Created by opencode for crash debugging
+
+LOGDIR="$HOME/.local/state/sway/logs"
+LOGFILE="$LOGDIR/sway-$(date +%Y%m%d-%H%M%S).log"
+
+# Create log directory if it doesn't exist
+mkdir -p "$LOGDIR"
+
+# Signal that wrapper is active
+echo "=== Sway wrapper started at $(date) ===" >"$LOGFILE"
+echo "Log file: $LOGFILE" >>"$LOGFILE"
+echo "PID: $$" >>"$LOGFILE"
+
+# Launch sway with stderr redirected to log
+exec /usr/bin/sway 2>>"$LOGFILE"
