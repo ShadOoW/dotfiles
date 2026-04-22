@@ -42,7 +42,7 @@ declare -A TARGET_DIRS=(
   ["iwd"]="/etc/iwd"
   ["dhcpcd"]="/etc"
   ["git"]="$HOME/.config/git"
-  ["rofi"]="$HOME/.config/rofi"
+
   ["mpd"]="$HOME/.config/mpd"
   ["ncmpcpp"]="$HOME/.config/ncmpcpp"
   ["kitty"]="$HOME/.config/kitty"
