@@ -4,6 +4,12 @@ if [[ ":$FPATH:" != *":/home/shad/.zsh/completions:"* ]]; then export FPATH="/ho
 autoload -Uz compinit
 compinit
 
+# SSH agent - start if not running, add key if it exists
+if [ -z "$SSH_AUTH_SOCK" ]; then
+  eval "$(ssh-agent -s)" >/dev/null
+  [ -f ~/.ssh/id_github ] && ssh-add ~/.ssh/id_github 2>/dev/null
+fi
+
 # zinit annexes for binary management
 zinit light-mode for \
   zdharma-continuum/zinit-annex-as-monitor \
