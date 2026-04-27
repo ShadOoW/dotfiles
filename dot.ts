@@ -65,14 +65,14 @@ async function collectFiles(pkgDir: string): Promise<{ source: string; target: s
       const fullPath = join(dir, entry.name);
       const relativePath = fullPath.replace(baseDir + "/", "");
 
-      if (entry.name === "configure.sh" || entry.name.startsWith("enable") || entry.name.startsWith("disable") || entry.name === "README.md") {
+      if (entry.name === "configure.sh" || entry.name.startsWith("enable") || entry.name.startsWith("disable") || entry.name === "README.md" || entry.name === "setup.sh" || entry.name === "CHEATSHEET.md") {
         continue;
       }
 
       if (entry.isDirectory()) {
         await walk(fullPath, baseDir);
       } else {
-        const target = resolveTarget(relativePath, pkgDir);
+        const target = resolveTarget(relativePath);
         files.push({ source: relativePath, target });
       }
     }
@@ -82,14 +82,17 @@ async function collectFiles(pkgDir: string): Promise<{ source: string; target: s
   return files;
 }
 
-function resolveTarget(relativePath: string, pkgDir: string): string {
+function resolveTarget(relativePath: string): string {
   if (relativePath.startsWith("home/")) {
-    const stripped = relativePath.replace("home/", "");
-    return join(HOME_DIR, stripped);
+    return join(HOME_DIR, relativePath.replace("home/", ""));
+  } else if (relativePath.startsWith("system/base/")) {
+    return "/" + relativePath.replace("system/base/", "");
+  } else if (relativePath.startsWith("system/runit/")) {
+    return "/" + relativePath.replace("system/runit/", "");
+  } else if (relativePath.startsWith("system/systemd/")) {
+    return "/" + relativePath.replace("system/systemd/", "");
   } else if (relativePath.startsWith("system/")) {
     return "/" + relativePath.replace("system/", "");
-  } else if (relativePath.startsWith("systemd/")) {
-    return "/" + relativePath.replace("systemd/", "");
   }
   return "/" + relativePath;
 }
@@ -223,14 +226,7 @@ async function linkFiles(section: "home" | "system", packageName: string): Promi
       if (entry.isDirectory()) {
         await walk(fullPath, baseDir);
       } else {
-        const isHome = relativePath.startsWith("home/");
-        const targetRel = isHome
-          ? relativePath.replace("home/", "")
-          : relativePath.replace("system/", "");
-        const target = isHome
-          ? join(HOME_DIR, targetRel)
-          : "/" + targetRel;
-
+        const target = resolveTarget(relativePath);
         const targetDir = target.substring(0, target.lastIndexOf("/"));
 
         try {
@@ -293,13 +289,7 @@ async function unlinkFiles(section: "home" | "system", packageName: string): Pro
       if (entry.isDirectory()) {
         await walk(fullPath, baseDir);
       } else {
-        const isHome = relativePath.startsWith("home/");
-        const targetRel = isHome
-          ? relativePath.replace("home/", "")
-          : relativePath.replace("system/", "");
-        const target = isHome
-          ? join(HOME_DIR, targetRel)
-          : "/" + targetRel;
+        const target = resolveTarget(relativePath);
 
         try {
           if (existsSync(target)) {
@@ -902,15 +892,16 @@ async function main() {
       break;
 
     case "link-system":
-      if (!init) {
-        console.error("Error: --init required for link-system");
+      const pkgDir = join(PACKAGES_DIR, packageName);
+      const hasRunit = existsSync(join(pkgDir, "system", "runit"));
+      const hasSystemd = existsSync(join(pkgDir, "system", "systemd"));
+
+      if ((hasRunit || hasSystemd) && !init) {
+        console.error("Error: --init required (init-specific configs exist)");
         console.error("Usage: sudo dot link-system <package> --init <runit|systemd>");
         process.exit(1);
       }
       await linkFiles("system", packageName);
-      if (init === "systemd") {
-        await linkFiles("systemd", packageName);
-      }
       break;
 
     case "configure": {
@@ -1004,7 +995,6 @@ async function main() {
 
     case "unlink-system":
       await unlinkFiles("system", packageName);
-      await unlinkFiles("systemd", packageName);
       break;
 
     default:

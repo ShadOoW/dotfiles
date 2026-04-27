@@ -8,9 +8,13 @@ xbps-install zramen zram-service
 
 ## Setup
 
-1. **Link system files**: `sudo dot link-system zram --init runit`
-   - Links `/etc/modules-load.d/zram.conf` (generic, works for both)
-   - For systemd: also links `/etc/systemd/zram-generator.conf`
+1. **Link system files**: `sudo dot link-system zram --init runit` or `--init systemd`
+   - `system/base/` - generic configs (always linked)
+   - `system/systemd/` - systemd-specific configs (only if `--init systemd`)
+
+   Files linked:
+   - `system/base/etc/modules-load.d/zram.conf` → `/etc/modules-load.d/zram.conf`
+   - `system/systemd/etc/systemd/zram-generator.conf` → `/etc/systemd/zram-generator.conf` (systemd only)
 
 2. **Enable service**:
    - Runit: `sudo dot enable zram --init runit`
