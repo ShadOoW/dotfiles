@@ -31,6 +31,8 @@ zinit light zsh-users/zsh-history-substring-search
 zinit ice wait lucid
 zinit light zdharma-continuum/fast-syntax-highlighting
 
+zinit snippet OMZP::extract
+
 # Binary releases from GitHub - using official zinit recipes
 # fnm - Fast Node Manager
 zinit for \
