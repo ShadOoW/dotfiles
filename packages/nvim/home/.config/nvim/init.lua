@@ -13,7 +13,8 @@ require('config.keymaps')
 require('config.cursor').setup()
 
 -- Bootstrap lazy.nvim
-local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
+local paths = require('utils.paths')
+local lazypath = paths.cache_path('lazy') .. '/lazy.nvim'
 if not vim.uv.fs_stat(lazypath) then
   vim.fn.system({
     'git',
@@ -28,6 +29,7 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Setup lazy.nvim with plugins
 require('lazy').setup({
+  root = paths.cache_path('lazy'),
   spec = { {
     import = 'plugins',
   } },

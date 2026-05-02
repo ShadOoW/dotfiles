@@ -183,6 +183,7 @@ return {
   },
 
   config = function(_, opts)
+    opts.install_dir = require('utils.paths').cache_path('site')
     require('nvim-treesitter').setup(opts)
 
     -- Configure treesitter context

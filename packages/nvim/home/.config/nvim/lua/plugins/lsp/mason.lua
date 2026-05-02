@@ -4,6 +4,7 @@ return {
   dependencies = { 'williamboman/mason-lspconfig.nvim', 'neovim/nvim-lspconfig' },
   config = function()
     require('mason').setup({
+      install_root_dir = require('utils.paths').cache_path('mason'),
       ui = {
         icons = {
           package_installed = '✓',

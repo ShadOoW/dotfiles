@@ -270,13 +270,14 @@ vim.api.nvim_create_autocmd('SwapExists', {
 })
 
 -- Create directories if they don't exist
-local data_dir = vim.fn.stdpath('data')
-local swap_dir = data_dir .. '/swap'
-local backup_dir = data_dir .. '/backup'
-local undo_dir = data_dir .. '/undo'
+local paths = require('utils.paths')
 
-vim.fn.mkdir(swap_dir, 'p')
-vim.fn.mkdir(backup_dir, 'p')
+-- swap and backup are regenerable — route to @home-cache subvolume when available
+local swap_dir = paths.cache_path('swap')
+local backup_dir = paths.cache_path('backup')
+
+-- undo must stay in stdpath('data') — persistent undo history is never regenerable
+local undo_dir = vim.fn.stdpath('data') .. '/undo'
 vim.fn.mkdir(undo_dir, 'p')
 
 vim.opt.directory = swap_dir .. '//'

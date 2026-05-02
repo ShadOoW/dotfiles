@@ -1,8 +1,9 @@
 -- Astro LSP server configuration
 local function get_typescript_server_path()
+  local mason_root = require('mason.settings').current.install_root_dir
   local possible_paths = { -- Try astro-language-server's own TypeScript first
-    vim.fn.stdpath('data') .. '/mason/packages/astro-language-server/node_modules/typescript/lib', -- Fallback to vtsls
-    vim.fn.stdpath('data') .. '/mason/packages/vtsls/node_modules/typescript/lib',
+    mason_root .. '/packages/astro-language-server/node_modules/typescript/lib', -- Fallback to vtsls
+    mason_root .. '/packages/vtsls/node_modules/typescript/lib',
     -- Try global TypeScript installation
     '/usr/lib/node_modules/typescript/lib', -- Try local node_modules
     vim.fn.getcwd() .. '/node_modules/typescript/lib',
@@ -13,8 +14,7 @@ local function get_typescript_server_path()
     if vim.fn.filereadable(tsserver_lib) == 1 then return path end
   end
 
-  -- Default fallback
-  return vim.fn.stdpath('data') .. '/mason/packages/astro-language-server/node_modules/typescript/lib'
+  return mason_root .. '/packages/astro-language-server/node_modules/typescript/lib'
 end
 
 return {
