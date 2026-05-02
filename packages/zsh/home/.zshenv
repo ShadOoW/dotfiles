@@ -22,11 +22,28 @@ export EDITOR=nvim
 export JAVA_HOME=/usr/lib/jvm/java-26-openjdk
 export ATUIN_NOBIND='true'
 
-# zinit installation
-export ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+if [ -d "$HOME/.cache/managed-zinit" ]; then
+  export ZINIT_HOME="$HOME/.cache/managed-zinit/zinit.git"
+  typeset -gA ZINIT
+  ZINIT[HOME_DIR]="$HOME/.cache/managed-zinit"
+  ZINIT[PLUGINS_DIR]="$HOME/.cache/managed-zinit/plugins"
+  ZINIT[SNIPPETS_DIR]="$HOME/.cache/managed-zinit/snippets"
+  ZINIT[COMPLETIONS_DIR]="$HOME/.cache/managed-zinit/completions"
+else
+  export ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
+fi
 [ ! -d "$ZINIT_HOME" ] && mkdir -p "$(dirname "$ZINIT_HOME")"
 [ ! -d "$ZINIT_HOME/.git" ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "$ZINIT_HOME/zinit.zsh"
+# npm cache
+if [ -d "$HOME/.cache/managed-npm" ]; then
+  export npm_config_cache="$HOME/.cache/managed-npm"
+fi
+
+# fnm
+if [ -d "$HOME/.cache/managed-fnm" ]; then
+  export FNM_DIR="$HOME/.cache/managed-fnm"
+fi
 
 # cpr: copy command output to clipboard (available in non-interactive shells, e.g. nvim :!)
 cpr() {
