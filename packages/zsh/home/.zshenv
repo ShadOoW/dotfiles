@@ -22,7 +22,9 @@ export EDITOR=nvim
 export JAVA_HOME=/usr/lib/jvm/java-26-openjdk
 export ATUIN_NOBIND='true'
 
-if [ -d "$HOME/.cache/managed-zinit" ]; then
+# zinit
+if [ -f "$HOME/.cache/.managed" ]; then
+  mkdir -p "$HOME/.cache/managed-zinit"
   export ZINIT_HOME="$HOME/.cache/managed-zinit/zinit.git"
   typeset -gA ZINIT
   ZINIT[HOME_DIR]="$HOME/.cache/managed-zinit"
