@@ -1,3 +1,6 @@
+# Point zinit to the new cache location
+export ZINIT[HOME_DIR]="/home/shad/.cache/managed-zinit/polaris"
+
 # Add deno completions to search path
 if [[ ":$FPATH:" != *":/home/shad/.zsh/completions:"* ]]; then export FPATH="/home/shad/.zsh/completions:$FPATH"; fi
 # Enable Completion
@@ -33,12 +36,10 @@ zinit light zdharma-continuum/fast-syntax-highlighting
 
 zinit snippet OMZP::extract
 
-# Binary releases from GitHub - using official zinit recipes
 # fnm - Fast Node Manager
 zinit for \
   as'completion' \
   atclone"./fnm completions --shell zsh > _fnm.zsh" \
-  atload'eval $(fnm env --shell zsh)' \
   atpull'%atclone' \
   blockf \
   from'gh-r' \
@@ -53,7 +54,7 @@ zinit for \
   sbin'**/atuin' \
   @atuinsh/atuin
 
-# zoxide - correct repo is ajeetdsouza/zoxide
+# zoxide
 zinit for \
   from'gh-r' \
   sbin'**/zoxide' \
@@ -175,6 +176,8 @@ setopt incappendhistory  # Immediately append to history file
 
 eval "$(zoxide init zsh)"
 
+# Atuin: Alt+Down = global search, Alt+Up = directory-scoped search
+
 # Define widgets
 function cd_up() {
   BUFFER="cd .."
@@ -228,10 +231,8 @@ setopt prompt_subst
 PROMPT='%B%F{blue}%c%B%F{magenta} %{$reset_color%}% %F{red}❯%F{yellow}❯%F{green}❯%f '
 RPROMPT='%B%F{green}${vcs_info_msg_0_}%f'
 
-# Atuin: Alt+Down = global search, Alt+Up = directory-scoped search
+# Atuin init
 eval "$(atuin init zsh)"
-bindkey '^[[1;3B' atuin-search    # Alt+Down for global search
-bindkey '^[[1;3A' atuin-up-search # Alt+Up for directory mode
 
 # Skip Atuin recording when ATUIN_SKIP is set (Cursor/VSCode user settings)
 functions[_atuin_preexec_orig]=${functions[_atuin_preexec]}

@@ -24,13 +24,13 @@ export ATUIN_NOBIND='true'
 
 # zinit
 if [ -f "$HOME/.cache/.managed" ]; then
-  mkdir -p "$HOME/.cache/managed-zinit"
-  export ZINIT_HOME="$HOME/.cache/managed-zinit/zinit.git"
+  mkdir -p "$HOME/.cache/managed-zinit/polaris"
+  export ZINIT_HOME="$HOME/.cache/managed-zinit/polaris/bin/zinit.git"
   typeset -gA ZINIT
-  ZINIT[HOME_DIR]="$HOME/.cache/managed-zinit"
-  ZINIT[PLUGINS_DIR]="$HOME/.cache/managed-zinit/plugins"
-  ZINIT[SNIPPETS_DIR]="$HOME/.cache/managed-zinit/snippets"
-  ZINIT[COMPLETIONS_DIR]="$HOME/.cache/managed-zinit/completions"
+  ZINIT[HOME_DIR]="$HOME/.cache/managed-zinit/polaris"
+  ZINIT[PLUGINS_DIR]="$HOME/.cache/managed-zinit/polaris/plugins"
+  ZINIT[SNIPPETS_DIR]="$HOME/.cache/managed-zinit/polaris/snippets"
+  ZINIT[COMPLETIONS_DIR]="$HOME/.cache/managed-zinit/polaris/completions"
 else
   export ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
 fi
