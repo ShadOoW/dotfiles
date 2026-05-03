@@ -37,16 +37,24 @@ fi
 [ ! -d "$ZINIT_HOME" ] && mkdir -p "$(dirname "$ZINIT_HOME")"
 [ ! -d "$ZINIT_HOME/.git" ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "$ZINIT_HOME/zinit.zsh"
+
 # npm cache
-if [ -d "$HOME/.cache/managed-npm" ]; then
+if [ -f "$HOME/.cache/.managed" ]; then
   export npm_config_cache="$HOME/.cache/managed-npm"
+  mkdir -p "$npm_config_cache"
 fi
 
 # fnm
-if [ -d "$HOME/.cache/managed-fnm" ]; then
+if [ -f "$HOME/.cache/.managed" ]; then
   export FNM_DIR="$HOME/.cache/managed-fnm"
+  mkdir -p "$FNM_DIR"
 fi
 
+# rustup
+if [ -f "$HOME/.cache/.managed" ]; then
+  export RUSTUP_HOME="$HOME/.cache/managed-rustup"
+  mkdir -p "$RUSTUP_HOME"
+fi
 # cpr: copy command output to clipboard (available in non-interactive shells, e.g. nvim :!)
 cpr() {
   local cmd="$*"
