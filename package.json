@@ -1,0 +1,12 @@
+{
+  "name": "dot",
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "bun dot.ts"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.9.0",
+    "citty": "^0.1.6"
+  }
+}
