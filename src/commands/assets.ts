@@ -6,7 +6,12 @@ import { getInstalledVersion, readManifest, setInstalledVersion } from "../lib/m
 import { colors, logError, logInfo, logSection, logSuccess, logWarn } from "../lib/console.ts";
 
 async function getLatestVersion(asset: AssetDef): Promise<string | null> {
-  if (asset.kind === "git") return null; // git assets tracked by commit
+  if (asset.kind === "git" || asset.kind === "git-installer") return null;
+  if (asset.kind === "url") return asset.version;
+  if (asset.kind === "release-tarball") {
+    const release = await getLatestRelease(asset.repo);
+    return release?.tag_name ?? null;
+  }
   const release = await getLatestRelease(asset.repo);
   return release?.tag_name ?? null;
 }
@@ -37,7 +42,13 @@ export const assetsListCommand = defineCommand({
 
     for (const asset of ASSETS) {
       const installed = manifest.get(asset.name) ?? "-";
-      const latest = asset.kind === "release" ? (await getLatestRelease(asset.repo))?.tag_name ?? "?" : "git";
+      const latest = asset.kind === "release"
+        ? (await getLatestRelease(asset.repo))?.tag_name ?? "?"
+        : asset.kind === "release-tarball"
+          ? (await getLatestRelease(asset.repo))?.tag_name ?? "?"
+          : asset.kind === "url"
+            ? asset.version
+            : "git";
       const installed_dir = asset.installDir;
       const present = existsSync(installed_dir);
 
@@ -73,10 +84,19 @@ export const assetsSyncCommand = defineCommand({
       logInfo(asset.description);
 
       let latestVersion: string | null = null;
-      if (asset.kind === "release") {
+      if (asset.kind === "release" || asset.kind === "release-tarball") {
         const release = await getLatestRelease(asset.repo);
         if (!release) { logWarn(`Could not fetch release info for ${asset.name}`); continue; }
         latestVersion = release.tag_name;
+        const installed = manifest.get(asset.name);
+        if (installed === latestVersion && existsSync(asset.installDir)) {
+          logInfo(`${asset.name} is already up to date (${latestVersion})`);
+          skipped++;
+          continue;
+        }
+        logInfo(`Updating ${asset.name}: ${installed ?? "not installed"} → ${latestVersion}`);
+      } else if (asset.kind === "url") {
+        latestVersion = asset.version;
         const installed = manifest.get(asset.name);
         if (installed === latestVersion && existsSync(asset.installDir)) {
           logInfo(`${asset.name} is already up to date (${latestVersion})`);
@@ -122,13 +142,17 @@ export const assetsInfoCommand = defineCommand({
     console.log(`\n${colors.bold(asset.name)} — ${asset.description}`);
     console.log(`  Kind:      ${asset.kind}`);
     if (asset.kind === "release") console.log(`  Source:    github.com/${asset.repo}`);
+    else if (asset.kind === "release-tarball") console.log(`  Source:    github.com/${asset.repo} (tarball)`);
+    else if (asset.kind === "url") console.log(`  Source:    ${asset.downloadUrl}`);
     else console.log(`  Source:    ${asset.remote}`);
     console.log(`  Install:   ${asset.installDir}${asset.sudo ? " (requires sudo)" : ""}`);
     console.log(`  Installed: ${installed ?? colors.dim("not tracked")}`);
 
-    if (asset.kind === "release") {
+    if (asset.kind === "release" || asset.kind === "release-tarball") {
       const release = await getLatestRelease(asset.repo);
       console.log(`  Latest:    ${release?.tag_name ?? colors.dim("unknown")}`);
+    } else if (asset.kind === "url") {
+      console.log(`  Latest:    ${asset.version}`);
     }
     console.log("");
   },
@@ -141,7 +165,9 @@ export const assetsCommand = defineCommand({
     sync: assetsSyncCommand,
     info: assetsInfoCommand,
   },
-  async run() {
-    printAssetsUsage();
+  async run({ rawArgs }) {
+    if (rawArgs.length === 0) {
+      printAssetsUsage();
+    }
   },
 });
