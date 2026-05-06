@@ -36,9 +36,9 @@ Hint: We always validate permissions before Parse queries
 
 ## What This Creates
 
-**File location:** `~/.fingerprint/{PROJECT_NAME}_CODEBASE_PATTERNS.md`
+**File location:** `$HOME/.fingerprint/{PROJECT_NAME}_CODEBASE_PATTERNS.md`
 
-Where `{PROJECT_NAME}` is derived from your git repository root (e.g., if your repo is `/path/to/myapp`, the file will be `~/.fingerprint/MYAPP_CODEBASE_PATTERNS.md`).
+Where `{PROJECT_NAME}` is derived from your git repository root (e.g., if your repo is `/path/to/myapp`, the file will be `$HOME/.fingerprint/MYAPP_CODEBASE_PATTERNS.md`).
 
 **Works from anywhere:** Uses `git rev-parse --show-toplevel` to find the project root, so it doesn't matter if you run this from the project root, a subdirectory like `web/code`, or via different AI agent CLIs (Claude Code, OpenCode, etc.).
 
@@ -67,7 +67,7 @@ Complete statistical breakdown — what LLMs use for pattern-matched reviews
 1. **Scans** your codebase (finds all `.ts`/`.tsx` files)
 2. **Categorizes** files (components, hooks, services, models, utils, tests)
 3. **Samples** 15-20 files per run across categories
-4. **Tracks** what's been analyzed (`~/.fingerprint/{PROJECT_NAME}.json`)
+4. **Tracks** what's been analyzed (`$HOME/.fingerprint/{PROJECT_NAME}.json`)
 5. **Eventually covers** everything if run enough times
 
 **Sampling strategy:**
@@ -1213,7 +1213,7 @@ const handleClick = (event) => {};
 
 ### State Tracking
 
-The prompt maintains `~/.fingerprint/{PROJECT_NAME}.json`:
+The prompt maintains `$HOME/.fingerprint/{PROJECT_NAME}.json`:
 
 ```json
 {
@@ -1330,21 +1330,41 @@ After each run:
 
 ### Command: "Fingerprint the codebase"
 
+> ⚠️ **Important:** Never use `~` in bash commands — always use `$HOME`. The tilde (`~`) may resolve incorrectly in headless agent execution environments like `opencode run`, where there is no interactive shell to expand it. All paths must use `$HOME` explicitly.
+
 1. **Determine project root and name:**
 
    ```bash
-   # Find git repository root (works regardless of which subdirectory CLI is running from)
-   GIT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+   # Step 1: find the git root, fallback to $PWD
+   GIT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+   if [ -z "$GIT_ROOT" ]; then
+     GIT_ROOT="$PWD"
+   fi
 
-   # Navigate to git root (ensures all paths are relative to project root)
+   # Step 2: navigate to git root
    cd "$GIT_ROOT"
 
-   # Extract project name from git root directory name
-   PROJECT_NAME=$(basename "$GIT_ROOT" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
+   # Step 3: extract project name from directory name only
+   PROJECT_NAME=$(basename "$GIT_ROOT" | tr '[:lower:]' '[:upper:]' | tr '[:space:]' '_' | tr '-' '_' | sed 's/[^A-Z0-9_]//g')
 
-   # Define file paths (always in ~/.fingerprint/ directory)
-   PATTERN_FILE="~/.fingerprint/${PROJECT_NAME}_CODEBASE_PATTERNS.md"
-   STATE_FILE="~/.fingerprint/${PROJECT_NAME}.json"
+   # Step 4: guard against empty result
+   if [ -z "$PROJECT_NAME" ] || [ "$PROJECT_NAME" = "_" ]; then
+     PROJECT_NAME="UNKNOWN"
+   fi
+
+   # Step 5: define all paths using $HOME, never ~
+   FINGERPRINT_DIR="$HOME/.fingerprint"
+   PATTERN_FILE="$FINGERPRINT_DIR/${PROJECT_NAME}_CODEBASE_PATTERNS.md"
+   STATE_FILE="$FINGERPRINT_DIR/${PROJECT_NAME}.json"
+
+   # Step 6: ensure output directory exists
+   mkdir -p "$FINGERPRINT_DIR"
+
+   # Step 7: confirm resolved values
+   echo "Git root:     $GIT_ROOT"
+   echo "Project name: $PROJECT_NAME"
+   echo "State file:   $STATE_FILE"
+   echo "Pattern file: $PATTERN_FILE"
    ```
 
 2. **Check if first run:**
@@ -1360,7 +1380,12 @@ After each run:
 3. **Scan codebase:**
 
    ```bash
-   find src -type f \( -name "*.ts" -o -name "*.tsx" \) | sort
+   find . -type f \( -name "*.ts" -o -name "*.tsx" \) \
+     ! -path "*/node_modules/*" \
+     ! -path "*/.git/*" \
+     ! -path "*/dist/*" \
+     ! -path "*/build/*" \
+     | sort
    ```
 
 4. **Categorize files:**
@@ -1645,7 +1670,10 @@ Before writing updated pattern file, verify:
 ✅ Conflicts flagged with ⚠️  
 ✅ Coverage status updated  
 ✅ State file updated with new analyzed files  
-✅ Anti-patterns section includes any new legacy patterns found
+✅ Anti-patterns section includes any new legacy patterns found  
+✅ All file writes use `"$PATTERN_FILE"` and `"$STATE_FILE"` variables (never hardcoded paths)  
+✅ All mkdir/cat/write commands use `$HOME`, never `~`  
+✅ Environment block was run and echo output confirmed before writing any files
 
 ---
 
