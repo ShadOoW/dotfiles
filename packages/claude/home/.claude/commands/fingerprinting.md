@@ -147,7 +147,7 @@ When new files contradict existing patterns:
 ⚠️ **CONFLICT**
 **Existing:** 70% use `type`, 30% use `interface`
 **New data:** Recent files show 60% `interface`, 40% `type`
-**Action:** Pattern is shifting. Consider manual override to standardize.
+**Action:** Pattern is shifting. Flag conflict in pattern file and continue.
 ```
 
 ---
@@ -1328,6 +1328,8 @@ After each run:
 
 ## Execution Protocol
 
+**Non-interactive mode:** Execute all steps to completion in a single run. Do not use todo lists as checkpoints. Do not pause after partial completion. Write all output files without interruption.
+
 ### Command: "Fingerprint the codebase"
 
 > ⚠️ **Important:** Never use `~` in bash commands — always use `$HOME`. The tilde (`~`) may resolve incorrectly in headless agent execution environments like `opencode run`, where there is no interactive shell to expand it. All paths must use `$HOME` explicitly.
@@ -1371,21 +1373,26 @@ After each run:
 
    ```bash
    if [ ! -f "$STATE_FILE" ]; then
-     # First run: initialize
+     echo "First run — state file will be created"
    else
-     # Subsequent run: update
+     echo "Subsequent run — state file found, will update"
    fi
    ```
 
+   Proceed to step 3 immediately in either case. Do not pause.
+
 3. **Scan codebase:**
 
+   Store results in a variable — do not dump the file list to stdout:
+
    ```bash
-   find . -type f \( -name "*.ts" -o -name "*.tsx" \) \
+   FILES=$(find . -type f \( -name "*.ts" -o -name "*.tsx" \) \
      ! -path "*/node_modules/*" \
      ! -path "*/.git/*" \
      ! -path "*/dist/*" \
      ! -path "*/build/*" \
-     | sort
+     | sort)
+   echo "Found $(echo "$FILES" | wc -l) source files"
    ```
 
 4. **Categorize files:**
@@ -1409,6 +1416,8 @@ After each run:
    - Compare with existing patterns
 
 7. **Update pattern file:**
+
+   > **The pattern markdown file will be large (500-1000+ lines). This is expected and normal. Write the entire file in a single write operation without truncating or deferring. Do not split into multiple turns.**
    - Preserve MANUAL OVERRIDES (never auto-modify)
    - Update SUMMARY
    - Update DETAILED ANALYSIS sections
@@ -1577,33 +1586,27 @@ Review this PR for pattern compliance:
 
 **Large codebase (1000+ files):**
 
+Print a warning and proceed automatically — do not pause for confirmation:
+
 ```
 ⚠️ Large codebase detected (1,200 files)
 Sampling will require 15-20 runs for full coverage.
-Estimated time: 15 runs × 2 min = 30 min total
-
-Recommend: Focus on specific modules first
-Example: "Fingerprint: src/components/"
-
-Continue with full sampling? (yes/no)
+Proceeding with this run's sample (15-20 files). Run again to increase coverage.
 ```
 
 **No TypeScript files found:**
 
 ```
-❌ No .ts/.tsx files found in src/
-Current directory: /path/to/project
-Are you in the project root?
+❌ No .ts/.tsx files found. Halting — cannot continue without source files.
 ```
 
 **Pattern file corrupted:**
 
+Automatically attempt repair — preserve any MANUAL OVERRIDES found, regenerate the analysis sections. Do not pause to ask:
+
 ```
 ⚠️ Pattern file exists but MANUAL OVERRIDES section is malformed
-Options:
-1. Attempt automatic repair (preserve overrides, regenerate analysis)
-2. Backup and regenerate (you'll need to re-add overrides)
-3. Manual fix required (open file and correct markdown)
+Auto-repairing: preserving overrides, regenerating analysis sections.
 ```
 
 ---
@@ -1658,7 +1661,7 @@ Analyze commit messages and add section to pattern file:
 
 ## Final Checklist (Every Run)
 
-Before writing updated pattern file, verify:
+Confirm these hold, then write both files immediately without pausing:
 
 ✅ MANUAL OVERRIDES section preserved exactly (no auto-modification)  
 ✅ SUMMARY updated with new stats  
@@ -1678,8 +1681,6 @@ Before writing updated pattern file, verify:
 ---
 
 ## Ready to Begin
-
-**Waiting for your command.**
 
 Common commands:
 
