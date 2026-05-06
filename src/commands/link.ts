@@ -1,7 +1,7 @@
 import { defineCommand } from "citty";
 import { confirm } from "@clack/prompts";
-import { existsSync, lstatSync } from "fs";
-import { mkdir, rm, symlink } from "fs/promises";
+import { existsSync, lstatSync, readlinkSync } from "fs";
+import { mkdir, rm, symlink, unlink } from "fs/promises";
 import { dirname, join } from "path";
 import { PACKAGES_DIR } from "../lib/config.ts";
 import { collectFiles, hasInitDirs, isAlreadyLinked, listPackages } from "../lib/pkg.ts";
@@ -130,6 +130,7 @@ export const unlinkCommand = defineCommand({
   meta: { description: "Remove symlinks created by dot link" },
   args: {
     init: { type: "string", description: "Init system: runit or systemd" },
+    yes: { type: "boolean", short: "y", default: false, description: "Skip confirmation" },
   },
   async run({ args, rawArgs }) {
     const pkg = rawArgs.find((a) => !a.startsWith("-"));
@@ -161,15 +162,16 @@ export const unlinkCommand = defineCommand({
       if (existsSync(target)) console.log(`  ${colors.red("✗")} ${target}`);
     }
 
-    const answer = await confirm({ message: "Proceed?" });
+    const answer = args.yes || await confirm({ message: "Proceed?" });
     if (!answer) { console.log("Cancelled."); return; }
 
     let sudoCached = false;
     let count = 0;
 
     for (const { source, target } of allFiles) {
-      if (!existsSync(target)) continue;
       try {
+        const isSymlink = existsSync(target) && lstatSync(target).isSymbolicLink();
+        if (!isSymlink) continue;
         const isSystem = source.includes("/system/");
         if (isSystem) {
           if (!sudoCached) {
@@ -178,7 +180,7 @@ export const unlinkCommand = defineCommand({
           }
           Bun.spawnSync(["sudo", "rm", "-rf", target]);
         } else {
-          await rm(target, { recursive: true });
+          await unlink(target);
         }
         console.log(`  ${colors.red("removed")} ${target}`);
         count++;
