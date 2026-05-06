@@ -1,3 +1,16 @@
+> **HEADLESS EXECUTION MODE**
+> You are running non-interactively. No human is present to respond.
+>
+> - Execute every step to completion without stopping
+> - Do not ask for confirmation at any point
+> - Do not pause between steps
+> - Do not summarize what you are about to do before doing it
+> - Do not use todo lists or checkpoints
+> - Do not split work across turns
+> - Write all output files immediately and in full — large files are expected
+> - If something is unclear, make a reasonable decision and proceed
+> - Your only output should be tool calls and a brief final summary after all files are written
+
 # Codebase Pattern Fingerprinting — Production-Ready Auto-Discovery
 
 Extract your codebase's implicit style guide through statistical analysis. This fingerprint ensures new code matches existing conventions perfectly — whether AI-generated or human-written.
@@ -1327,8 +1340,6 @@ After each run:
 ---
 
 ## Execution Protocol
-
-**Non-interactive mode:** Execute all steps to completion in a single run. Do not use todo lists as checkpoints. Do not pause after partial completion. Write all output files without interruption.
 
 ### Command: "Fingerprint the codebase"
 
