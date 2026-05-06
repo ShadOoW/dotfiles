@@ -36,7 +36,11 @@ Hint: We always validate permissions before Parse queries
 
 ## What This Creates
 
-**File location:** `.claude/{PROJECT_NAME}_CODEBASE_PATTERNS.md`
+**File location:** `~/.fingerprint/{PROJECT_NAME}_CODEBASE_PATTERNS.md`
+
+Where `{PROJECT_NAME}` is derived from your git repository root (e.g., if your repo is `/path/to/myapp`, the file will be `~/.fingerprint/MYAPP_CODEBASE_PATTERNS.md`).
+
+**Works from anywhere:** Uses `git rev-parse --show-toplevel` to find the project root, so it doesn't matter if you run this from the project root, a subdirectory like `web/code`, or via different AI agent CLIs (Claude Code, OpenCode, etc.).
 
 The pattern file has **three sections** for different use cases:
 
@@ -63,7 +67,7 @@ Complete statistical breakdown — what LLMs use for pattern-matched reviews
 1. **Scans** your codebase (finds all `.ts`/`.tsx` files)
 2. **Categorizes** files (components, hooks, services, models, utils, tests)
 3. **Samples** 15-20 files per run across categories
-4. **Tracks** what's been analyzed (`.claude/.fingerprint_state.json`)
+4. **Tracks** what's been analyzed (`~/.fingerprint/{PROJECT_NAME}.json`)
 5. **Eventually covers** everything if run enough times
 
 **Sampling strategy:**
@@ -1209,7 +1213,7 @@ const handleClick = (event) => {};
 
 ### State Tracking
 
-The prompt maintains `.claude/.fingerprint_state.json`:
+The prompt maintains `~/.fingerprint/{PROJECT_NAME}.json`:
 
 ```json
 {
@@ -1326,12 +1330,21 @@ After each run:
 
 ### Command: "Fingerprint the codebase"
 
-1. **Determine project name:**
+1. **Determine project root and name:**
 
    ```bash
-   PROJECT_NAME=$(basename "$PWD" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
-   PATTERN_FILE=".claude/${PROJECT_NAME}_CODEBASE_PATTERNS.md"
-   STATE_FILE=".claude/.fingerprint_state.json"
+   # Find git repository root (works regardless of which subdirectory CLI is running from)
+   GIT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+
+   # Navigate to git root (ensures all paths are relative to project root)
+   cd "$GIT_ROOT"
+
+   # Extract project name from git root directory name
+   PROJECT_NAME=$(basename "$GIT_ROOT" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
+
+   # Define file paths (always in ~/.fingerprint/ directory)
+   PATTERN_FILE="~/.fingerprint/${PROJECT_NAME}_CODEBASE_PATTERNS.md"
+   STATE_FILE="~/.fingerprint/${PROJECT_NAME}.json"
    ```
 
 2. **Check if first run:**
