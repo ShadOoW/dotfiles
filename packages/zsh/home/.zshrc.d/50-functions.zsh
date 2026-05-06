@@ -54,3 +54,16 @@ copyimg() {
 zdrag() {
   ripdrag "$(fzf)"
 }
+
+copycommitmsg() {
+  local ref="${1:-HEAD}"
+  local msg
+
+  msg="$(git log -1 --format=%B "$ref")" || {
+    echo "❌ Failed to get commit message for '$ref'"
+    return 1
+  }
+
+  echo -n "$msg" | wl-copy
+  echo "✓ Copied commit message for '$ref' to clipboard"
+}
