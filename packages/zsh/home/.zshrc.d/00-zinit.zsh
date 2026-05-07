@@ -65,5 +65,3 @@ zinit light zdharma-continuum/fast-syntax-highlighting
 
 zinit ice wait"2" lucid
 zinit snippet OMZP::extract
-
-[ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
