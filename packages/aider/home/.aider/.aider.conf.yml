@@ -1,0 +1,9 @@
+model: openai/MiniMax-M2.7
+
+auto-commits: false
+dirty-commits: true
+
+show-model-warnings: true
+no-show-diffs: false
+
+map-tokens: 1024
