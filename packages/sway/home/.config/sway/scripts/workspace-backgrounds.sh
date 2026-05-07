@@ -24,4 +24,4 @@ random_index=$((RANDOM % ${#mp4_files[@]}))
 random_video="${mp4_files[$random_index]}"
 
 # Start mpvpaper
-mpvpaper -f -o "no-audio loop --no-config" "$OUTPUT" "$random_video"
+mpvpaper -f -o "no-audio loop" "$OUTPUT" "$random_video"
