@@ -64,6 +64,20 @@ copycommitmsg() {
     return 1
   }
 
-  echo -n "$msg" | wl-copy
+  local copy_cmd
+  if [[ "$OSTYPE" == darwin* ]]; then
+    copy_cmd="pbcopy"
+  elif command -v wl-copy &>/dev/null; then
+    copy_cmd="wl-copy"
+  elif command -v xclip &>/dev/null; then
+    copy_cmd="xclip -selection clipboard"
+  elif command -v xsel &>/dev/null; then
+    copy_cmd="xsel --clipboard --input"
+  else
+    echo "❌ No clipboard tool found (tried: wl-copy, xclip, xsel)"
+    return 1
+  fi
+
+  echo -n "$msg" | $copy_cmd
   echo "✓ Copied commit message for '$ref' to clipboard"
 }

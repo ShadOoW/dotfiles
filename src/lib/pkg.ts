@@ -97,9 +97,16 @@ function extractDescription(readme: string): string {
 }
 
 function extractRequiredPackages(readme: string): string[] {
-  const matches = readme.matchAll(/xbps-install (\S+)|apt install (\S+)|pacman -S (\S+)/g);
+  const matches = readme.matchAll(/xbps-install (\S+)|apt install (\S+)|pacman -S (\S+)|brew install (\S+)/g);
   const pkgs = new Set<string>();
-  for (const m of matches) pkgs.add(m[1] ?? m[2] ?? m[3]);
+  for (const m of matches) pkgs.add(m[1] ?? m[2] ?? m[3] ?? m[4]);
+  const lines = readme.split("\n");
+  let inSoftwareSection = false;
+  for (const l of lines) {
+    if (l.startsWith("## ")) inSoftwareSection = false;
+    if (l.startsWith("## ") && /(?:Software|Required packages)/.test(l)) inSoftwareSection = true;
+    else if (inSoftwareSection && l.trim().startsWith("- ")) pkgs.add(l.trim().slice(2).trim());
+  }
   return [...pkgs];
 }
 
