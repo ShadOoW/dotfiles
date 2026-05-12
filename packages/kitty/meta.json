@@ -1,0 +1,11 @@
+{
+  "description": "Kitty terminal emulator",
+  "packages": {
+    "arch": { "brew": ["kitty"] },
+    "void": { "xbps": ["kitty"] },
+    "macos": { "brew": ["kitty"] }
+  },
+  "tags": ["terminal", "desktop"],
+  "cleanSteps": [],
+  "os": ["linux", "macos"]
+}

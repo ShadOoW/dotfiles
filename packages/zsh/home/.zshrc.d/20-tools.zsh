@@ -1,12 +1,15 @@
-if [ -z "$SSH_AUTH_SOCK" ]; then
-  if [[ "$(uname)" == "Darwin" ]]; then
-    eval "$(ssh-agent -s)" >/dev/null 2>&1
-    [ -f ~/.ssh/id_github ] && ssh-add --apple-use-keychain ~/.ssh/id_github 2>/dev/null
+_setup_ssh_agent() {
+  eval "$(ssh-agent -s)" >/dev/null 2>&1
+  local key=~/.ssh/id_github
+  [[ -f "$key" ]] || return
+  if [[ "$_DISTRO" == "macos" ]]; then
+    ssh-add --apple-use-keychain "$key" 2>/dev/null
   else
-    eval "$(ssh-agent -s)" >/dev/null 2>&1
-    [ -f ~/.ssh/id_github ] && ssh-add ~/.ssh/id_github 2>/dev/null
+    ssh-add "$key" 2>/dev/null
   fi
-fi
+}
+
+[[ -z "$SSH_AUTH_SOCK" ]] && _setup_ssh_agent
 
 eval "$(fnm env --use-on-cd --shell zsh)"
 eval "$(zoxide init zsh)"

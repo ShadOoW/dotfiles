@@ -13,11 +13,16 @@ cf() {
     echo "Usage: cf <filename>"
     return 1
   fi
-  echo -n "$1" | wl-copy
+  echo -n "$1" | clipboard-copy
   echo "Copied '$1' to clipboard."
 }
 
 copyimg() {
+  if ! command -v wl-copy &>/dev/null; then
+    echo "❌ copyimg requires wl-copy (Wayland only)" >&2
+    return 1
+  fi
+
   emulate -L zsh
 
   local file="$1"
@@ -58,26 +63,10 @@ zdrag() {
 copycommitmsg() {
   local ref="${1:-HEAD}"
   local msg
-
   msg="$(git log -1 --format=%B "$ref")" || {
     echo "❌ Failed to get commit message for '$ref'"
     return 1
   }
-
-  local copy_cmd
-  if [[ "$OSTYPE" == darwin* ]]; then
-    copy_cmd="pbcopy"
-  elif command -v wl-copy &>/dev/null; then
-    copy_cmd="wl-copy"
-  elif command -v xclip &>/dev/null; then
-    copy_cmd="xclip -selection clipboard"
-  elif command -v xsel &>/dev/null; then
-    copy_cmd="xsel --clipboard --input"
-  else
-    echo "❌ No clipboard tool found (tried: wl-copy, xclip, xsel)"
-    return 1
-  fi
-
-  echo -n "$msg" | $copy_cmd
+  echo -n "$msg" | clipboard-copy
   echo "✓ Copied commit message for '$ref' to clipboard"
 }

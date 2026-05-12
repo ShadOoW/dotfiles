@@ -1,0 +1,11 @@
+{
+  "description": "Atuin shell history sync and search",
+  "packages": {
+    "arch": { "brew": ["atuin"] },
+    "void": { "xbps": ["atuin"] },
+    "macos": { "brew": ["atuin"] }
+  },
+  "tags": ["shell"],
+  "cleanSteps": [],
+  "os": ["linux", "macos"]
+}

@@ -144,7 +144,7 @@ return {
           ['ctrl-f'] = 'preview-page-down',
           ['ctrl-b'] = 'preview-page-up',
           ['ctrl-a'] = 'toggle-all',
-          ['ctrl-y'] = 'execute-silent(echo {+} | xclip -selection clipboard)',
+          ['ctrl-y'] = 'execute-silent(echo {+} | clipboard-copy)',
           ['page-up'] = 'preview-page-up',
           ['page-down'] = 'preview-page-down',
           ['enter'] = 'accept',
@@ -153,7 +153,7 @@ return {
         },
       },
       fzf_opts = {
-        ['--bind'] = 'ctrl-c:abort,ctrl-y:execute-silent(echo {+} | xclip -selection clipboard),esc:abort,ctrl-/:toggle-preview,ctrl-l:toggle-preview,ctrl-d:preview-page-down,ctrl-u:preview-page-up,page-down:preview-page-down,page-up:preview-page-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,ctrl-a:toggle-all',
+        ['--bind'] = 'ctrl-c:abort,ctrl-y:execute-silent(echo {+} | clipboard-copy),esc:abort,ctrl-/:toggle-preview,ctrl-l:toggle-preview,ctrl-d:preview-page-down,ctrl-u:preview-page-up,page-down:preview-page-down,page-up:preview-page-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,ctrl-a:toggle-all',
         ['--cycle'] = '',
         ['--keep-right'] = '',
         ['--scroll-off'] = '5',
@@ -259,7 +259,7 @@ return {
           fzf.files(picker_opts('Find Files', '󰈞', {
             file_ignore_patterns = { '^venv/', '^%.venv/', '^__pycache__/', '/venv/', '/%.venv/', '/__pycache__/' },
             fzf_opts = {
-              ['--bind'] = 'ctrl-y:execute-silent(echo {+} | xclip -selection clipboard)',
+              ['--bind'] = 'ctrl-y:execute-silent(echo {+} | clipboard-copy)',
             },
           }))
         end,

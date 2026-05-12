@@ -1,0 +1,11 @@
+{
+  "description": "Git version control configuration",
+  "packages": {
+    "arch": { "brew": ["git"] },
+    "void": { "xbps": ["git"] },
+    "macos": { "brew": ["git"] }
+  },
+  "tags": ["dev"],
+  "cleanSteps": [],
+  "os": ["linux", "macos"]
+}

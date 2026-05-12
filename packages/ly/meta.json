@@ -1,0 +1,10 @@
+{
+  "description": "Ly TUI display manager",
+  "packages": {
+    "arch": { "pacman": ["ly"] },
+    "void": { "xbps": ["ly"] }
+  },
+  "tags": ["system", "desktop"],
+  "cleanSteps": [],
+  "os": ["linux"]
+}

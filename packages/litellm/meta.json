@@ -1,0 +1,10 @@
+{
+  "description": "LiteLLM proxy server (supports runit and systemd)",
+  "packages": {
+    "arch": { "pacman": [] },
+    "void": { "xbps": [] }
+  },
+  "tags": ["ai", "proxy"],
+  "cleanSteps": [],
+  "os": ["linux"]
+}

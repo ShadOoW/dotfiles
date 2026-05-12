@@ -1,0 +1,10 @@
+{
+  "description": "Waybar status bar for Wayland compositors",
+  "packages": {
+    "arch": { "pacman": ["waybar"] },
+    "void": { "xbps": ["waybar"] }
+  },
+  "tags": ["wayland", "desktop"],
+  "cleanSteps": [],
+  "os": ["linux"]
+}

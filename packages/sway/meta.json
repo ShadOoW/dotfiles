@@ -1,0 +1,34 @@
+{
+  "description": "Sway Wayland compositor and desktop environment",
+  "packages": {
+    "arch": {
+      "pacman": [
+        "sway",
+        "swaybg",
+        "swayidle",
+        "swaylock-effects",
+        "wl-clipboard",
+        "grim",
+        "slurp",
+        "jq",
+        "brightnessctl"
+      ]
+    },
+    "void": {
+      "xbps": [
+        "sway",
+        "swaybg",
+        "swayidle",
+        "swaylock",
+        "wl-clipboard",
+        "grim",
+        "slurp",
+        "jq",
+        "brightnessctl"
+      ]
+    }
+  },
+  "tags": ["wayland", "wm", "desktop"],
+  "cleanSteps": [],
+  "os": ["linux"]
+}

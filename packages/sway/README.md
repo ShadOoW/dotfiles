@@ -1,6 +1,6 @@
 # sway - Window manager
 
-xbps-install sway swaybg swayidle swaylock wofi
+xbps-install sway swaybg swayidle swaylock fuzzel
 
 ## Clean
 

@@ -1,0 +1,2 @@
+#!/bin/sh
+exec uv tool run litellm proxy --config /home/shad/.config/litellm/config.yaml

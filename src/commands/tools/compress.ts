@@ -341,7 +341,8 @@ Examples:
     if (counts.fail)  console.log(colors.yellow(`Failed      ${String(counts.fail).padStart(5)}  files  (tool error, original copied)`));
     if (counts.error) console.log(colors.red(`Errors      ${String(counts.error).padStart(5)}  files  (exception, original copied)`));
 
-    if (counts.error > 0) process.exit(2);
-    if (counts.fail > 0) process.exit(1);
+    if (counts.error > 0) { logError(`${counts.error} file(s) errored`); process.exit(2); }
+    if (counts.fail > 0) { logError(`${counts.fail} file(s) failed compression`); process.exit(1); }
+    process.exit(0);
   },
 });

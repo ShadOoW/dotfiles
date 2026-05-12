@@ -1,0 +1,22 @@
+{
+  "description": "Neovim with LSP, Mason, and modern plugins",
+  "packages": {
+    "arch": {
+      "pacman": ["neovim", "tree-sitter"],
+      "brew": ["python-pynvim", "ripgrep", "fd"]
+    },
+    "void": {
+      "xbps": ["neovim", "python3-neovim", "tree-sitter", "ripgrep", "fd"]
+    },
+    "macos": {
+      "brew": ["neovim", "ripgrep", "fd"]
+    }
+  },
+  "tags": ["editor", "dev"],
+  "cleanSteps": [
+    "rm -rf ~/.local/share/nvim",
+    "rm -rf ~/.local/share/mason",
+    "rm -rf ~/.cache/nvim"
+  ],
+  "os": ["linux", "macos"]
+}

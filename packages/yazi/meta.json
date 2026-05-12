@@ -1,0 +1,11 @@
+{
+  "description": "Yazi terminal file manager",
+  "packages": {
+    "arch": { "cargo": ["yazi"] },
+    "void": { "cargo": ["yazi"] },
+    "macos": { "brew": ["yazi"] }
+  },
+  "tags": ["terminal"],
+  "cleanSteps": [],
+  "os": ["linux", "macos"]
+}

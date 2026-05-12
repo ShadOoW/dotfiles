@@ -1,0 +1,19 @@
+{
+  "description": "Zsh with Zinit plugin manager, atuin, zoxide, and fnm",
+  "packages": {
+    "arch": {
+      "pacman": ["zsh", "fzf", "zoxide", "atuin"],
+      "cargo": ["fnm"]
+    },
+    "void": {
+      "xbps": ["zsh", "fzf", "zoxide", "atuin"],
+      "cargo": ["fnm"]
+    },
+    "macos": {
+      "brew": ["zsh", "fzf", "zoxide", "atuin", "fnm"]
+    }
+  },
+  "tags": ["shell"],
+  "cleanSteps": ["rm -rf ~/.local/share/zinit"],
+  "os": ["linux", "macos"]
+}

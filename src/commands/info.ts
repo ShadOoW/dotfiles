@@ -2,7 +2,7 @@ import { defineCommand } from "citty";
 import { existsSync } from "fs";
 import { join } from "path";
 import { PACKAGES_DIR } from "../lib/config.ts";
-import { collectFiles, getPackageMeta, listPackages } from "../lib/pkg.ts";
+import { collectFiles, detectDistro, getPackageMeta, listPackages } from "../lib/pkg.ts";
 import { colors, logError } from "../lib/console.ts";
 
 export const infoCommand = defineCommand({
@@ -26,6 +26,36 @@ export const infoCommand = defineCommand({
 
     console.log(`\n${colors.bold(pkg)}${meta.description ? ` — ${meta.description}` : ""}\n`);
 
+    if (meta.tags.length > 0) {
+      console.log(`${colors.dim("Tags:")}     ${meta.tags.join(", ")}`);
+    }
+    if (meta.os.length > 0) {
+      console.log(`${colors.dim("OS:")}       ${meta.os.join(", ")}`);
+    }
+    if (meta.tags.length > 0 || meta.os.length > 0) console.log("");
+
+    const distro = detectDistro();
+    const distroPackages = meta.packages[distro] ?? meta.packages["linux"];
+    const allDistros = Object.keys(meta.packages);
+
+    if (distroPackages) {
+      console.log(colors.yellow(`Packages (${distro}):`));
+      for (const [pm, pkgs] of Object.entries(distroPackages)) {
+        if (pkgs.length === 0) continue;
+        console.log(`  ${colors.cyan(pm + ":")} ${pkgs.join("  ")}`);
+      }
+      console.log("");
+    } else if (allDistros.length > 0) {
+      for (const [d, pkgList] of Object.entries(meta.packages)) {
+        console.log(colors.yellow(`Packages (${d}):`));
+        for (const [pm, pkgs] of Object.entries(pkgList)) {
+          if (pkgs.length === 0) continue;
+          console.log(`  ${colors.cyan(pm + ":")} ${pkgs.join("  ")}`);
+        }
+      }
+      console.log("");
+    }
+
     console.log(colors.cyan("Operations:"));
     console.log(`  dot link ${pkg}`);
     console.log(`  dot unlink ${pkg}`);
@@ -35,12 +65,6 @@ export const infoCommand = defineCommand({
       console.log(`  dot enable ${pkg}${hint}`);
     }
     console.log("");
-
-    if (meta.requiredPackages.length > 0) {
-      console.log(colors.yellow("Required packages:"));
-      for (const p of meta.requiredPackages) console.log(`  ${p}`);
-      console.log("");
-    }
 
     const homeFiles = await collectFiles(pkgDir, "home");
     const systemFiles = await collectFiles(pkgDir, "system");
@@ -81,7 +105,7 @@ export const configureCommand = defineCommand({
     const r = Bun.spawnSync(["sudo", "-v"], { stdout: "ignore", stderr: "ignore" });
     if (r.exitCode !== 0) { logError("sudo required"); process.exit(1); }
 
-    const proc = Bun.spawn(["sudo", "bash", scriptPath], { stdout: "inherit", stderr: "inherit" });
+  const proc = Bun.spawn(["bash", scriptPath], { stdout: "inherit", stderr: "inherit" });
     process.exit(await proc.exited);
   },
 });

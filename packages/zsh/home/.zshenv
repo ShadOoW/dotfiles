@@ -15,24 +15,41 @@ export EDITOR=nvim
 export PASSWORD_STORE_DIR=/data/stash/pass
 export PRETTIERD_DEFAULT_CONFIG="$HOME/.config/prettierd/.prettierrc"
 
-# XDG directories — only set Linux-specific paths on Linux
-if [[ "$(uname)" == "Linux" ]]; then
-  export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
-  export XDG_SESSION_TYPE="${XDG_SESSION_TYPE:-wayland}"
-  export XDG_CURRENT_DESKTOP="${XDG_CURRENT_DESKTOP:-sway}"
+# OS/distro — single source of truth, available in all shell contexts
+if [[ "$(uname)" == "Darwin" ]]; then
+  export _DISTRO=macos
+elif [[ -f /etc/void-release ]]; then
+  export _DISTRO=void
+elif [[ -f /etc/arch-release ]]; then
+  export _DISTRO=arch
 else
-  # Unset Linux-only XDG vars that may have been exported by parent shell or dotfiles
+  export _DISTRO=linux
+fi
+
+# XDG — Linux only; session type inferred from environment when not already set by DM
+if [[ "$_DISTRO" != "macos" ]]; then
+  export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+  if [[ -z "$XDG_SESSION_TYPE" ]]; then
+    if [[ -n "$WAYLAND_DISPLAY" ]]; then
+      export XDG_SESSION_TYPE=wayland
+    elif [[ -n "$DISPLAY" ]]; then
+      export XDG_SESSION_TYPE=x11
+    else
+      export XDG_SESSION_TYPE=wayland
+    fi
+  fi
+  : "${XDG_CURRENT_DESKTOP:=sway}"
+  export XDG_CURRENT_DESKTOP
+else
   unset XDG_RUNTIME_DIR XDG_SESSION_TYPE XDG_CURRENT_DESKTOP 2>/dev/null
 fi
 
 typeset -U path PATH
 
-# cpr: copy command output to clipboard
+# Self-contained helpers — available in all shell contexts, not just interactive
 cpr() {
-  local cmd="$*"
-  if [[ "$(uname)" == "Darwin" ]]; then
-    { echo "$ $cmd"; eval "$cmd"; } | pbcopy
-  else
-    { echo "$ $cmd"; eval "$cmd"; } | wl-copy
-  fi
+  {
+    echo "$ $*"
+    eval "$*"
+  } | clipboard-copy
 }

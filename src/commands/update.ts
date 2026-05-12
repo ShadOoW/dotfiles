@@ -83,11 +83,18 @@ async function updateCargo(check: boolean) {
 }
 
 async function updateFnm(check: boolean) {
-  if (!commandExists("fnm")) return;
+  if (!commandExists("cargo")) { logWarn("fnm: cargo not found, skipping"); return; }
   if (check) { logInfo(`fnm: ${getVersion("fnm", ["--version"])}`); return; }
-  if (commandExists("bun")) Bun.spawnSync(["bun", "install", "-g", "fnm"], { stdout: "inherit", stderr: "inherit" });
-  else if (commandExists("npm")) Bun.spawnSync(["npm", "install", "-g", "fnm"], { stdout: "inherit", stderr: "inherit" });
-  else logWarn("fnm: need npm or bun to update");
+  logInfo("fnm: updating via cargo…");
+  Bun.spawnSync(["cargo", "install", "fnm"], { stdout: "inherit", stderr: "inherit" });
+}
+
+async function updatePacman(check: boolean) {
+  if (!commandExists("pacman")) return;
+  if (check) { logInfo(`pacman: ${getVersion("pacman", ["--version"])}`); return; }
+  const priv = commandExists("doas") ? "doas" : "sudo";
+  logInfo("pacman: syncing and upgrading…");
+  Bun.spawnSync([priv, "pacman", "-Syu", "--noconfirm"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateAnyzig(check: boolean) {
@@ -171,11 +178,12 @@ function showInfo() {
 const checkFlag = { type: "boolean" as const, description: "Show what would update without making changes" };
 
 export const systemUpdateCommand = defineCommand({
-  meta: { description: "Update system packages (xbps, flatpak) and self-updating runtimes" },
+  meta: { description: "Update system packages (xbps/pacman, flatpak) and self-updating runtimes" },
   args: { check: checkFlag },
   async run({ args }) {
     logSection("System");
     await updateXbps(args.check ?? false);
+    await updatePacman(args.check ?? false);
     await updateFlatpak(args.check ?? false);
     await updateBunSelf(args.check ?? false);
     await updateDeno(args.check ?? false);
@@ -226,6 +234,7 @@ export const updateCommand = defineCommand({
     if (args.all || args.check) {
       logSection("System");
       await updateXbps(args.check ?? false);
+      await updatePacman(args.check ?? false);
       await updateFlatpak(args.check ?? false);
       await updateBunSelf(args.check ?? false);
       await updateDeno(args.check ?? false);
@@ -248,7 +257,7 @@ export const updateCommand = defineCommand({
 Usage: dot update <subcommand> [--check]
 
 Subcommands:
-  system    Update xbps, flatpak, bun, deno, rustup
+  system    Update xbps/pacman, flatpak, bun, deno, rustup
   global    Update npm -g, bun -g, yarn, pnpm, pipx, cargo
   source    Update fnm, anyzig, ly, zinit
 

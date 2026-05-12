@@ -2,16 +2,27 @@
 
 ## Required packages
 
-Install via Homebrew on macOS, or your system's package manager on Linux:
+### Arch Linux (pacman)
 
-- zsh
-- zinit
-- fnm
-- atuin
-- zoxide
-- fzf
-- bat
-- broot
-- lsd
-- starship
-- gh (GitHub CLI)
+```
+pacman -S zsh fzf zoxide atuin
+cargo install fnm
+```
+
+### Void Linux (xbps)
+
+```
+xbps-install zsh fzf zoxide atuin
+cargo install fnm
+```
+
+### macOS (brew)
+
+```
+brew install zsh fzf zoxide atuin fnm
+```
+
+## Post-install
+
+- zinit auto-installs itself on first shell launch
+- Restart shell after linking to initialize zinit

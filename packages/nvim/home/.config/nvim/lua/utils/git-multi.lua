@@ -11,7 +11,7 @@ M.git_status_multi = function(opts)
   fzf.git_status({
     prompt = 'Git Status> ',
     fzf_opts = {
-      ['--bind'] = 'ctrl-y:execute-silent(echo {+} | xclip -selection clipboard)',
+      ['--bind'] = 'ctrl-y:execute-silent(echo {+} | clipboard-copy)',
     },
   })
 end

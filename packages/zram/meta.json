@@ -1,0 +1,10 @@
+{
+  "description": "Compressed RAM swap (supports runit and systemd)",
+  "packages": {
+    "arch": { "pacman": ["zram-generator"] },
+    "void": { "xbps": ["zramen"] }
+  },
+  "tags": ["system"],
+  "cleanSteps": [],
+  "os": ["linux"]
+}

@@ -1,0 +1,11 @@
+{
+  "description": "tmux terminal multiplexer",
+  "packages": {
+    "arch": { "brew": ["tmux"] },
+    "void": { "xbps": ["tmux"] },
+    "macos": { "brew": ["tmux"] }
+  },
+  "tags": ["terminal"],
+  "cleanSteps": [],
+  "os": ["linux", "macos"]
+}

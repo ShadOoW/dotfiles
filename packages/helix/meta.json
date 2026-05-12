@@ -1,0 +1,11 @@
+{
+  "description": "Helix modal text editor",
+  "packages": {
+    "arch": { "cargo": ["helix"] },
+    "void": { "cargo": ["helix"] },
+    "macos": { "brew": ["helix"] }
+  },
+  "tags": ["editor", "dev"],
+  "cleanSteps": [],
+  "os": ["linux", "macos"]
+}
