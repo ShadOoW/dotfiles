@@ -33,20 +33,20 @@ bun dot.ts <command>
 
 ### Commands
 
-| Command               | Description                                     |
-| --------------------- | ----------------------------------------------- |
-| `dot link <pkg>`      | Symlink a package's files into place            |
-| `dot unlink <pkg>`    | Remove those symlinks                           |
-| `dot info <pkg>`      | Show metadata, files, and per-distro packages   |
-| `dot configure <pkg>` | Run `configure.sh` for a package                |
-| `dot enable <pkg>`    | Run the enable script (init-system-aware)       |
-| `dot disable <pkg>`   | Run the disable script                          |
-| `dot update system`   | Update xbps/pacman, flatpak, bun, deno, rustup  |
-| `dot update global`   | Update npm/bun/pipx/cargo global packages       |
-| `dot update source`   | Update cargo-installed tools, anyzig, ly, zinit |
-| `dot update --info`   | Show installed versions                         |
-| `dot assets sync`     | Sync fonts, icons, themes from GitHub releases  |
-| `dot docs`            | Browse setup documentation                      |
+| Command               | Description                                    |
+| --------------------- | ---------------------------------------------- |
+| `dot link <pkg>`      | Symlink a package's files into place           |
+| `dot unlink <pkg>`    | Remove those symlinks                          |
+| `dot info <pkg>`      | Show metadata, files, and per-distro packages  |
+| `dot configure <pkg>` | Run `configure.sh` for a package               |
+| `dot enable <pkg>`    | Run the enable script (init-system-aware)      |
+| `dot disable <pkg>`   | Run the disable script                         |
+| `dot update system`   | Update xbps/pacman, flatpak, bun, deno, rustup |
+| `dot update global`   | Update npm/bun/pipx/cargo global packages      |
+| `dot update source`   | Build/update pkgbuilds, fnm, anyzig, ly, zinit |
+| `dot update --info`   | Show installed versions                        |
+| `dot assets sync`     | Sync fonts, icons, themes from GitHub releases |
+| `dot docs`            | Browse setup documentation                     |
 
 ### Linking flags
 
@@ -104,6 +104,34 @@ Packages can declare metadata in `meta.json`:
 ```
 
 `dot info <pkg>` shows packages filtered to the current distro. `dot link --tag <tag>` links all matching packages at once.
+
+## Custom packages (pkgbuilds)
+
+Packages not available in official repos (e.g. proprietary .deb-only software) live in `pkgbuilds/`. Each package is a directory with a `build.sh` that downloads the source, stages the files, and produces a native xbps package via `xbps-create` — no void-packages clone required.
+
+```
+pkgbuilds/
+└── antigravity/
+    ├── build.sh          # VERSION= at the top, full build + install logic
+    └── antigravity.sh    # wrapper binary packaged into /usr/local/bin/
+```
+
+`dot update source` auto-discovers every `pkgbuilds/*/build.sh`, compares the `VERSION=` declared there against the installed xbps package, and rebuilds only when they differ. Built packages are cached in `~/.cache/dot/<name>/`.
+
+**To update a package to a new release:**
+
+1. Get the new download URL (it typically encodes version, timestamp, and MD5).
+2. Compute the sha256 checksum: `sha256sum <file>.deb`
+3. Update the variables at the top of `pkgbuilds/<name>/build.sh`:
+   ```sh
+   VERSION="1.24.0"
+   TIMESTAMP="1787654321"
+   MD5="<new-md5>"
+   CHECKSUM="<new-sha256>"
+   ```
+4. Run `dot update source` — it detects the version mismatch and rebuilds.
+
+To check without building: `dot update source --check`
 
 ## OS support
 

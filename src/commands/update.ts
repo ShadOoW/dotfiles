@@ -1,8 +1,9 @@
 import { defineCommand } from "citty";
 import { existsSync } from "fs";
+import { readdir } from "fs/promises";
 import { join } from "path";
-import { HOME_DIR } from "../lib/config.ts";
-import { commandExists, getVersion, logError, logInfo, logSection, logWarn } from "../lib/console.ts";
+import { HOME_DIR, PKGBUILDS_DIR, CACHE_DIR } from "../lib/config.ts";
+import { commandExists, getVersion, logError, logInfo, logSection, logSuccess, logWarn } from "../lib/console.ts";
 
 // ─── individual updaters ────────────────────────────────────────────────────
 
@@ -86,7 +87,13 @@ async function updateFnm(check: boolean) {
   if (!commandExists("cargo")) { logWarn("fnm: cargo not found, skipping"); return; }
   if (check) { logInfo(`fnm: ${getVersion("fnm", ["--version"])}`); return; }
   logInfo("fnm: updating via cargo…");
-  Bun.spawnSync(["cargo", "install", "fnm"], { stdout: "inherit", stderr: "inherit" });
+  const fnmResult = Bun.spawnSync(["cargo", "install", "fnm"], { stdout: "pipe", stderr: "pipe" });
+  if (fnmResult.exitCode !== 0) {
+    process.stderr.write(fnmResult.stderr);
+    logError("fnm: install failed");
+  } else {
+    logSuccess("fnm: up to date");
+  }
 }
 
 async function updatePacman(check: boolean) {
@@ -106,8 +113,8 @@ async function updateAnyzig(check: boolean) {
   const tmpR = Bun.spawnSync(["mktemp", "/tmp/anyzig.tar.gz.XXXXXX"], { stdout: "pipe" });
   const tmpfile = new TextDecoder().decode(tmpR.stdout).trim();
   logInfo("anyzig: downloading…");
-  Bun.spawnSync(["curl", "-L", url, "-o", tmpfile], { stdout: "inherit", stderr: "inherit" });
-  Bun.spawnSync(["tar", "-xzf", tmpfile, "-C", join(HOME_DIR, ".local/bin")], { stdout: "inherit" });
+  Bun.spawnSync(["curl", "-fsSL", url, "-o", tmpfile], { stdout: "pipe", stderr: "pipe" });
+  Bun.spawnSync(["tar", "-xzf", tmpfile, "-C", join(HOME_DIR, ".local/bin")], { stdout: "pipe" });
   Bun.spawnSync(["chmod", "+x", zigPath]);
   Bun.spawnSync(["rm", "-f", tmpfile]);
   logInfo("anyzig: updated");
@@ -129,22 +136,39 @@ async function updateLy(check: boolean) {
     return;
   }
 
+  let headChanged = true;
+
   if (!existsSync(lyDir)) {
     logInfo("ly: cloning…");
     Bun.spawnSync(["git", "clone", "--recurse-submodules", lyRepo, lyDir], { stdout: "inherit", stderr: "inherit" });
   } else {
+    const headBefore = new TextDecoder().decode(
+      Bun.spawnSync(["git", "-C", lyDir, "rev-parse", "HEAD"], { stdout: "pipe" }).stdout
+    ).trim();
+
     logInfo("ly: updating…");
-    Bun.spawnSync(["git", "-C", lyDir, "submodule", "update", "--init", "--recursive"], { stdout: "inherit" });
-    Bun.spawnSync(["git", "-C", lyDir, "pull"], { stdout: "inherit" });
+    Bun.spawnSync(["git", "-C", lyDir, "submodule", "update", "--init", "--recursive", "-q"], { stdout: "pipe" });
+    Bun.spawnSync(["git", "-C", lyDir, "pull", "-q", "--ff-only"], { stdout: "pipe" });
+
+    const headAfter = new TextDecoder().decode(
+      Bun.spawnSync(["git", "-C", lyDir, "rev-parse", "HEAD"], { stdout: "pipe" }).stdout
+    ).trim();
+
+    headChanged = headBefore !== headAfter;
   }
 
-  if (commandExists("ly") || existsSync("/usr/bin/ly")) { logInfo("ly: already installed"); return; }
+  const lyInstalled = commandExists("ly") || existsSync("/usr/bin/ly");
+  if (!headChanged && lyInstalled) { logInfo("ly: up to date"); return; }
 
   logInfo("ly: building…");
-  const build = Bun.spawnSync([zigCmd, "build", `--build-file=${lyDir}/build.zig`], { stdout: "pipe", stderr: "pipe" });
-  if (build.exitCode !== 0) { logError("ly: build failed"); return; }
+  const build = Bun.spawnSync([zigCmd, "build"], { cwd: lyDir, stdout: "pipe", stderr: "pipe" });
+  if (build.exitCode !== 0) {
+    process.stderr.write(build.stderr);
+    logError("ly: build failed");
+    return;
+  }
   const priv = commandExists("doas") ? "doas" : "sudo";
-  Bun.spawnSync([priv, zigCmd, "build", "installnoconf", `--build-file=${lyDir}/build.zig`], { stdout: "inherit", stderr: "inherit" });
+  Bun.spawnSync([priv, zigCmd, "build", "installnoconf"], { cwd: lyDir, stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateZinit(check: boolean) {
@@ -170,6 +194,50 @@ function showInfo() {
   console.log("\nPackage managers:");
   for (const pm of ["xbps-install", "flatpak", "npm", "bun", "yarn", "pnpm", "pipx", "cargo"]) {
     if (commandExists(pm)) logInfo(`  ${pm}`);
+  }
+}
+
+function getInstalledXbpsVersion(pkg: string): string | null {
+  const r = Bun.spawnSync(["xbps-query", "-p", "pkgver", pkg], { stdout: "pipe", stderr: "pipe" });
+  if (r.exitCode !== 0) return null;
+  const pkgver = new TextDecoder().decode(r.stdout).trim(); // e.g. "antigravity-1.23.2_1"
+  const match = pkgver.match(/^.+-(\d[\d.]+)_\d+$/);
+  return match?.[1] ?? null;
+}
+
+function getTemplateVersion(buildScript: string): string | null {
+  const r = Bun.spawnSync(["grep", "-m1", "^VERSION=", buildScript], { stdout: "pipe" });
+  const line = new TextDecoder().decode(r.stdout).trim();
+  return line ? line.replace(/^VERSION=["']?/, "").replace(/["']?$/, "") : null;
+}
+
+async function updateXbpsBuilds(check: boolean) {
+  if (!commandExists("xbps-create")) { logWarn("xbps-create: not found, skipping"); return; }
+  if (!existsSync(PKGBUILDS_DIR)) return;
+
+  const entries = await readdir(PKGBUILDS_DIR, { withFileTypes: true });
+  for (const entry of entries.filter((e) => e.isDirectory())) {
+    const name = entry.name;
+    const buildScript = join(PKGBUILDS_DIR, name, "build.sh");
+    if (!existsSync(buildScript)) continue;
+
+    const installed = getInstalledXbpsVersion(name);
+    const template = getTemplateVersion(buildScript);
+
+    if (check) {
+      logInfo(`${name}: installed=${installed ?? "not installed"} template=${template ?? "unknown"}`);
+      continue;
+    }
+
+    if (installed && template && installed === template) {
+      logInfo(`${name}: up to date (${installed})`);
+      continue;
+    }
+
+    logInfo(`${name}: building ${template}…`);
+    const cacheDir = join(CACHE_DIR, name);
+    const result = Bun.spawnSync(["bash", buildScript, cacheDir], { stdout: "inherit", stderr: "inherit" });
+    if (result.exitCode !== 0) logError(`${name}: build failed`);
   }
 }
 
@@ -206,10 +274,11 @@ export const globalUpdateCommand = defineCommand({
 });
 
 export const sourceUpdateCommand = defineCommand({
-  meta: { description: "Update git/source-built tools (fnm, anyzig, ly, zinit)" },
+  meta: { description: "Update source/custom-built tools (pkgbuilds, fnm, anyzig, ly, zinit)" },
   args: { check: checkFlag },
   async run({ args }) {
     logSection("Source-built tools");
+    await updateXbpsBuilds(args.check ?? false);
     await updateFnm(args.check ?? false);
     await updateAnyzig(args.check ?? false);
     await updateLy(args.check ?? false);
@@ -229,7 +298,8 @@ export const updateCommand = defineCommand({
     global: globalUpdateCommand,
     source: sourceUpdateCommand,
   },
-  async run({ args }) {
+  async run({ args, rawArgs }) {
+    if (rawArgs.some((a: string) => !a.startsWith("-"))) return; // subcommand is handling it
     if (args.info) { showInfo(); return; }
     if (args.all || args.check) {
       logSection("System");
@@ -247,6 +317,7 @@ export const updateCommand = defineCommand({
       await updatePipx(args.check ?? false);
       await updateCargo(args.check ?? false);
       logSection("Source-built tools");
+      await updateXbpsBuilds(args.check ?? false);
       await updateFnm(args.check ?? false);
       await updateAnyzig(args.check ?? false);
       await updateLy(args.check ?? false);
@@ -259,7 +330,7 @@ Usage: dot update <subcommand> [--check]
 Subcommands:
   system    Update xbps/pacman, flatpak, bun, deno, rustup
   global    Update npm -g, bun -g, yarn, pnpm, pipx, cargo
-  source    Update fnm, anyzig, ly, zinit
+  source    Update pkgbuilds, fnm, anyzig, ly, zinit
 
 Flags:
   --all     Run all three subcommands

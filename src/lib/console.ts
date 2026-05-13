@@ -14,19 +14,20 @@ export const colors = {
 };
 
 export function logInfo(msg: string) {
-  console.log(`${colors.green("[INFO]")} ${msg}`);
+  console.log(`  ${colors.dim("·")} ${msg}`);
 }
 export function logWarn(msg: string) {
-  console.log(`${colors.yellow("[WARN]")} ${msg}`);
+  console.log(`  ${colors.yellow("!")} ${msg}`);
 }
 export function logError(msg: string) {
-  console.error(`${colors.red("[ERROR]")} ${msg}`);
+  console.error(`  ${colors.red("✗")} ${msg}`);
 }
 export function logSuccess(msg: string) {
-  console.log(`${colors.green("✓")} ${msg}`);
+  console.log(`  ${colors.green("✓")} ${msg}`);
 }
 export function logSection(msg: string) {
-  console.log(`\n${colors.bold(colors.blue(`=== ${msg} ===`))}`);
+  const dashes = "─".repeat(Math.max(4, 46 - msg.length));
+  console.log(`\n${colors.bold(colors.cyan(msg))} ${colors.dim(dashes)}`);
 }
 
 export function formatBytes(bytes: number): string {
