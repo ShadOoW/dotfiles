@@ -13,10 +13,8 @@ async function updateXbps(check: boolean) {
     logInfo(`xbps: ${getVersion("xbps-query", ["--version"])}`);
     return;
   }
-  logInfo("xbps: syncing…");
-  Bun.spawnSync(["sudo", "xbps-install", "-S"], { stdout: "inherit", stderr: "inherit" });
-  logInfo("xbps: upgrading…");
-  Bun.spawnSync(["sudo", "xbps-install", "-Su"], { stdout: "inherit", stderr: "inherit" });
+  logInfo("xbps: syncing and upgrading…");
+  Bun.spawnSync(["sudo", "xbps-install", "-Syu"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateFlatpak(check: boolean) {
