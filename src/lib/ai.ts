@@ -103,7 +103,7 @@ export async function analyzeWithAI(output: string) {
 
     console.log();
     for (const line of lines) {
-      console.log("  " + line);
+      logInfo(line);
     }
     console.log();
   } catch (err) {

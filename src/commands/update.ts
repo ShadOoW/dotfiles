@@ -14,61 +14,75 @@ async function updateXbps(check: boolean) {
     logInfo(`xbps: ${getVersion("xbps-query", ["--version"])}`);
     return;
   }
-  logInfo("xbps: syncing and upgrading…");
+  logSection("xbps");
+  if (check) { logInfo(`xbps: ${getVersion("xbps-query", ["--version"])}`); return; }
   Bun.spawnSync(["sudo", "xbps-install", "-Syu"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateFlatpak(check: boolean) {
   if (!commandExists("flatpak")) return;
   if (check) { logInfo(`flatpak: ${getVersion("flatpak", ["--version"])}`); return; }
+  logSection("Flatpak");
   Bun.spawnSync(["flatpak", "update", "-y"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateBunSelf(check: boolean) {
   if (!commandExists("bun")) return;
   if (check) { logInfo(`bun: ${getVersion("bun", ["--version"])}`); return; }
+  logSection("Bun Self Update");
   Bun.spawnSync(["bun", "upgrade"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateDeno(check: boolean) {
   if (!commandExists("deno")) return;
   if (check) { logInfo(`deno: ${getVersion("deno", ["--version"])}`); return; }
+  logSection("Deno Self Update");
   Bun.spawnSync(["deno", "upgrade"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateRustup(check: boolean) {
   if (!commandExists("rustup")) return;
   if (check) { logInfo(`rustup: ${getVersion("rustup", ["--version"])}`); return; }
+  logSection("Rust Update");
   Bun.spawnSync(["rustup", "update"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateNpm(check: boolean) {
   if (!commandExists("npm")) return;
   if (check) { logInfo(`npm: ${getVersion("npm", ["--version"])}`); return; }
+  logSection("Npm");
   Bun.spawnSync(["npm", "update", "-g"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateBunGlobal(check: boolean) {
   if (!commandExists("bun")) return;
   if (check) { logInfo(`bun -g: ${getVersion("bun", ["outdated", "-g"])}`); return; }
+  logSection("Bun Global Packages");
+  const lockfile = join(HOME_DIR, ".bun/install/global/bun.lock");
+  if (existsSync(lockfile)) Bun.file(lockfile).delete();
   Bun.spawnSync(["bun", "update", "-g"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateYarn(check: boolean) {
   if (!commandExists("yarn")) return;
   if (check) { logInfo("yarn: checking global packages…"); return; }
+  logSection("Yarn");
+  const lockfile = join(HOME_DIR, ".config/yarn/global/yarn.lock");
+  if (existsSync(lockfile)) Bun.file(lockfile).delete();
   Bun.spawnSync(["yarn", "global", "upgrade"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updatePnpm(check: boolean) {
   if (!commandExists("pnpm")) return;
   if (check) { logInfo(`pnpm: ${getVersion("pnpm", ["--version"])}`); return; }
+  logSection("Pnpm");
   Bun.spawnSync(["pnpm", "update", "-g"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updatePipx(check: boolean) {
   if (!commandExists("pipx")) return;
   if (check) { logInfo("pipx: listing packages…"); Bun.spawnSync(["pipx", "list"], { stdout: "inherit" }); return; }
+  logSection("Pipx");
   Bun.spawnSync(["pipx", "upgrade-all"], { stdout: "inherit", stderr: "inherit" });
 }
 
@@ -79,6 +93,7 @@ async function updateCargo(check: boolean) {
     return;
   }
   if (check) { Bun.spawnSync(["cargo", "install-update", "--dry-run"], { stdout: "inherit" }); return; }
+  logSection("Cargo");
   Bun.spawnSync(["cargo", "install-update", "-a"], { stdout: "inherit", stderr: "inherit" });
 }
 
@@ -259,7 +274,6 @@ export const systemUpdateCommand = defineCommand({
   args: { check: checkFlag, ai: aiFlag },
   async run({ args, rawArgs }) {
     await withAI(rawArgs, "system", async () => {
-      logSection("System");
       await updateXbps(args.check ?? false);
       await updatePacman(args.check ?? false);
       await updateFlatpak(args.check ?? false);
@@ -275,7 +289,6 @@ export const globalUpdateCommand = defineCommand({
   args: { check: checkFlag, ai: aiFlag },
   async run({ args, rawArgs }) {
     await withAI(rawArgs, "global", async () => {
-      logSection("Global packages");
       await updateNpm(args.check ?? false);
       await updateBunGlobal(args.check ?? false);
       await updateYarn(args.check ?? false);
@@ -319,14 +332,12 @@ export const updateCommand = defineCommand({
     if (args.info) { showInfo(); return; }
     if (args.all || args.check) {
       const runAll = async () => {
-        logSection("System");
         await updateXbps(args.check ?? false);
         await updatePacman(args.check ?? false);
         await updateFlatpak(args.check ?? false);
         await updateBunSelf(args.check ?? false);
         await updateDeno(args.check ?? false);
         await updateRustup(args.check ?? false);
-        logSection("Global packages");
         await updateNpm(args.check ?? false);
         await updateBunGlobal(args.check ?? false);
         await updateYarn(args.check ?? false);
