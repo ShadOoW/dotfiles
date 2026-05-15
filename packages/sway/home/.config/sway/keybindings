@@ -174,8 +174,8 @@ bindsym --locked {
 }
 
 # Window screenshot (saves to ~/Pictures with timestamp and copies to clipboard)
-bindsym Print exec grim -g "$(slurp)" - | tee ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png | wl-copy
-bindsym $mod+p exec grim -g "$(swaymsg -t get_tree | jq -r '.. | select(.pid? and .visible?) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' | slurp)" - | tee ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png | wl-copy
+bindsym Print exec grim -g "$(slurp)" - | tee /data/screens/screenshot-$(date +%Y%m%d-%H%M%S).png | wl-copy
+bindsym $mod+p exec grim -g "$(swaymsg -t get_tree | jq -r '.. | select(.pid? and .visible?) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' | slurp)" - | tee /data/screens/screenshot-$(date +%Y%m%d-%H%M%S).png | wl-copy
 
 # Lock screen
 bindsym $mod+l exec swaylock
