@@ -12,6 +12,7 @@ _setup_ssh_agent() {
 [[ -z "$SSH_AUTH_SOCK" ]] && _setup_ssh_agent
 
 eval "$(fnm env --use-on-cd --shell zsh)"
+fnm use default 2>/dev/null || true
 eval "$(zoxide init zsh)"
 eval "$(atuin init zsh)"
 

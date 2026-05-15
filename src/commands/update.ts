@@ -4,6 +4,7 @@ import { readdir } from "fs/promises";
 import { join } from "path";
 import { HOME_DIR, PKGBUILDS_DIR, CACHE_DIR } from "../lib/config.ts";
 import { commandExists, getVersion, logError, logInfo, logSection, logSuccess, logWarn } from "../lib/console.ts";
+import { analyzeWithAI, captureAndStream } from "../lib/ai.ts";
 
 // ─── individual updaters ────────────────────────────────────────────────────
 
@@ -242,45 +243,61 @@ async function updateXbpsBuilds(check: boolean) {
 // ─── subcommands ─────────────────────────────────────────────────────────────
 
 const checkFlag = { type: "boolean" as const, description: "Show what would update without making changes" };
+const aiFlag = { type: "boolean" as const, description: "Analyse output with AI after completion" };
+
+async function withAI(rawArgs: string[], subCmd: string | null, run: () => Promise<void>) {
+  if (!rawArgs.includes("--ai")) { await run(); return; }
+  const filteredArgs = rawArgs.filter((a) => a !== "--ai");
+  const base = [process.execPath, process.argv[1], "update"];
+  const cmdArgs = subCmd ? [...base, subCmd, ...filteredArgs] : [...base, ...filteredArgs];
+  const output = await captureAndStream(cmdArgs);
+  await analyzeWithAI(output);
+}
 
 export const systemUpdateCommand = defineCommand({
   meta: { description: "Update system packages (xbps/pacman, flatpak) and self-updating runtimes" },
-  args: { check: checkFlag },
-  async run({ args }) {
-    logSection("System");
-    await updateXbps(args.check ?? false);
-    await updatePacman(args.check ?? false);
-    await updateFlatpak(args.check ?? false);
-    await updateBunSelf(args.check ?? false);
-    await updateDeno(args.check ?? false);
-    await updateRustup(args.check ?? false);
+  args: { check: checkFlag, ai: aiFlag },
+  async run({ args, rawArgs }) {
+    await withAI(rawArgs, "system", async () => {
+      logSection("System");
+      await updateXbps(args.check ?? false);
+      await updatePacman(args.check ?? false);
+      await updateFlatpak(args.check ?? false);
+      await updateBunSelf(args.check ?? false);
+      await updateDeno(args.check ?? false);
+      await updateRustup(args.check ?? false);
+    });
   },
 });
 
 export const globalUpdateCommand = defineCommand({
   meta: { description: "Update global package manager packages (npm, bun, pipx, cargo…)" },
-  args: { check: checkFlag },
-  async run({ args }) {
-    logSection("Global packages");
-    await updateNpm(args.check ?? false);
-    await updateBunGlobal(args.check ?? false);
-    await updateYarn(args.check ?? false);
-    await updatePnpm(args.check ?? false);
-    await updatePipx(args.check ?? false);
-    await updateCargo(args.check ?? false);
+  args: { check: checkFlag, ai: aiFlag },
+  async run({ args, rawArgs }) {
+    await withAI(rawArgs, "global", async () => {
+      logSection("Global packages");
+      await updateNpm(args.check ?? false);
+      await updateBunGlobal(args.check ?? false);
+      await updateYarn(args.check ?? false);
+      await updatePnpm(args.check ?? false);
+      await updatePipx(args.check ?? false);
+      await updateCargo(args.check ?? false);
+    });
   },
 });
 
 export const sourceUpdateCommand = defineCommand({
   meta: { description: "Update source/custom-built tools (pkgbuilds, fnm, anyzig, ly, zinit)" },
-  args: { check: checkFlag },
-  async run({ args }) {
-    logSection("Source-built tools");
-    await updateXbpsBuilds(args.check ?? false);
-    await updateFnm(args.check ?? false);
-    await updateAnyzig(args.check ?? false);
-    await updateLy(args.check ?? false);
-    await updateZinit(args.check ?? false);
+  args: { check: checkFlag, ai: aiFlag },
+  async run({ args, rawArgs }) {
+    await withAI(rawArgs, "source", async () => {
+      logSection("Source-built tools");
+      await updateXbpsBuilds(args.check ?? false);
+      await updateFnm(args.check ?? false);
+      await updateAnyzig(args.check ?? false);
+      await updateLy(args.check ?? false);
+      await updateZinit(args.check ?? false);
+    });
   },
 });
 
@@ -290,6 +307,7 @@ export const updateCommand = defineCommand({
     all: { type: "boolean", description: "Update system + global + source" },
     check: checkFlag,
     info: { type: "boolean", description: "Show installed versions without updating" },
+    ai: aiFlag,
   },
   subCommands: {
     system: systemUpdateCommand,
@@ -300,26 +318,29 @@ export const updateCommand = defineCommand({
     if (rawArgs.some((a: string) => !a.startsWith("-"))) return; // subcommand is handling it
     if (args.info) { showInfo(); return; }
     if (args.all || args.check) {
-      logSection("System");
-      await updateXbps(args.check ?? false);
-      await updatePacman(args.check ?? false);
-      await updateFlatpak(args.check ?? false);
-      await updateBunSelf(args.check ?? false);
-      await updateDeno(args.check ?? false);
-      await updateRustup(args.check ?? false);
-      logSection("Global packages");
-      await updateNpm(args.check ?? false);
-      await updateBunGlobal(args.check ?? false);
-      await updateYarn(args.check ?? false);
-      await updatePnpm(args.check ?? false);
-      await updatePipx(args.check ?? false);
-      await updateCargo(args.check ?? false);
-      logSection("Source-built tools");
-      await updateXbpsBuilds(args.check ?? false);
-      await updateFnm(args.check ?? false);
-      await updateAnyzig(args.check ?? false);
-      await updateLy(args.check ?? false);
-      await updateZinit(args.check ?? false);
+      const runAll = async () => {
+        logSection("System");
+        await updateXbps(args.check ?? false);
+        await updatePacman(args.check ?? false);
+        await updateFlatpak(args.check ?? false);
+        await updateBunSelf(args.check ?? false);
+        await updateDeno(args.check ?? false);
+        await updateRustup(args.check ?? false);
+        logSection("Global packages");
+        await updateNpm(args.check ?? false);
+        await updateBunGlobal(args.check ?? false);
+        await updateYarn(args.check ?? false);
+        await updatePnpm(args.check ?? false);
+        await updatePipx(args.check ?? false);
+        await updateCargo(args.check ?? false);
+        logSection("Source-built tools");
+        await updateXbpsBuilds(args.check ?? false);
+        await updateFnm(args.check ?? false);
+        await updateAnyzig(args.check ?? false);
+        await updateLy(args.check ?? false);
+        await updateZinit(args.check ?? false);
+      };
+      await withAI(rawArgs, null, runAll);
       return;
     }
     console.log(`
@@ -334,10 +355,13 @@ Flags:
   --all     Run all three subcommands
   --check   Show what would update without making changes
   --info    Show currently installed versions
+  --ai      Analyse output with AI after completion
 
 Examples:
   dot update system
   dot update --all
+  dot update --all --ai
+  dot update system --ai
   dot update --check
   dot update --info
 `);
