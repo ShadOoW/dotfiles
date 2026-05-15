@@ -3,7 +3,7 @@ import { existsSync } from "fs";
 import { readdir } from "fs/promises";
 import { join } from "path";
 import { HOME_DIR, PKGBUILDS_DIR, CACHE_DIR } from "../lib/config.ts";
-import { commandExists, getVersion, logError, logInfo, logSection, logSuccess, logWarn } from "../lib/console.ts";
+import { commandExists, getVersion, logDesc, logError, logInfo, logSection, logSuccess, logWarn } from "../lib/console.ts";
 import { analyzeWithAI, captureAndStream } from "../lib/ai.ts";
 
 // ─── individual updaters ────────────────────────────────────────────────────
@@ -15,49 +15,48 @@ async function updateXbps(check: boolean) {
     return;
   }
   logSection("xbps");
-  if (check) { logInfo(`xbps: ${getVersion("xbps-query", ["--version"])}`); return; }
   Bun.spawnSync(["sudo", "xbps-install", "-Syu"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateFlatpak(check: boolean) {
   if (!commandExists("flatpak")) return;
   if (check) { logInfo(`flatpak: ${getVersion("flatpak", ["--version"])}`); return; }
-  logSection("Flatpak");
+  logSection("flatpak");
   Bun.spawnSync(["flatpak", "update", "-y"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateBunSelf(check: boolean) {
   if (!commandExists("bun")) return;
   if (check) { logInfo(`bun: ${getVersion("bun", ["--version"])}`); return; }
-  logSection("Bun Self Update");
+  logSection("bun");
   Bun.spawnSync(["bun", "upgrade"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateDeno(check: boolean) {
   if (!commandExists("deno")) return;
   if (check) { logInfo(`deno: ${getVersion("deno", ["--version"])}`); return; }
-  logSection("Deno Self Update");
+  logSection("deno");
   Bun.spawnSync(["deno", "upgrade"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateRustup(check: boolean) {
   if (!commandExists("rustup")) return;
   if (check) { logInfo(`rustup: ${getVersion("rustup", ["--version"])}`); return; }
-  logSection("Rust Update");
+  logSection("rustup");
   Bun.spawnSync(["rustup", "update"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateNpm(check: boolean) {
   if (!commandExists("npm")) return;
   if (check) { logInfo(`npm: ${getVersion("npm", ["--version"])}`); return; }
-  logSection("Npm");
+  logSection("npm");
   Bun.spawnSync(["npm", "update", "-g"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateBunGlobal(check: boolean) {
   if (!commandExists("bun")) return;
   if (check) { logInfo(`bun -g: ${getVersion("bun", ["outdated", "-g"])}`); return; }
-  logSection("Bun Global Packages");
+  logSection("bun global");
   const lockfile = join(HOME_DIR, ".bun/install/global/bun.lock");
   if (existsSync(lockfile)) Bun.file(lockfile).delete();
   Bun.spawnSync(["bun", "update", "-g"], { stdout: "inherit", stderr: "inherit" });
@@ -66,23 +65,23 @@ async function updateBunGlobal(check: boolean) {
 async function updateYarn(check: boolean) {
   if (!commandExists("yarn")) return;
   if (check) { logInfo("yarn: checking global packages…"); return; }
-  logSection("Yarn");
+  logSection("yarn");
   const lockfile = join(HOME_DIR, ".config/yarn/global/yarn.lock");
   if (existsSync(lockfile)) Bun.file(lockfile).delete();
-  Bun.spawnSync(["yarn", "global", "upgrade"], { stdout: "inherit", stderr: "inherit" });
+  Bun.spawnSync(["yarn", "global", "upgrade", "--latest"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updatePnpm(check: boolean) {
   if (!commandExists("pnpm")) return;
   if (check) { logInfo(`pnpm: ${getVersion("pnpm", ["--version"])}`); return; }
-  logSection("Pnpm");
-  Bun.spawnSync(["pnpm", "update", "-g"], { stdout: "inherit", stderr: "inherit" });
+  logSection("pnpm");
+  Bun.spawnSync(["pnpm", "update", "-g", "--latest"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updatePipx(check: boolean) {
   if (!commandExists("pipx")) return;
   if (check) { logInfo("pipx: listing packages…"); Bun.spawnSync(["pipx", "list"], { stdout: "inherit" }); return; }
-  logSection("Pipx");
+  logSection("pipx");
   Bun.spawnSync(["pipx", "upgrade-all"], { stdout: "inherit", stderr: "inherit" });
 }
 
@@ -93,20 +92,26 @@ async function updateCargo(check: boolean) {
     return;
   }
   if (check) { Bun.spawnSync(["cargo", "install-update", "--dry-run"], { stdout: "inherit" }); return; }
-  logSection("Cargo");
+  logSection("cargo");
   Bun.spawnSync(["cargo", "install-update", "-a"], { stdout: "inherit", stderr: "inherit" });
 }
 
 async function updateFnm(check: boolean) {
   if (!commandExists("cargo")) { logWarn("fnm: cargo not found, skipping"); return; }
   if (check) { logInfo(`fnm: ${getVersion("fnm", ["--version"])}`); return; }
+  const vBefore = getVersion("fnm", ["--version"]);
   logInfo("fnm: updating via cargo…");
   const fnmResult = Bun.spawnSync(["cargo", "install", "fnm"], { stdout: "pipe", stderr: "pipe" });
   if (fnmResult.exitCode !== 0) {
     process.stderr.write(fnmResult.stderr);
     logError("fnm: install failed");
   } else {
-    logSuccess("fnm: up to date");
+    const vAfter = getVersion("fnm", ["--version"]);
+    if (vBefore !== vAfter) {
+      logSuccess(`fnm: ${vBefore} → ${vAfter}`);
+    } else {
+      logSuccess(`fnm: up to date (${vAfter})`);
+    }
   }
 }
 
@@ -131,7 +136,8 @@ async function updateAnyzig(check: boolean) {
   Bun.spawnSync(["tar", "-xzf", tmpfile, "-C", join(HOME_DIR, ".local/bin")], { stdout: "pipe" });
   Bun.spawnSync(["chmod", "+x", zigPath]);
   Bun.spawnSync(["rm", "-f", tmpfile]);
-  logInfo("anyzig: updated");
+  const urlVer = url.match(/\/download\/(v[^/]+)\//)?.[1] ?? "";
+  logSuccess(`anyzig: updated${urlVer ? ` (${urlVer})` : ""}`);
 }
 
 async function updateLy(check: boolean) {
@@ -160,7 +166,7 @@ async function updateLy(check: boolean) {
       Bun.spawnSync(["git", "-C", lyDir, "rev-parse", "HEAD"], { stdout: "pipe" }).stdout
     ).trim();
 
-    logInfo("ly: updating…");
+    logInfo("ly: fetching…");
     Bun.spawnSync(["git", "-C", lyDir, "submodule", "update", "--init", "--recursive", "-q"], { stdout: "pipe" });
     Bun.spawnSync(["git", "-C", lyDir, "pull", "-q", "--ff-only"], { stdout: "pipe" });
 
@@ -172,7 +178,13 @@ async function updateLy(check: boolean) {
   }
 
   const lyInstalled = commandExists("ly") || existsSync("/usr/bin/ly");
-  if (!headChanged && lyInstalled) { logInfo("ly: up to date"); return; }
+  if (!headChanged && lyInstalled) {
+    const lyTag = new TextDecoder().decode(
+      Bun.spawnSync(["git", "-C", lyDir, "describe", "--tags", "--abbrev=0"], { stdout: "pipe", stderr: "pipe" }).stdout
+    ).trim();
+    logSuccess(`ly: up to date${lyTag ? ` (${lyTag})` : ""}`);
+    return;
+  }
 
   logInfo("ly: building…");
   const build = Bun.spawnSync([zigCmd, "build"], { cwd: lyDir, stdout: "pipe", stderr: "pipe" });
@@ -183,6 +195,8 @@ async function updateLy(check: boolean) {
   }
   const priv = commandExists("doas") ? "doas" : "sudo";
   Bun.spawnSync([priv, zigCmd, "build", "installnoconf"], { cwd: lyDir, stdout: "inherit", stderr: "inherit" });
+  const lyVer = getVersion("ly", ["-v"]);
+  logSuccess(`ly: ${lyVer || "installed"}`);
 }
 
 async function updateZinit(check: boolean) {
@@ -274,6 +288,7 @@ export const systemUpdateCommand = defineCommand({
   args: { check: checkFlag, ai: aiFlag },
   async run({ args, rawArgs }) {
     await withAI(rawArgs, "system", async () => {
+      logDesc("Updates system packages via xbps, then self-updates bun, deno, and rustup.");
       await updateXbps(args.check ?? false);
       await updatePacman(args.check ?? false);
       await updateFlatpak(args.check ?? false);
@@ -289,6 +304,7 @@ export const globalUpdateCommand = defineCommand({
   args: { check: checkFlag, ai: aiFlag },
   async run({ args, rawArgs }) {
     await withAI(rawArgs, "global", async () => {
+      logDesc("Updates global packages via npm, bun, yarn, pnpm, pipx, and cargo.");
       await updateNpm(args.check ?? false);
       await updateBunGlobal(args.check ?? false);
       await updateYarn(args.check ?? false);
@@ -304,7 +320,8 @@ export const sourceUpdateCommand = defineCommand({
   args: { check: checkFlag, ai: aiFlag },
   async run({ args, rawArgs }) {
     await withAI(rawArgs, "source", async () => {
-      logSection("Source-built tools");
+      logDesc("Builds and updates source tools: pkgbuilds, fnm, anyzig, ly, and zinit.");
+      logSection("source tools");
       await updateXbpsBuilds(args.check ?? false);
       await updateFnm(args.check ?? false);
       await updateAnyzig(args.check ?? false);
@@ -344,7 +361,7 @@ export const updateCommand = defineCommand({
         await updatePnpm(args.check ?? false);
         await updatePipx(args.check ?? false);
         await updateCargo(args.check ?? false);
-        logSection("Source-built tools");
+        logSection("source tools");
         await updateXbpsBuilds(args.check ?? false);
         await updateFnm(args.check ?? false);
         await updateAnyzig(args.check ?? false);

@@ -26,8 +26,11 @@ export function logSuccess(msg: string) {
   console.log(`  ${colors.green("✓")} ${msg}`);
 }
 export function logSection(msg: string) {
-  const dashes = "─".repeat(Math.max(4, 46 - msg.length));
-  console.log(`\n${colors.bold(colors.cyan(msg))} ${colors.dim(dashes)}`);
+  console.log(`\n${colors.dim("▸")} ${colors.bold(msg)}`);
+}
+
+export function logDesc(msg: string) {
+  console.log(`\n  ${colors.dim(msg)}`);
 }
 
 export function formatBytes(bytes: number): string {
@@ -46,7 +49,10 @@ export function commandExists(cmd: string): boolean {
 export function getVersion(cmd: string, args: string[]): string {
   try {
     const r = Bun.spawnSync([cmd, ...args], { stdout: "pipe", stderr: "pipe" });
-    return new TextDecoder().decode(r.stdout).trim();
+    return (
+      new TextDecoder().decode(r.stdout).trim() ||
+      new TextDecoder().decode(r.stderr).trim()
+    );
   } catch {
     return "unknown";
   }
