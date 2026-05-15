@@ -4,6 +4,7 @@ import { defineCommand, runMain } from "citty";
 import { linkCommand, unlinkCommand } from "./src/commands/link.ts";
 import { infoCommand, configureCommand, enableCommand, disableCommand } from "./src/commands/info.ts";
 import { updateCommand } from "./src/commands/update.ts";
+import { kernelCommand } from "./src/commands/kernel.ts";
 import { assetsCommand } from "./src/commands/assets.ts";
 import { docsCommand } from "./src/commands/docs.ts";
 import { toolsCommand } from "./src/commands/tools/index.ts";
@@ -21,6 +22,7 @@ const main = defineCommand({
     enable: enableCommand,
     disable: disableCommand,
     update: updateCommand,
+    kernel: kernelCommand,
     assets: assetsCommand,
     docs: docsCommand,
     tools: toolsCommand,
