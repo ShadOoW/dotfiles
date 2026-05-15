@@ -5,6 +5,7 @@
   "scripts": {
     "start": "bun dot.ts"
   },
+  "private": true,
   "dependencies": {
     "@clack/prompts": "^0.9.0",
     "citty": "^0.1.6"
