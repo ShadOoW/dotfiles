@@ -1,0 +1,9 @@
+# Tokyo Night
+color background          default   default
+color listnormal          default   default
+color listnormal_unread   color6    default  bold
+color listfocus           color15   color8
+color listfocus_unread    color15   color4   bold
+color title               color4    default  bold
+color info                color8    default
+color article             default   default
