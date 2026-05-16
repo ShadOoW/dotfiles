@@ -56,16 +56,27 @@ export type GitAsset = {
   sudo?: boolean;
 };
 
+export type MultiUrlAsset = {
+  kind: "multi-url";
+  name: string;
+  description: string;
+  urls: string[];
+  version: string;
+  installDir: string;
+  sudo?: boolean;
+  postInstall?: () => Promise<void>;
+};
+
 export type AssetDef =
   | ReleaseAsset
   | ReleaseTarballAsset
   | GitInstallerAsset
   | UrlAsset
-  | GitAsset;
+  | GitAsset
+  | MultiUrlAsset;
 
 const fontsDir = join(HOME_DIR, ".local/share/fonts");
 const iconsDir = join(HOME_DIR, ".local/share/icons");
-const themesDir = join(HOME_DIR, ".local/share/themes");
 const binDir = join(HOME_DIR, ".local/bin");
 
 const refreshFontCache = async () => {
@@ -98,6 +109,14 @@ export async function syncAsset(asset: AssetDef, latestVersion: string): Promise
     return;
   }
 
+  if (asset.kind === "multi-url") {
+    for (const url of asset.urls) {
+      await downloadAndExtract(url, asset.installDir, asset.sudo);
+    }
+    if (asset.postInstall) await asset.postInstall();
+    return;
+  }
+
   const release = await getLatestRelease(asset.repo);
   if (!release) throw new Error(`Could not fetch release for ${asset.repo}`);
 
@@ -111,6 +130,7 @@ export async function syncAsset(asset: AssetDef, latestVersion: string): Promise
 
   if (asset.postInstall) await asset.postInstall();
 }
+
 
 export const ASSETS: AssetDef[] = [
   {
@@ -132,12 +152,39 @@ export const ASSETS: AssetDef[] = [
     postInstall: refreshFontCache,
   },
   {
-    kind: "release",
+    kind: "url",
     name: "NotoSansCJK",
-    description: "Noto Serif CJK (Chinese, Japanese, Korean)",
-    repo: "notofonts/noto-cjk",
-    filePattern: /^01_NotoSerifCJK\.ttc\.zip$/i,
+    description: "Noto Sans CJK (Chinese, Japanese, Korean)",
+    downloadUrl: "https://github.com/notofonts/noto-cjk/releases/download/Sans2.004/00_NotoSansCJK.ttc.zip",
+    version: "Sans2.004",
     installDir: join(fontsDir, "NotoSansCJK"),
+    postInstall: refreshFontCache,
+  },
+  {
+    kind: "release",
+    name: "Inter",
+    description: "Inter variable font family",
+    repo: "rsms/inter",
+    filePattern: /^Inter-[\d.]+\.zip$/i,
+    installDir: join(fontsDir, "Inter"),
+    postInstall: refreshFontCache,
+  },
+  {
+    kind: "url",
+    name: "NotoColorEmoji",
+    description: "Noto Color Emoji",
+    downloadUrl: "https://raw.githubusercontent.com/googlefonts/noto-emoji/v2.051/fonts/NotoColorEmoji.ttf",
+    version: "v2.051",
+    installDir: join(fontsDir, "NotoColorEmoji"),
+    postInstall: refreshFontCache,
+  },
+  {
+    kind: "url",
+    name: "NotoSansArabic",
+    description: "Noto Sans Arabic (all weights and widths)",
+    downloadUrl: "https://github.com/notofonts/arabic/releases/download/NotoSansArabic-v2.013/NotoSansArabic-v2.013.zip",
+    version: "NotoSansArabic-v2.013",
+    installDir: join(fontsDir, "NotoSansArabic"),
     postInstall: refreshFontCache,
   },
   {

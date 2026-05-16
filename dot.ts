@@ -1,8 +1,7 @@
 #!/usr/bin/env bun
 
 import { defineCommand, runMain } from "citty";
-import { linkCommand, unlinkCommand } from "./src/commands/link.ts";
-import { infoCommand, configureCommand, enableCommand, disableCommand } from "./src/commands/info.ts";
+import { pkgCommand } from "./src/commands/pkg.ts";
 import { updateCommand } from "./src/commands/update.ts";
 import { kernelCommand } from "./src/commands/kernel.ts";
 import { assetsCommand } from "./src/commands/assets.ts";
@@ -15,12 +14,7 @@ const main = defineCommand({
     description: "Dotfiles manager — link packages, update system, sync assets, run tools",
   },
   subCommands: {
-    link: linkCommand,
-    unlink: unlinkCommand,
-    info: infoCommand,
-    configure: configureCommand,
-    enable: enableCommand,
-    disable: disableCommand,
+    pkg: pkgCommand,
     update: updateCommand,
     kernel: kernelCommand,
     assets: assetsCommand,
