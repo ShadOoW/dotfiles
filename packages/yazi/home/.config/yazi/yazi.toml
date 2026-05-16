@@ -11,14 +11,17 @@ scrolloff = 5
 mouse_events = ["click", "scroll"]
 title_format = "yazi: {cwd}"
 
+[manager]
+cache_dir = "~/.cache/yazi"
+
 [preview]
 wrap = "no"
 tab_size = 2
-max_width = 1800
-max_height = 2400
+max_width = 600
+max_height = 600
 image_delay = 20
 image_filter = "lanczos3"
-image_quality = 90
+image_quality = 70
 
 [tasks]
 micro_workers = 10
